@@ -1,0 +1,22 @@
+{
+  "name": "dashy-server",
+  "version": "0.0.1",
+  "description": "Dashy.io Server",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dashy-io/dashy-server"
+  },
+  "author": "Marco Bettiolo <marco@bettiolo.it>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dashy-io/dashy-server/issues"
+  },
+  "homepage": "https://github.com/dashy-io/dashy-server",
+  "dependencies": {
+    "express": "^4.10.4"
+  }
+}
