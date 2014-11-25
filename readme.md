@@ -1,4 +1,8 @@
-## GET /config?token=UUID
+dashy-server
+============
+Dashboard Management Platform - Server module
+
+### GET /config?token=UUID
 Load config for dashy-client
 
 If no config present:
@@ -17,8 +21,8 @@ If config present:
 }
 ```
 
-## POST /claim/SHORT-CODE
+### POST /claim/SHORT-CODE
 Claims a dashy-client and connects it to a user's account
     
-## POST /config?token=UUID
+### POST /config?token=UUID
 Set config for a specific dashy-client
