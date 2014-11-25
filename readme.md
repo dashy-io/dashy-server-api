@@ -1,20 +1,24 @@
+# GET /config?token=UUID
 Load config for dashy-client
-    GET /config?token=UUID
 
 If no config present:
-    {
-        'short_code': 'SHORT-CODE'
-    }
+```js
+{
+    'short_code': 'SHORT-CODE'
+}
+```
 
 If config present:
-    {
-        'urls': [
-            'http://example.com'
-        ]
-    }
+```js
+{
+    'urls': [
+        'http://example.com'
+    ]
+}
+```
 
-Claim a dashy-client to user's account
-    /claim?code=SHORT-CODE
-
-Set config for dashy-client
-    POST /config?token=UUID
+# POST /claim/SHORT-CODE
+Claims a dashy-client and connects it to a user's account
+    
+# POST /config?token=UUID
+Set config for a specific dashy-client
