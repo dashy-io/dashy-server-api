@@ -1,4 +1,4 @@
-var logInfo = require('debug')('app');
+var log = require('debug')('app');
 var logError = require('debug')('app:error');
 var app = require('express')();
 
@@ -15,6 +15,7 @@ app.use('/', require('./routes/api'));
 app.use(function (req, res, next) {
   var err = new Error('Not found');
   err.status = 404;
+  err.url = req.url;
   next(err);
 });
 
@@ -31,7 +32,7 @@ app.use(function (err, req, res, next) {
       errorResponse[propertyName] = err[propertyName];
     }
   }
-  logError('Unhandled error:  + errorCode');
+  logError('Unhandled error: ' + errorCode);
   logError(errorResponse);
   res.status(errorCode);
   res.json(errorResponse);
