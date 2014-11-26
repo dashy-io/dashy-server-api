@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/dashy-io/dashy-server",
   "dependencies": {
+    "debug": "^2.1.0",
     "express": "^4.10.4"
   }
 }
