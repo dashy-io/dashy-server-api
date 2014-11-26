@@ -7,8 +7,8 @@ Dashboard Management Platform - Server API
 ### GET /status
 Returns 200 OK
 
-### GET /config?token=UUID
-Load config for dashy-client
+### GET /dashboard/:id
+Returns dashboard by id
 
 If no config present:
 ```js
@@ -20,14 +20,15 @@ If no config present:
 If config present:
 ```js
 {
+    'interval: 60
     'urls': [
         'http://example.com'
     ]
 }
 ```
 
-### POST /claim/SHORT-CODE
-Claims a dashy-client and connects it to a user's account
-    
-### POST /config?token=UUID
-Set config for a specific dashy-client
+### POST /dashboard/:id
+Saves dashboard
+
+### POST /claim/:short-code
+Claims a dashboard and connects it to a user's account
