@@ -1,6 +1,6 @@
-dashy-server
-============
-Dashboard Management Platform - Server module
+dashy-server-api
+================
+Dashboard Management Platform - Server API
 
 ### GET /config?token=UUID
 Load config for dashy-client
