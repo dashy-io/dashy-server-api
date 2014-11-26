@@ -2,6 +2,8 @@ dashy-server-api
 ================
 Dashboard Management Platform - Server API
 
+[![Codeship Status for dashy-io/dashy-server-api](https://codeship.com/projects/669bc9e0-5795-0132-c62d-2aedc25d7739/status)](https://codeship.com/projects/49856)
+
 ### GET /status
 Returns 200 OK
 
