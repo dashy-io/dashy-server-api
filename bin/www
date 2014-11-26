@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+var log = require('debug')('app');
+var config = require('../config');
+var app = require('../app');
+
+app.set('port', config.port);
+
+var server = app.listen(app.get('port'), function () {
+	log('Server listening on port ' + server.address().port);
+});
