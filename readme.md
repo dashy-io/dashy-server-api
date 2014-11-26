@@ -2,6 +2,9 @@ dashy-server-api
 ================
 Dashboard Management Platform - Server API
 
+### GET /status
+Returns 200 OK
+
 ### GET /config?token=UUID
 Load config for dashy-client
 
