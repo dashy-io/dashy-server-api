@@ -13,7 +13,7 @@ app.use(function (req, res, next) {
 app.use('/', require('./routes/api'));
 
 app.use(function (req, res, next) {
-  var err = new Error('Not found');
+  var err = new Error('Not Found');
   err.status = 404;
   err.url = req.url;
   next(err);
