@@ -10,4 +10,34 @@ router.get('/status', function(req, res) {
   });
 });
 
+router.get('/dashboard/:id', function(req, res, next) {
+  var id = req.params.id;
+  var dashboard = {
+    interval: 60
+  };
+  switch (id) {
+    case '5940ad23-d2c6-42f8-8318-974258294778':
+      dashboard.urls = [
+        'http://citydashboard.org/london/',
+        'http://www.casa.ucl.ac.uk/cumulus/ipad.html',
+        'http://www.gridwatch.templar.co.uk/',
+        'http://www.casa.ucl.ac.uk/weather/colours.html'
+      ];
+      break;
+    case 'e6e02fd1-6ed3-45d3-b1a7-de4fe3d32906':
+      dashboard.urls = [
+        'http://s3-eu-west-1.amazonaws.com/mattia.test/community-messages/index.html',
+        'http://s3-eu-west-1.amazonaws.com/mattia.test/flex_desks/1FlexShow.html'
+      ];
+      break;
+    default:
+      var notFoundError = new Error('Dashboard Not Found');
+      notFoundError.status = 404;
+      next(notFoundError);
+      return;
+  }
+  res.status(200);
+  res.json(dashboard);
+});
+
 module.exports = router;
