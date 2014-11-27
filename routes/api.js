@@ -10,7 +10,7 @@ router.get('/status', function(req, res) {
   });
 });
 
-router.get('/dashboard/:id', function(req, res, next) {
+router.get('/dashboards/:id', function(req, res, next) {
   var id = req.params.id;
   var dashboard = {
     interval: 60
