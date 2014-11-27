@@ -16,7 +16,7 @@ router.get('/dashboard/:id', function(req, res, next) {
     interval: 60
   };
   switch (id) {
-    case '5940ad23-d2c6-42f8-8318-974258294778':
+    case 'test':
       dashboard.interval = 15;
       dashboard.urls = [
         'http://citydashboard.org/london/',
