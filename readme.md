@@ -30,5 +30,11 @@ If config present:
 ### POST /dashboards/:id
 Saves dashboard
 
-### POST /claim/:short-code
+### POST /user/:user-id/claim/:dashboad-short-code
 Claims a dashboard and connects it to a user's account
+
+### GET /user/:user-id
+Returns user details and associated dashboard
+
+### POST /user/:user-id
+Sets user details
