@@ -13,15 +13,15 @@ Returns dashboard by id
 If no config present:
 ```js
 {
-    'short_code': 'SHORT-CODE'
+    'short_code' : 'SHORT-CODE'
 }
 ```
 
 If config present:
 ```js
 {
-    'interval: 60
-    'urls': [
+    'interval' : 60
+    'urls' : [
         'http://example.com'
     ]
 }
