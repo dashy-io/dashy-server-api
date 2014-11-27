@@ -17,6 +17,7 @@ router.get('/dashboard/:id', function(req, res, next) {
   };
   switch (id) {
     case '5940ad23-d2c6-42f8-8318-974258294778':
+      dashboard.interval = 15;
       dashboard.urls = [
         'http://citydashboard.org/london/',
         'http://www.casa.ucl.ac.uk/cumulus/ipad.html',
