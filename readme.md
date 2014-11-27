@@ -16,10 +16,14 @@ Returns dashboard by id
 If dashboard is configured:
 ```js
 {
-    'interval' : 60
-    'urls' : [
-        'http://example.com'
-    ]
+  "interval" : 15,
+  "name" : "Test Dashboard",
+  "urls" : [ 
+    "http://citydashboard.org/london/",
+    "http://www.casa.ucl.ac.uk/cumulus/ipad.html",
+    "http://www.gridwatch.templar.co.uk/",
+    "http://www.casa.ucl.ac.uk/weather/colours.html"
+  ]
 }
 ```
 Example: http://api.dashy.io/dashboards/test
@@ -40,7 +44,15 @@ Claims a dashboard and connects it to a user's account
 
 ### GET /user/:user-id
 Returns user details and associated dashboard
-
+```js
+{
+  "id" : "test-user",
+  "name" : "Test User",
+  "dashboards": [ 
+    "test" 
+  ]
+}
+```
 Example: http://api.dashy.io/user/test-user
 
 ### POST /user/:user-id
