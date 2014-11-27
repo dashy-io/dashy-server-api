@@ -7,7 +7,7 @@ Dashboard Management Platform - Server API
 ### GET /status
 Returns 200 OK
 
-### GET /dashboard/:id
+### GET /dashboards/:id
 Returns dashboard by id
 
 If no config present:
@@ -27,7 +27,7 @@ If config present:
 }
 ```
 
-### POST /dashboard/:id
+### POST /dashboards/:id
 Saves dashboard
 
 ### POST /claim/:short-code
