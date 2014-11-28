@@ -36,8 +36,8 @@ If dashboad not configured:
 ```
 Example: http://api.dashy.io/dashboards/test-bad
 
-### POST /dashboards/:dashboard-id
-Saves dashboard
+### PUT /dashboards/:dashboard-id
+Saves dashboard configuration
 
 ### POST /users/:user-id/claims/
 Claims a dashboard by providing a SHORT-CODE and connects it to a user's account
