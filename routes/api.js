@@ -1,4 +1,5 @@
 var express = require('express');
+var dataStore = require('../lib/parseDataStore');
 
 var router = express.Router();
 var app = express();
@@ -12,35 +13,20 @@ router.get('/status', function(req, res) {
 
 router.get('/dashboards/:id', function(req, res, next) {
   var id = req.params.id;
-  var dashboard = {
-    interval : 60
-  };
-  switch (id) {
-    case 'test':
-      dashboard.name = 'Test Dashboard';
-      dashboard.interval = 15;
-      dashboard.urls = [
-        'http://citydashboard.org/london/',
-        'http://www.casa.ucl.ac.uk/cumulus/ipad.html',
-        'http://www.gridwatch.templar.co.uk/',
-        'http://www.casa.ucl.ac.uk/weather/colours.html'
-      ];
-      break;
-    case 'e6e02fd1-6ed3-45d3-b1a7-de4fe3d32906':
-      dashboard.name = 'TechHub';
-      dashboard.urls = [
-        'http://s3-eu-west-1.amazonaws.com/mattia.test/community-messages/index.html',
-        'http://s3-eu-west-1.amazonaws.com/mattia.test/flex_desks/1FlexShow.html'
-      ];
-      break;
-    default:
+  dataStore.getDashboard(id, function(err, dashboard) {
+    if (err) {
+      next(err);
+      return;
+    }
+    if (!dashboard) {
       var notFoundError = new Error('Dashboard Not Found');
       notFoundError.status = 404;
       next(notFoundError);
       return;
-  }
-  res.status(200);
-  res.json(dashboard);
+    }
+    res.status(200);
+    res.json(dashboard);
+  });
 });
 
 router.put('/dashboards/:id', function(req, res, next) {
@@ -48,7 +34,18 @@ router.put('/dashboards/:id', function(req, res, next) {
   res.json(req.body);
 });
 
-router.get('/users/:id', function(req, res, next) {
+router.post('/dashboards', function (req, res, next) {
+  dataStore.createDashboard(req.body, function(err, data) {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.status(201);
+    res.json(data);
+  });
+});
+
+router.get('/users/:id', function (req, res, next) {
   var id = req.params.id;
   var user = {
     id : id
