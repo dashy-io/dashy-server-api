@@ -3,3 +3,4 @@
 /npm-debug.log
 /app.log
 /app.pid
+.DS_Store
