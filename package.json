@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/dashy-io/dashy-server",
   "dependencies": {
+    "body-parser": "^1.9.3",
     "debug": "^2.1.0",
     "express": "^4.10.4",
     "nodemon": "^1.2.1"
