@@ -43,6 +43,11 @@ router.get('/dashboards/:id', function(req, res, next) {
   res.json(dashboard);
 });
 
+router.put('/dashboards/:id', function(req, res, next) {
+  res.status(200);
+  res.json(req.body);
+});
+
 router.get('/users/:id', function(req, res, next) {
   var id = req.params.id;
   var user = {
