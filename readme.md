@@ -16,6 +16,7 @@ Returns dashboard by id
 If dashboard is configured:
 ```js
 {
+  "id" : "test-dashboard",
   "interval" : 15,
   "name" : "Test Dashboard",
   "urls" : [
@@ -26,7 +27,7 @@ If dashboard is configured:
   ]
 }
 ```
-Example: http://api.dashy.io/dashboards/test
+Example: http://api.dashy.io/dashboards/test-dashboard
 
 If dashboad not configured:
 ```js
@@ -39,6 +40,9 @@ Example: http://api.dashy.io/dashboards/test-bad
 ### PUT /dashboards/:dashboard-id
 Saves dashboard configuration
 
+### POST /dashboards/
+Creates a new dashboard
+
 ### POST /users/:user-id/claims/
 Claims a dashboard by providing a SHORT-CODE and connects it to a user's account
 
@@ -49,7 +53,7 @@ Returns user details and associated dashboard
   "id" : "test-user",
   "name" : "Test User",
   "dashboards": [
-    "test"
+    "test-dashboard"
   ]
 }
 ```
