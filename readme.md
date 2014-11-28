@@ -18,7 +18,7 @@ If dashboard is configured:
 {
   "interval" : 15,
   "name" : "Test Dashboard",
-  "urls" : [ 
+  "urls" : [
     "http://citydashboard.org/london/",
     "http://www.casa.ucl.ac.uk/cumulus/ipad.html",
     "http://www.gridwatch.templar.co.uk/",
@@ -39,21 +39,21 @@ Example: http://api.dashy.io/dashboards/test-bad
 ### POST /dashboards/:dashboard-id
 Saves dashboard
 
-### POST /user/:user-id/claim/:dashboad-short-code
-Claims a dashboard and connects it to a user's account
+### POST /users/:user-id/claims/
+Claims a dashboard by providing a SHORT-CODE and connects it to a user's account
 
-### GET /user/:user-id
+### GET /users/:user-id
 Returns user details and associated dashboard
 ```js
 {
   "id" : "test-user",
   "name" : "Test User",
-  "dashboards": [ 
-    "test" 
+  "dashboards": [
+    "test"
   ]
 }
 ```
-Example: http://api.dashy.io/user/test-user
+Example: http://api.dashy.io/users/test-user
 
-### POST /user/:user-id
+### POST /users/:user-id
 Sets user details
