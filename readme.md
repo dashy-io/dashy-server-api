@@ -43,9 +43,6 @@ Saves dashboard configuration
 ### POST /dashboards/
 Creates a new dashboard
 
-### POST /users/:user-id/claims/
-Claims a dashboard by providing a SHORT-CODE and connects it to a user's account.
-
 **Note:** Content-Type must be set to application/json.
 
 ```bash
@@ -63,6 +60,9 @@ curl -X POST -H 'Content-Type: application/json' http://localhost:3001/dashboard
 }
 EOF
 ```
+
+### POST /users/:user-id/claims/
+Claims a dashboard by providing a SHORT-CODE and connects it to a user's account.
 
 ### GET /users/:user-id
 Returns user details and associated dashboard
