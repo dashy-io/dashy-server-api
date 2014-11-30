@@ -44,7 +44,25 @@ Saves dashboard configuration
 Creates a new dashboard
 
 ### POST /users/:user-id/claims/
-Claims a dashboard by providing a SHORT-CODE and connects it to a user's account
+Claims a dashboard by providing a SHORT-CODE and connects it to a user's account.
+
+**Note:** Content-Type must be set to application/json.
+
+```bash
+curl -X POST -H 'Content-Type: application/json' http://localhost:3001/dashboards -d @- << EOF
+{
+  "id" : "test-dashboard",
+  "interval" : 15,
+  "name" : "Test Dashboard",
+  "urls" : [
+    "http://citydashboard.org/london/",
+    "http://www.casa.ucl.ac.uk/cumulus/ipad.html",
+    "http://www.gridwatch.templar.co.uk/",
+    "http://www.casa.ucl.ac.uk/weather/colours.html"
+  ]
+}
+EOF
+```
 
 ### GET /users/:user-id
 Returns user details and associated dashboard
