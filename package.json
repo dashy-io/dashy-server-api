@@ -4,8 +4,9 @@
   "description": "Dashy.io Server",
   "main": "app.js",
   "scripts": {
-    "start": "DEBUG=app,app:* nodemon --ignore public/ --ignore views/ ./bin/www",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "DEBUG=app,app:* nodemon ./bin/www",
+    "test": "NODE_ENV=test mocha --reporter spec tests/*.tests.js",
+    "test-w": "NODE_ENV=test nodemon -x 'npm test'"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,9 @@
     "express": "^4.10.4",
     "nodemon": "^1.2.1",
     "parse": "^1.3.0"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.0.1"
   }
 }
