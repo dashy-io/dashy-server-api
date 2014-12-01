@@ -12,6 +12,9 @@ Example: http://api.dashy.io/status
 
 ### GET /dashboards/:dashboard-id
 Returns dashboard by id
+```bash
+curl http://api.dashy.io/dashboards/test-dashboard
+```
 
 If dashboard is configured:
 ```js
@@ -40,13 +43,28 @@ Example: http://api.dashy.io/dashboards/test-bad
 ### PUT /dashboards/:dashboard-id
 Saves dashboard configuration
 
+```bash
+curl -X PUT -H 'Content-Type: application/json' http://api.dashy.io/dashboards/test-dashboard -d @- << EOF
+{
+  "interval" : 15,
+  "name" : "Test Dashboard",
+  "urls" : [
+    "http://citydashboard.org/london/",
+    "http://www.casa.ucl.ac.uk/cumulus/ipad.html",
+    "http://www.gridwatch.templar.co.uk/",
+    "http://www.casa.ucl.ac.uk/weather/colours.html"
+  ]
+}
+EOF
+```
+
 ### POST /dashboards/
 Creates a new dashboard
 
 **Note:** Content-Type must be set to application/json.
 
 ```bash
-curl -X POST -H 'Content-Type: application/json' http://localhost:3001/dashboards -d @- << EOF
+curl -X POST -H 'Content-Type: application/json' http://api.dashy.io/dashboards -d @- << EOF
 {
   "id" : "test-dashboard",
   "interval" : 15,

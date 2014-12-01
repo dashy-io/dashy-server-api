@@ -30,18 +30,25 @@ router.get('/dashboards/:id', function(req, res, next) {
 });
 
 router.put('/dashboards/:id', function(req, res, next) {
-  res.status(200);
-  res.json(req.body);
+  var id = req.params.id;
+  dataStore.updateDashboard(id, req.body, function(err, dashboard) {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.status(200);
+    res.json(dashboard);
+  });
 });
 
 router.post('/dashboards', function (req, res, next) {
-  dataStore.createDashboard(req.body, function(err, data) {
+  dataStore.createDashboard(req.body, function(err, dashboard) {
     if (err) {
       next(err);
       return;
     }
     res.status(201);
-    res.json(data);
+    res.json(dashboard);
   });
 });
 
