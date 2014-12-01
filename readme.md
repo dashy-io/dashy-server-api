@@ -6,17 +6,27 @@ Dashboard Management Platform - Server API
 
 ### GET /status
 
-Returns 200 OK
+Status check.
+
+Returns:
+ - `200 OK` if the system is working
 
 Example: http://api.dashy.io/status
 
 ### GET /dashboards/:dashboard-id
-Returns dashboard by id
+
+Returns a dashboard if it exists or a short-code.
+
+Returns:
+ - `200 OK` if the dashboard exists
+ - `200 OK` if the dashboard was not found
+
+Example: http://api.dashy.io/dashboards/test-dashboard
 ```bash
 curl http://api.dashy.io/dashboards/test-dashboard
 ```
 
-If dashboard is configured:
+Dashboard exists example: http://api.dashy.io/dashboards/test-dashboard
 ```js
 {
   "id" : "test-dashboard",
@@ -30,19 +40,24 @@ If dashboard is configured:
   ]
 }
 ```
-Example: http://api.dashy.io/dashboards/test-dashboard
 
-If dashboad not configured:
+Dashboard not found example: http://api.dashy.io/dashboards/test-bad
 ```js
 {
     'short_code' : 'SHORT-CODE'
 }
 ```
-Example: http://api.dashy.io/dashboards/test-bad
 
 ### PUT /dashboards/:dashboard-id
-Saves dashboard configuration
+Updates an existing dashboard
 
+**Note:** Content-Type must be set to application/json.
+
+Returns:
+ - `200 OK` if the dashboard was updated
+ - `404 Not Found` if the dashboard was not found
+
+Example:
 ```bash
 curl -X PUT -H 'Content-Type: application/json' http://api.dashy.io/dashboards/test-dashboard -d @- << EOF
 {
@@ -58,15 +73,21 @@ curl -X PUT -H 'Content-Type: application/json' http://api.dashy.io/dashboards/t
 EOF
 ```
 
-### POST /dashboards/
+### POST /dashboards
+
 Creates a new dashboard
 
 **Note:** Content-Type must be set to application/json.
 
+Returns:
+ - `201 Created` If a new dashboard was created
+ - `409 Conflict` If a dashboard with the same ID already exist
+
+Example:
 ```bash
 curl -X POST -H 'Content-Type: application/json' http://api.dashy.io/dashboards -d @- << EOF
 {
-  "id" : "test-dashboard",
+  "id" : "test-dashboard-1",
   "interval" : 15,
   "name" : "Test Dashboard",
   "urls" : [
@@ -79,11 +100,28 @@ curl -X POST -H 'Content-Type: application/json' http://api.dashy.io/dashboards 
 EOF
 ```
 
-### POST /users/:user-id/claims/
+### DELETE /dashboards/:dashboard-id
+
+Deletes a dashboard
+
+Returns:
+ - `204 No Content` If the dashboard was deleted
+ - `404 Not Found` If the dashboard was not found
+
+### WIP: POST /users/:user-id/claims/
+
 Claims a dashboard by providing a SHORT-CODE and connects it to a user's account.
 
-### GET /users/:user-id
+Example:
+```bash
+curl -X DELETE http://api.dashy.io/test-dashboard-1
+```
+
+### WIP: GET /users/:user-id
+
 Returns user details and associated dashboard
+
+Example: http://api.dashy.io/users/test-user
 ```js
 {
   "id" : "test-user",
@@ -93,7 +131,7 @@ Returns user details and associated dashboard
   ]
 }
 ```
-Example: http://api.dashy.io/users/test-user
 
-### POST /users/:user-id
+### WIP: POST /users/:user-id
+
 Sets user details
