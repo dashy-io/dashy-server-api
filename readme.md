@@ -48,31 +48,6 @@ Dashboard not found example: http://api.dashy.io/dashboards/test-bad
 }
 ```
 
-### PUT /dashboards/:dashboard-id
-Updates an existing dashboard
-
-**Note:** Content-Type must be set to application/json.
-
-Returns:
- - `200 OK` if the dashboard was updated
- - `404 Not Found` if the dashboard was not found
-
-Example:
-```bash
-curl -X PUT -H 'Content-Type: application/json' http://api.dashy.io/dashboards/test-dashboard -d @- << EOF
-{
-  "interval" : 15,
-  "name" : "Test Dashboard",
-  "urls" : [
-    "http://citydashboard.org/london/",
-    "http://www.casa.ucl.ac.uk/cumulus/ipad.html",
-    "http://www.gridwatch.templar.co.uk/",
-    "http://www.casa.ucl.ac.uk/weather/colours.html"
-  ]
-}
-EOF
-```
-
 ### POST /dashboards
 
 Creates a new dashboard
@@ -88,6 +63,31 @@ Example:
 curl -X POST -H 'Content-Type: application/json' http://api.dashy.io/dashboards -d @- << EOF
 {
   "id" : "test-dashboard-1",
+  "interval" : 15,
+  "name" : "Test Dashboard",
+  "urls" : [
+    "http://citydashboard.org/london/",
+    "http://www.casa.ucl.ac.uk/cumulus/ipad.html",
+    "http://www.gridwatch.templar.co.uk/",
+    "http://www.casa.ucl.ac.uk/weather/colours.html"
+  ]
+}
+EOF
+```
+
+### PUT /dashboards/:dashboard-id
+Updates an existing dashboard
+
+**Note:** Content-Type must be set to application/json.
+
+Returns:
+ - `200 OK` if the dashboard was updated
+ - `404 Not Found` if the dashboard was not found
+
+Example:
+```bash
+curl -X PUT -H 'Content-Type: application/json' http://api.dashy.io/dashboards/test-dashboard -d @- << EOF
+{
   "interval" : 15,
   "name" : "Test Dashboard",
   "urls" : [
