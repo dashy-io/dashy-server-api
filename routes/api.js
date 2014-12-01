@@ -36,6 +36,12 @@ router.put('/dashboards/:id', function(req, res, next) {
       next(err);
       return;
     }
+    if (!dashboard) {
+      var conflictError = new Error('Cannot update Dashboard, a Dashboard with the specified ID does not exist');
+      conflictError.status = 404;
+      next(conflictError);
+      return;
+    }
     res.status(200);
     res.json(dashboard);
   });
@@ -45,6 +51,12 @@ router.post('/dashboards', function (req, res, next) {
   dataStore.createDashboard(req.body, function(err, dashboard) {
     if (err) {
       next(err);
+      return;
+    }
+    if (!dashboard) {
+      var conflictError = new Error('Cannot create a new Dashboard, a Dashboard with the specified ID already exists');
+      conflictError.status = 409;
+      next(conflictError);
       return;
     }
     res.status(201);
