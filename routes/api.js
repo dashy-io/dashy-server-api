@@ -52,6 +52,24 @@ router.post('/dashboards', function (req, res, next) {
   });
 });
 
+router.delete('/dashboards/:id', function(req, res, next) {
+  var id = req.params.id;
+  dataStore.deleteDashboard(id, function(err, deleted) {
+    if (err) {
+      next(err);
+      return;
+    }
+    if (!deleted) {
+      var notFoundError = new Error('Dashboard Not Found');
+      notFoundError.status = 404;
+      next(notFoundError);
+      return;
+    }
+    res.status(204);
+    res.end();
+  });
+});
+
 router.get('/users/:id', function (req, res, next) {
   var id = req.params.id;
   var user = {
