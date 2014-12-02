@@ -1,4 +1,5 @@
 'use strict';
+
 var uuid = require('node-uuid');
 var chai = require('chai');
 var parseDataStore = require('../lib/parseDataStore');
@@ -31,6 +32,7 @@ var testDashboard = {
 describe('Getting a dashboard', function () {
   it('returns a valid dashboard', function (done) {
     parseDataStore.getDashboard('test-dashboard', function(err, dashboard) {
+      if (err) { return done(err); }
       assert.deepEqual(dashboard, testDashboard);
       done();
     })
@@ -38,6 +40,7 @@ describe('Getting a dashboard', function () {
 
   it('does not return a non-existing dashboard', function (done) {
     parseDataStore.getDashboard('test-dashboard-bad', function(err, dashboard) {
+      if (err) { return done(err); }
       assert.isNull(dashboard);
       done();
     })
@@ -47,42 +50,35 @@ describe('Getting a dashboard', function () {
 describe('Creating a dashboard', function () {
   it('creates a new dashboard', function (done) {
     this.timeout(5000);
-    parseDataStore.createDashboard(newDashboard, function (err, dashboard) {
-      var newDashboardCopy = JSON.parse(JSON.stringify(newDashboard));
-      newDashboardCopy.id = dashboard.id;
-      assert.isString(dashboard.id);
-      assert.lengthOf(dashboard.id, 36);
-      assert.match(dashboard.id, /[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/);
-      assert.deepEqual(dashboard, newDashboardCopy);
+    var newDashboardClone = JSON.parse(JSON.stringify(newDashboard));
+    newDashboardClone.id = 'test-dashboard-' + uuid.v4();
+    parseDataStore.createDashboard(newDashboardClone, function (err, createdDashboard) {
+      if (err) { return done(err); }
+      assert.deepEqual(createdDashboard, newDashboardClone);
+      assert.startsWith(createdDashboard.id, 'test-dashboard-');
       done();
     });
   });
 
   it('does not overwrite an existing dashboard', function (done) {
     parseDataStore.createDashboard(testDashboard, function (err, dashboard) {
-      assert.isNull(dashboard);
+      assert.equal(err.message, 'DataStore error: A dashboard with the same ID exists');
+      assert.isUndefined(dashboard);
       done();
     })
   });
-
-  it('creates a dashboard with the requested id', function (done) {
-    var newDashboardCopy = JSON.parse(JSON.stringify(testDashboard));
-    newDashboardCopy.id += '-' + uuid.v4();
-    parseDataStore.createDashboard(newDashboardCopy, function (err, dashboard) {
-      assert.equal(dashboard.id, newDashboardCopy.id);
-      assert.startsWith(dashboard.id, testDashboard.id + '-');
-      done();
-    })
-  });
-
 });
 
 describe('Updating a dashboard', function () {
   it('updates a valid dashboard', function (done) {
     this.timeout(5000);
-    parseDataStore.createDashboard(newDashboard, function (err, createdDashboard) {
+    var newDashboardClone = JSON.parse(JSON.stringify(newDashboard));
+    newDashboardClone.id = 'test-dashboard-' + uuid.v4();
+    parseDataStore.createDashboard(newDashboardClone, function (err, createdDashboard) {
+      if (err) { return done(err); }
       createdDashboard.name += ' EDITED';
       parseDataStore.updateDashboard(createdDashboard.id, createdDashboard, function (err, updatedDashboard) {
+        if (err) { return done(err); }
         assert.endsWith(updatedDashboard.name, ' EDITED');
         done();
       });
@@ -92,6 +88,7 @@ describe('Updating a dashboard', function () {
   it('does not update a non-existing dashboard', function (done) {
     var nonExistingId = uuid.v4();
     parseDataStore.updateDashboard(nonExistingId, testDashboard, function (err, updatedDashboard) {
+      if (err) { return done(err); }
       assert.isNull(updatedDashboard);
       done();
     });
@@ -101,8 +98,12 @@ describe('Updating a dashboard', function () {
 describe('Deleting a dashboard', function () {
   it('deletes a valid dashboard', function (done) {
     this.timeout(5000);
-    parseDataStore.createDashboard(newDashboard, function (err, createdDashboard) {
-      parseDataStore.deleteDashboard(createdDashboard.id, function (err, deleted) {
+    var newDashboardClone = JSON.parse(JSON.stringify(newDashboard));
+    newDashboardClone.id = 'test-dashboard-' + uuid.v4();
+    parseDataStore.createDashboard(newDashboardClone, function (err, createdDashboard) {
+      if (err) { return done(err); }
+      parseDataStore.deleteDashboard(newDashboardClone.id, function (err, deleted) {
+        if (err) { return done(err); }
         assert.isTrue(deleted);
         done();
       });
@@ -111,6 +112,7 @@ describe('Deleting a dashboard', function () {
   it('does not delete a non-existing dashboard', function (done) {
     var nonExistingId = uuid.v4();
     parseDataStore.deleteDashboard(nonExistingId, function (err, deleted) {
+      if (err) { return done(err); }
       assert.isFalse(deleted);
       done();
     });
