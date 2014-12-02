@@ -1,3 +1,5 @@
+'use strict';
+
 var log = require('debug')('app');
 var logError = require('debug')('app:error');
 var app = require('express')();
@@ -32,6 +34,9 @@ app.use(function (err, req, res, next) {
   };
   for (var propertyName in err) {
     if (err.hasOwnProperty(propertyName)) {
+      if (propertyName === 'status') {
+        continue;
+      }
       errorResponse[propertyName] = err[propertyName];
     }
   }
