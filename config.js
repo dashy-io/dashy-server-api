@@ -1,3 +1,5 @@
+'use strict';
+
 function checkAndLoadEnvironment(name) {
   if (!process.env[name]) {
     throw new Error(name + ' environment variable not set!')
