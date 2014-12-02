@@ -1,5 +1,8 @@
+'use strict';
+
 var express = require('express');
 var dataStore = require('../lib/parseDataStore');
+var uuid = require('node-uuid');
 
 var router = express.Router();
 var app = express();
@@ -30,6 +33,12 @@ router.get('/dashboards/:id', function(req, res, next) {
 });
 
 router.put('/dashboards/:id', function(req, res, next) {
+  if (req.body.id) {
+    var conflictError = new Error('ID property MUST NOT be set in body');
+    conflictError.status = 409;
+    next(conflictError);
+    return;
+  }
   var id = req.params.id;
   dataStore.updateDashboard(id, req.body, function(err, dashboard) {
     if (err) {
@@ -37,7 +46,7 @@ router.put('/dashboards/:id', function(req, res, next) {
       return;
     }
     if (!dashboard) {
-      var conflictError = new Error('Cannot update Dashboard, a Dashboard with the specified ID does not exist');
+      var conflictError = new Error('Dashboard Not Found');
       conflictError.status = 404;
       next(conflictError);
       return;
@@ -48,19 +57,21 @@ router.put('/dashboards/:id', function(req, res, next) {
 });
 
 router.post('/dashboards', function (req, res, next) {
-  dataStore.createDashboard(req.body, function(err, dashboard) {
+  if (req.body.id) {
+    var conflictError = new Error('ID property MUST NOT be set in body');
+    conflictError.status = 409;
+    next(conflictError);
+    return;
+  }
+  var newDashboard = req.body;
+  newDashboard.id = uuid.v4();
+  dataStore.createDashboard(newDashboard, function(err, createdDashboard) {
     if (err) {
       next(err);
       return;
     }
-    if (!dashboard) {
-      var conflictError = new Error('Cannot create a new Dashboard, a Dashboard with the specified ID already exists');
-      conflictError.status = 409;
-      next(conflictError);
-      return;
-    }
     res.status(201);
-    res.json(dashboard);
+    res.json(createdDashboard);
   });
 });
 
