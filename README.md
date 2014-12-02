@@ -19,14 +19,14 @@ Returns a dashboard if it exists or a short-code.
 
 Returns:
  - `200 OK` if the dashboard exists
- - `200 OK` if the dashboard was not found
+ - `404 Not Found` if the dashboard was not found
 
 Example: http://api.dashy.io/dashboards/test-dashboard
 ```bash
 curl http://api.dashy.io/dashboards/test-dashboard
 ```
 
-Dashboard exists example: http://api.dashy.io/dashboards/test-dashboard
+Example: http://api.dashy.io/dashboards/test-dashboard
 ```js
 {
   "id" : "test-dashboard",
@@ -41,13 +41,6 @@ Dashboard exists example: http://api.dashy.io/dashboards/test-dashboard
 }
 ```
 
-Dashboard not found example: http://api.dashy.io/dashboards/test-bad
-```js
-{
-    'short_code' : 'SHORT-CODE'
-}
-```
-
 ### POST /dashboards
 
 Creates a new dashboard
@@ -56,13 +49,12 @@ Creates a new dashboard
 
 Returns:
  - `201 Created` If a new dashboard was created
- - `409 Conflict` If a dashboard with the same ID already exist
+ - `409 Conflict` If the posted json data contains an ID property
 
 Example:
 ```bash
 curl -X POST -H 'Content-Type: application/json' http://api.dashy.io/dashboards -d @- << EOF
 {
-  "id" : "test-dashboard-1",
   "interval" : 15,
   "name" : "Test Dashboard",
   "urls" : [
@@ -83,6 +75,7 @@ Updates an existing dashboard
 Returns:
  - `200 OK` if the dashboard was updated
  - `404 Not Found` if the dashboard was not found
+ - `409 Conflict` If the posted json data contains an ID property
 
 Example:
 ```bash
