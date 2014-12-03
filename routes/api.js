@@ -3,6 +3,7 @@
 var express = require('express');
 var dataStore = require('../lib/parseDataStore');
 var uuid = require('node-uuid');
+var randToken = require('rand-token');
 
 var router = express.Router();
 var app = express();
@@ -90,6 +91,16 @@ router.delete('/dashboards/:id', function(req, res, next) {
     }
     res.status(204);
     res.end();
+  });
+});
+
+router.get('/dashboards/:id/code', function (req, res, next) {
+  var id = req.params.id;
+  var code = randToken.generate(8);
+  res.status(200);
+  res.json({
+    id : id,
+    code: code
   });
 });
 

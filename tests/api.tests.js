@@ -174,3 +174,35 @@ describe('DELETE /dashboards/:dashboard-id', function () {
         .end(done);
   });
 });
+describe('GET /dashboards/:dashboard-id/code', function () {
+  it('returns a short code', function (done) {
+    var newDashboardId = 'test-dashboard-' + uuid.v4();
+    request(app)
+      .get('/dashboards/' + newDashboardId + '/code')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) { return done(err); }
+        assert.equal(res.body.id, newDashboardId);
+        assert.lengthOf(res.body.code, 8);
+        done();
+      });
+  });
+  it('multiple calls return the same short code', function (done) {
+    var newDashboardId = 'test-dashboard-' + uuid.v4();
+    var shortCode = '';
+    request(app)
+      .get('/dashboards/' + newDashboardId + '/code')
+      .end(function (err, res) {
+        if (err) { return done(err); }
+        shortCode = res.body.code;
+        request(app)
+          .get('/dashboards/' + newDashboardId + '/code')
+          .expect(200)
+          .end(function (err, res) {
+            if (err) { return done(err); }
+            assert.equal(res.body.code, shortCode);
+            done();
+          });
+      });
+  });
+});
