@@ -119,7 +119,8 @@ router.get('/users/:id', function (req, res, next) {
     case 'cc1f2ba3-1a19-44f2-ae78-dc9784a2a60f':
       user.name = 'TechHub User';
       user.dashboards = [
-        'e6e02fd1-6ed3-45d3-b1a7-de4fe3d32906'
+        'e6e02fd1-6ed3-45d3-b1a7-de4fe3d32906',
+        '9a173bac-a95c-4c89-95ef-3964c681f168'
       ];
       break;
     default:
