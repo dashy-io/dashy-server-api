@@ -6,10 +6,12 @@ var chai = require('chai');
 var chaiString = require('chai-string');
 
 var app = require('../app');
+var dataStore = require('../lib/parseDataStore');
 request = request(app);
 var assert = chai.assert;
 chai.use(chaiString);
 
+var dashboardsToCleanup = [];
 function newDashboardId() {
   var newDashboardId = 'test-dashboard-' + uuid.v4()
   dashboardsToCleanup.push(newDashboardId);
@@ -29,9 +31,20 @@ function getDashboardUpdate() {
   }
 }
 
-var dashboardsToCleanup = [];
-after('Cleanup', function (done) {
-  done();
+after('API Cleanup', function (done) {
+  var deletedCount = 0;
+  console.log('Cleaning up (API)...');
+  console.log(dashboardsToCleanup);
+  dashboardsToCleanup.forEach(function (id) {
+    dataStore.deleteDashboard(id, function(err, deleted) {
+      if (err) { console.log(err); }
+      deletedCount++;
+      if (deletedCount === dashboardsToCleanup.length) {
+        console.log('Done.');
+        done();
+      }
+    });
+  });
 });
 
 describe('GET ~/status', function () {
@@ -179,7 +192,7 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
     var newId = newDashboardId();
     request.delete('/dashboards/' + newId)
       .expect(404)
-      .expect({ message: 'Dashboard(s) not found: ' + newId })
+      .expect({ message: 'Dashboard not found'})
       .end(done);
   });
   it('deletes a valid dashboard', function (done) {
@@ -189,34 +202,6 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
         .expect(204)
         .expect('')
         .end(done);
-    });
-  });
-  it('deletes multiple dashboards from body', function (done) {
-    this.timeout(5000);
-    postDashboard(function(err, createdDashboard) {
-      if (err) { return done(err); }
-      postDashboard(function(err, createdDashboard2) {
-        if (err) { return done(err); }
-        request.delete('/dashboards')
-          .send([ createdDashboard.id, createdDashboard2.id ])
-          .expect(204)
-          .expect('')
-          .end(done);
-      });
-    });
-  });
-  it('deletes multiple dashboards from url and body', function (done) {
-    this.timeout(5000);
-    postDashboard(function(err, createdDashboard) {
-      if (err) { return done(err); }
-      postDashboard(function(err, createdDashboard2) {
-        if (err) { return done(err); }
-        request.delete('/dashboards/' + createdDashboard.id)
-          .send([ createdDashboard2.id ])
-          .expect(204)
-          .expect('')
-          .end(done);
-      });
     });
   });
 });
