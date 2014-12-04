@@ -15,9 +15,9 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use('/', require('./routes/status'));
-app.use('/', require('./routes/dashboards'));
-app.use('/', require('./routes/api'));
+app.use('/', require('./endpoints/status'));
+app.use('/', require('./endpoints/dashboards'));
+app.use('/', require('./endpoints/users'));
 
 app.use(function (req, res, next) {
   var err = new Error('Not Found');
