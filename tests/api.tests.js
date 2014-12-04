@@ -10,6 +10,12 @@ request = request(app);
 var assert = chai.assert;
 chai.use(chaiString);
 
+function newDashboardId() {
+  var newDashboardId = 'test-dashboard-' + uuid.v4()
+  dashboardsToCleanup.push(newDashboardId);
+  return newDashboardId;
+}
+
 function getDashboardUpdate() {
   return {
     interval: 15,
@@ -21,12 +27,6 @@ function getDashboardUpdate() {
       "http://www.casa.ucl.ac.uk/weather/colours.html"
     ]
   }
-}
-
-function newDashboardId() {
-  var newDashboardId = 'test-dashboard-' + uuid.v4()
-  dashboardsToCleanup.push(newDashboardId);
-  return newDashboardId;
 }
 
 var dashboardsToCleanup = [];
