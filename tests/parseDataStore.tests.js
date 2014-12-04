@@ -7,9 +7,12 @@ var parseDataStore = require('../lib/parseDataStore');
 var assert = chai.assert;
 chai.use(chaiString);
 
+var dashboardsToCleanup = [];
 function createDashboard() {
+  var newId = 'test-dashboard-' + uuid.v4();
+  dashboardsToCleanup.push(newId);
   return {
-    id : 'test-dashboard-' + uuid.v4(),
+    id : newId,
     code : "12345678",
     interval: 15,
     name: "Test Dashboard",
@@ -21,6 +24,22 @@ function createDashboard() {
     ]
   }
 }
+
+after('ParseDataStore Cleanup', function (done) {
+  var deletedCount = 0;
+  console.log('Cleaning up (ParseDataStore)...');
+  console.log(dashboardsToCleanup);
+  dashboardsToCleanup.forEach(function (id) {
+    parseDataStore.deleteDashboard(id, function(err, deleted) {
+      if (err) { console.log(err); }
+      deletedCount++;
+      if (deletedCount === dashboardsToCleanup.length) {
+        console.log('Done.');
+        done();
+      }
+    });
+  });
+});
 
 describe('Getting a dashboard', function () {
   it('returns a valid dashboard', function (done) {
