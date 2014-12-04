@@ -31,6 +31,7 @@ app.use(function (err, req, res, next) {
     err = new Error(err);
   }
   var errorCode = err.status || 500;
+  var allow = err.allow || '';
   var errorResponse = {
     message: err.message
   };
@@ -45,6 +46,7 @@ app.use(function (err, req, res, next) {
   logError('Unhandled error: ' + errorCode);
   logError(errorResponse);
   res.status(errorCode);
+  res.header('Allow', allow);
   res.json(errorResponse);
 });
 
