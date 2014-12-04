@@ -47,39 +47,6 @@ describe('GET ~/status', function () {
   });
 });
 
-describe('GET ~/dashboards/:dashboard-id', function () {
-  it('returns valid dashboard', function (done) {
-    this.timeout(3000);
-    var newId = newDashboardId();
-    request.post('/dashboards')
-      .send({ id: newId })
-      .end(function (err, res) {
-        if (err) { return done(err); }
-        var newDashboard = res.body;
-        var dashboardUpdate = getDashboardUpdate();
-        request.put('/dashboards/' + newId)
-          .send(dashboardUpdate)
-          .end(function (err) {
-            if (err) {return done(err); }
-            dashboardUpdate.id = newId;
-            dashboardUpdate.code = newDashboard.code;
-            request.get('/dashboards/' + newId)
-              .expect(200)
-              .expect('Content-Type', 'application/json; charset=utf-8')
-              .expect(dashboardUpdate)
-              .end(done);
-          });
-      });
-  });
-  it('does not return non-existing dashboard', function (done) {
-    request.get('/dashboards/' + newDashboardId())
-      .expect(404)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Dashboard Not Found' })
-      .end(done);
-  });
-});
-
 describe('POST ~/dashboards', function () {
   it('returns 400 Bad Request if ID not specified in body', function (done) {
     request.post('/dashboards')
@@ -121,6 +88,39 @@ describe('POST ~/dashboards', function () {
           .expect({ message : 'Duplicate Dashboard ID' })
           .end(done);
       });
+  });
+});
+
+describe('GET ~/dashboards/:dashboard-id', function () {
+  it('returns valid dashboard', function (done) {
+    this.timeout(3000);
+    var newId = newDashboardId();
+    request.post('/dashboards')
+      .send({ id: newId })
+      .end(function (err, res) {
+        if (err) { return done(err); }
+        var newDashboard = res.body;
+        var dashboardUpdate = getDashboardUpdate();
+        request.put('/dashboards/' + newId)
+          .send(dashboardUpdate)
+          .end(function (err) {
+            if (err) {return done(err); }
+            dashboardUpdate.id = newId;
+            dashboardUpdate.code = newDashboard.code;
+            request.get('/dashboards/' + newId)
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .expect(dashboardUpdate)
+              .end(done);
+          });
+      });
+  });
+  it('does not return non-existing dashboard', function (done) {
+    request.get('/dashboards/' + newDashboardId())
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Dashboard Not Found' })
+      .end(done);
   });
 });
 
