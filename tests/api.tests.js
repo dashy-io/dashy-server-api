@@ -47,6 +47,15 @@ describe('GET ~/status', function () {
   });
 });
 
+function postDashboard(cb) {
+  request.post('/dashboards')
+    .send({ id: newDashboardId() })
+    .end(function (err, res) {
+      if (err) { return cb(err); }
+      cb(null, res.body);
+    });
+}
+
 describe('POST ~/dashboards', function () {
   it('returns 400 Bad Request if ID not specified in body', function (done) {
     request.post('/dashboards')
@@ -74,34 +83,20 @@ describe('POST ~/dashboards', function () {
       });
   });
   it('returns 409 Conflict if dashboard already exists', function (done) {
-    request.post('/dashboards')
-      .send({ id: newDashboardId() })
-      .expect(201)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .end(function(err, res) {
-        if (err) { return done(err); }
-        var newDashboard = res.body;
-        request.post('/dashboards')
-          .send(newDashboard)
-          .expect(409)
-          .expect('Content-Type', 'application/json; charset=utf-8')
-          .expect({ message : 'Duplicate Dashboard ID' })
-          .end(done);
-      });
+    postDashboard(function (err, dashboard) {
+      if (err) { return done(err); }
+      request.post('/dashboards')
+        .send(dashboard)
+        .expect(409)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Duplicate Dashboard ID' })
+        .end(done);
+    });
   });
 });
 
-function createDashboard(cb) {
-  request.post('/dashboards')
-    .send({ id: newDashboardId() })
-    .end(function (err, res) {
-      if (err) { return cb(err); }
-      cb(null, res.body);
-  });
-}
-
-function createAndUpdateDashboard(cb) {
-  createDashboard(function (err, createdDashboard)  {
+function postAndPutDashboard(cb) {
+  postDashboard(function (err, createdDashboard)  {
     if (err) { return cb(err); }
     request.put('/dashboards/' + createdDashboard.id)
       .send(getDashboardUpdate())
@@ -111,10 +106,11 @@ function createAndUpdateDashboard(cb) {
       });
   });
 }
+
 describe('GET ~/dashboards/:dashboard-id', function () {
   it('returns valid dashboard', function (done) {
     this.timeout(3000);
-    createAndUpdateDashboard(function(err, dashboard) {
+    postAndPutDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id)
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
@@ -133,24 +129,20 @@ describe('GET ~/dashboards/:dashboard-id', function () {
 
 describe('PUT ~/dashboards/:dashboard-id', function () {
   it('updates a valid dashboard', function (done) {
-    var newId = newDashboardId();
-    request.post('/dashboards')
-      .send({ id: newId })
-      .end(function(err, res) {
-        if (err) { return done(err); }
-        var newDashboardCode = res.body.code;
-        var dashboardUpdate = getDashboardUpdate();
-        dashboardUpdate.name += 'Test Dashboard - EDITED';
-        var expectedDashboard = JSON.parse(JSON.stringify(dashboardUpdate));
-        expectedDashboard.id = newId;
-        expectedDashboard.code = newDashboardCode;
-        request.put('/dashboards/' + newId)
-          .send(dashboardUpdate)
-          .expect(200)
-          .expect('Content-Type', 'application/json; charset=utf-8')
-          .expect(expectedDashboard)
-          .end(done);
-      });
+    postDashboard(function(err, createdDashboard) {
+      if (err) { return done(err); }
+      var updatedDashboard = getDashboardUpdate();
+      updatedDashboard.name += 'Test Dashboard - EDITED';
+      var expectedDashboard = JSON.parse(JSON.stringify(updatedDashboard));
+      expectedDashboard.id = createdDashboard.id;
+      expectedDashboard.code = createdDashboard.code;
+      request.put('/dashboards/' + createdDashboard.id)
+        .send(updatedDashboard)
+        .expect(200)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect(expectedDashboard)
+        .end(done);
+    });
   });
   it('returns 404 Not Found for non-existing dashboard', function (done) {
     request.put('/dashboards/' + newDashboardId())
