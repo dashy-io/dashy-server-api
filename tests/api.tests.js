@@ -91,29 +91,36 @@ describe('POST ~/dashboards', function () {
   });
 });
 
+function createDashboard(cb) {
+  request.post('/dashboards')
+    .send({ id: newDashboardId() })
+    .end(function (err, res) {
+      if (err) { return cb(err); }
+      cb(null, res.body);
+  });
+}
+
+function createAndUpdateDashboard(cb) {
+  createDashboard(function (err, createdDashboard)  {
+    if (err) { return cb(err); }
+    request.put('/dashboards/' + createdDashboard.id)
+      .send(getDashboardUpdate())
+      .end(function (err, res) {
+        if (err) {return cb(err); }
+        cb(null, res.body);
+      });
+  });
+}
 describe('GET ~/dashboards/:dashboard-id', function () {
   it('returns valid dashboard', function (done) {
     this.timeout(3000);
-    var newId = newDashboardId();
-    request.post('/dashboards')
-      .send({ id: newId })
-      .end(function (err, res) {
-        if (err) { return done(err); }
-        var newDashboard = res.body;
-        var dashboardUpdate = getDashboardUpdate();
-        request.put('/dashboards/' + newId)
-          .send(dashboardUpdate)
-          .end(function (err) {
-            if (err) {return done(err); }
-            dashboardUpdate.id = newId;
-            dashboardUpdate.code = newDashboard.code;
-            request.get('/dashboards/' + newId)
-              .expect(200)
-              .expect('Content-Type', 'application/json; charset=utf-8')
-              .expect(dashboardUpdate)
-              .end(done);
-          });
-      });
+    createAndUpdateDashboard(function(err, dashboard) {
+      request.get('/dashboards/' + dashboard.id)
+        .expect(200)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect(dashboard)
+        .end(done);
+    });
   });
   it('does not return non-existing dashboard', function (done) {
     request.get('/dashboards/' + newDashboardId())
@@ -133,7 +140,6 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
         if (err) { return done(err); }
         var newDashboardCode = res.body.code;
         var dashboardUpdate = getDashboardUpdate();
-        // TODO: dashboardUpdate.code = newDashboardCode;
         dashboardUpdate.name += 'Test Dashboard - EDITED';
         var expectedDashboard = JSON.parse(JSON.stringify(dashboardUpdate));
         expectedDashboard.id = newId;
