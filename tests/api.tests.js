@@ -176,16 +176,13 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
 
 describe('DELETE ~/dashboards/:dashboard-id', function () {
   it('deletes a valid dashboard', function (done) {
-    var newId = newDashboardId();
-    request.post('/dashboards')
-      .send({ id: newId })
-      .end(function (err) {
-        if (err) { return done(err); }
-        request.delete('/dashboards/' + newId)
-          .expect(204)
-          .expect('')
-          .end(done);
-      });
+    postDashboard(function(err, createdDashboard) {
+      if (err) { return done(err); }
+      request.delete('/dashboards/' + createdDashboard.id)
+        .expect(204)
+        .expect('')
+        .end(done);
+    });
   });
   it('returns 404 Not Found for non-existing dashboard', function (done) {
     request.delete('/dashboards/' + newDashboardId())
