@@ -175,6 +175,13 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
 });
 
 describe('DELETE ~/dashboards/:dashboard-id', function () {
+  it('returns 404 Not Found for non-existing dashboard', function (done) {
+    var newId = newDashboardId();
+    request.delete('/dashboards/' + newId)
+      .expect(404)
+      .expect({ message: 'Dashboard(s) not found: ' + newId })
+      .end(done);
+  });
   it('deletes a valid dashboard', function (done) {
     postDashboard(function(err, createdDashboard) {
       if (err) { return done(err); }
@@ -184,10 +191,32 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
         .end(done);
     });
   });
-  it('returns 404 Not Found for non-existing dashboard', function (done) {
-    request.delete('/dashboards/' + newDashboardId())
-      .expect(404)
-      .expect({ message: 'Dashboard Not Found' })
-      .end(done);
+  it('deletes multiple dashboards from body', function (done) {
+    this.timeout(5000);
+    postDashboard(function(err, createdDashboard) {
+      if (err) { return done(err); }
+      postDashboard(function(err, createdDashboard2) {
+        if (err) { return done(err); }
+        request.delete('/dashboards')
+          .send([ createdDashboard.id, createdDashboard2.id ])
+          .expect(204)
+          .expect('')
+          .end(done);
+      });
+    });
+  });
+  it('deletes multiple dashboards from url and body', function (done) {
+    this.timeout(5000);
+    postDashboard(function(err, createdDashboard) {
+      if (err) { return done(err); }
+      postDashboard(function(err, createdDashboard2) {
+        if (err) { return done(err); }
+        request.delete('/dashboards/' + createdDashboard.id)
+          .send([ createdDashboard2.id ])
+          .expect(204)
+          .expect('')
+          .end(done);
+      });
+    });
   });
 });

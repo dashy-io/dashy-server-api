@@ -88,21 +88,42 @@ router.put('/dashboards/:id', function(req, res, next) {
   });
 });
 
-router.delete('/dashboards/:id', function(req, res, next) {
-  var id = req.params.id;
-  dataStore.deleteDashboard(id, function(err, deleted) {
-    if (err) {
-      next(err);
-      return;
-    }
-    if (!deleted) {
-      var notFoundError = new Error('Dashboard Not Found');
-      notFoundError.status = 404;
-      next(notFoundError);
-      return;
-    }
-    res.status(204);
-    res.end();
+router.delete('/dashboards/:id?', function(req, res, next) {
+  var ids = [];
+  var errorIds = [];
+  var deletedCount = 0;
+  var error = false;
+  if (req.params.id) {
+    ids.push(req.params.id)
+  }
+  if (req.body instanceof Array) {
+    ids = ids.concat(req.body);
+  }
+  ids.forEach(function (id) {
+    if (error) { return; }
+    dataStore.deleteDashboard(id, function(err, deleted) {
+      if (err) {
+        error = true;
+        next(err);
+        return;
+      }
+      if (!deleted) {
+        errorIds.push(id);
+      }
+      deletedCount++;
+      if (deletedCount === ids.length) {
+        if (errorIds.length > 0) {
+          var notFoundError = new Error('Dashboard(s) not found: ' + ids.join());
+          notFoundError.status = 404;
+          next(notFoundError);
+          return;
+        } else {
+          res.status(204);
+          res.end();
+          return;
+        }
+      }
+    });
   });
 });
 
