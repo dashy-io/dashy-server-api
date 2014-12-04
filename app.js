@@ -15,6 +15,8 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use('/', require('./routes/status'));
+app.use('/', require('./routes/dashboards'));
 app.use('/', require('./routes/api'));
 
 app.use(function (req, res, next) {
