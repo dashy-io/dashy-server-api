@@ -105,7 +105,6 @@ describe('Updating a dashboard', function () {
           assert.deepEqual(dashboard, updatedDashboard);
           done();
         });
-        done();
       });
     });
   });
