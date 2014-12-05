@@ -12,11 +12,19 @@ router.post('/dashboards', function (req, res, next) {
     badRequestError.status = 400;
     return next(badRequestError);
   }
+  for (var parameter in req.body) {
+    if (req.body.hasOwnProperty(parameter)) {
+      if (parameter != 'id') {
+        var badRequestError = new Error('Parameter "' + parameter + '" not allowed in body');
+        badRequestError.status = 400;
+        return next(badRequestError);
+      }
+    }
+  }
   var newDashboard = {
     id : req.body.id,
     code : randToken.generate(8)
   };
-
   dataStore.getDashboard(newDashboard.id, function(err, dashboard) {
     if (err) { return next(err); }
     if (dashboard) {
@@ -26,6 +34,7 @@ router.post('/dashboards', function (req, res, next) {
     }
     dataStore.createDashboard(newDashboard, function(err, createdDashboard) {
       if (err) { return next(err); }
+      delete createdDashboard.code;
       res.status(201);
       res.json(createdDashboard);
     });
@@ -41,13 +50,24 @@ router.get('/dashboards/:id', function(req, res, next) {
       notFoundError.status = 404;
       return next(notFoundError);
     }
+    delete dashboard.code;
     res.status(200);
     res.json(dashboard);
   });
 });
 
 router.put('/dashboards/:id', function(req, res, next) {
+  var allowedProperties = ['id', 'code', 'interval', 'name', 'urls'];
   var id = req.params.id;
+  for (var parameter in req.body) {
+    if (req.body.hasOwnProperty(parameter)) {
+      if (allowedProperties.indexOf(parameter) === -1) {
+        var badRequestError = new Error('Parameter "' + parameter + '" not allowed in body');
+        badRequestError.status = 400;
+        return next(badRequestError);
+      }
+    }
+  }
   var dashboard = req.body;
   var bodyId = dashboard.id;
   var bodyCode = dashboard.code;
@@ -64,7 +84,7 @@ router.put('/dashboards/:id', function(req, res, next) {
       return next(notFoundError);
     }
     if (bodyCode && bodyCode !== currentDashboard.code) {
-      var codeConflictError = new Error('Dashboard\'s code cannot be changed');
+      var codeConflictError = new Error('Property \"code\" cannot be changed');
       codeConflictError.status = 409;
       return next(codeConflictError);
     }

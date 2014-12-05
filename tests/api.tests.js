@@ -81,19 +81,17 @@ describe('POST ~/dashboards', function () {
       .end(done);
   });
   it('creates a new dashboard', function (done) {
+    var newId = newDashboardId();
     request.post('/dashboards')
-      .send({ id: newDashboardId() })
+      .send({ id: newId })
       .expect(201)
       .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ id: newId })
       .end(function(err, res) {
         if (err) { return done(err); }
         var newDashboard = res.body;
-        assert.isString(newDashboard.id);
-        assert.isString(newDashboard.code);
         assert.lengthOf(newDashboard.id, 51);
-        assert.lengthOf(newDashboard.code, 8);
         assert.match(newDashboard.id, /test-dashboard-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/);
-        assert.match(newDashboard.code, /[A-z0-9]{8}/);
         done();
       });
   });
@@ -108,6 +106,23 @@ describe('POST ~/dashboards', function () {
         .end(done);
     });
   });
+  it('returns 400 Bad Request if other parameters in body', function (done) {
+    request.post('/dashboards')
+      .send({ id: newDashboardId(), other : 'other field' })
+      .expect(400)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message: 'Parameter "other" not allowed in body' })
+      .end(done);
+  });
+  it('returns 400 Bad Request if code parameter in body', function (done) {
+    request.post('/dashboards')
+      .send({ id: newDashboardId(), code : '11111111' })
+      .expect(400)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message: 'Parameter "code" not allowed in body' })
+      .end(done);
+  });
+  // TODO: Does not create a dashboard with non-UUID id
 });
 
 function postAndPutDashboard(cb) {
@@ -129,7 +144,19 @@ describe('GET ~/dashboards/:dashboard-id', function () {
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
         .expect(dashboard)
-        .end(done);
+        .end(done)
+    });
+  });
+  it('does not return code property', function (done) {
+    postAndPutDashboard(function(err, dashboard) {
+      request.get('/dashboards/' + dashboard.id)
+        .expect(200)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .end(function (err, res) {
+          if(err) { return done(err); }
+          assert.isUndefined(res.body.code);
+          done();
+        });
     });
   });
   it('does not return non-existing dashboard', function (done) {
@@ -139,6 +166,8 @@ describe('GET ~/dashboards/:dashboard-id', function () {
       .expect({ message : 'Dashboard Not Found' })
       .end(done);
   });
+  // TODO: Returns 404 if ID missing
+  // TODO: Does not return other parameters after POST
 });
 
 describe('PUT ~/dashboards/:dashboard-id', function () {
@@ -149,7 +178,6 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
       updatedDashboard.name += 'Test Dashboard - EDITED';
       var expectedDashboard = JSON.parse(JSON.stringify(updatedDashboard));
       expectedDashboard.id = createdDashboard.id;
-      expectedDashboard.code = createdDashboard.code;
       request.put('/dashboards/' + createdDashboard.id)
         .send(updatedDashboard)
         .expect(200)
@@ -179,7 +207,19 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
         .end(done);
     });
   });
-  it('returns 409 Conflict if trying to modify dashboard code', function (done) {
+  it('returns 400 Bad Request if other parameters in body', function (done) {
+    postAndPutDashboard(function (err, dashboard) {
+      if (err) { return done(err); }
+      dashboard.other = 'other field';
+      request.put('/dashboards/' + dashboard.id)
+        .send(dashboard)
+        .expect(400)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message: 'Parameter "other" not allowed in body' })
+        .end(done);
+    });
+  });
+  it('returns 409 Conflict if trying to modify code property', function (done) {
     postDashboard(function (err, dashboard) {
       if (err) { return done(err); }
       var dashboardUpdateWithCode = getDashboardUpdate();
@@ -188,10 +228,12 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
         .send(dashboardUpdateWithCode)
         .expect(409)
         .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect({message: 'Dashboard\'s code cannot be changed'})
+        .expect({ message: 'Property "code" cannot be changed' })
         .end(done);
     });
   });
+  // TODO: Returns 404 if ID missing
+  // TODO: Does not return other parameters after POST
 });
 
 describe('DELETE ~/dashboards/:dashboard-id', function () {
@@ -211,4 +253,5 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
         .end(done);
     });
   });
+  // TODO: Returns 404 if ID missing
 });
