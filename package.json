@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "DEBUG=app,app:* nodemon ./bin/www",
-    "test": "NODE_ENV=test mocha --reporter spec tests/*.tests.js",
+    "test": "NODE_ENV=test mocha --reporter spec --timeout 5000 tests/*.tests.js",
     "test-w": "NODE_ENV=test nodemon -x 'npm test'"
   },
   "repository": {
