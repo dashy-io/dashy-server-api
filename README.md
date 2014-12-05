@@ -15,18 +15,18 @@ Example: http://api.dashy.io/status
 
 ### GET /dashboards/:dashboard-id
 
-Returns a dashboard if it exists or a short-code.
+Returns a dashboard configuration
 
 Returns:
  - `200 OK` if the dashboard exists
  - `404 Not Found` if the dashboard was not found
 
-Example: http://api.dashy.io/dashboards/test-dashboard
+Example: http://api.dashy.io/dashboards/example-dashboard
 ```bash
-curl http://api.dashy.io/dashboards/test-dashboard
+curl http://api.dashy.io/dashboards/example-dashboard
 ```
 
-Example: http://api.dashy.io/dashboards/test-dashboard
+Example: http://api.dashy.io/dashboards/example-dashboard
 ```js
 {
   "id" : "test-dashboard",
@@ -79,7 +79,7 @@ Returns:
 
 Example:
 ```bash
-curl -X PUT -H 'Content-Type: application/json' http://api.dashy.io/dashboards/test-dashboard -d @- << EOF
+curl -X PUT -H 'Content-Type: application/json' http://api.dashy.io/dashboards/example-dashboard -d @- << EOF
 {
   "interval" : 15,
   "name" : "Test Dashboard",
@@ -101,13 +101,35 @@ Returns:
  - `204 No Content` If the dashboard was deleted
  - `404 Not Found` If the dashboard was not found
 
+Returns:
+ - `200 OK` if the system is working
+
+Example: http://api.dashy.io/status
+
+### GET /dashboards/:dashboard-id/code
+
+Returns the short-code of a dashboard
+
+Returns:
+ - `200 OK` if the dashboard exists
+ - `404 Not Found` if the dashboard was not found
+
+Example: http://api.dashy.io/dashboards/example-dashboard/code
+```bash
+curl http://api.dashy.io/dashboards/example-dashboard/code
+```
+```js
+{
+  "code" : "12345678"
+}
+
 ### WIP: POST /users/:user-id/claims/
 
 Claims a dashboard by providing a SHORT-CODE and connects it to a user's account.
 
 Example:
 ```bash
-curl -X DELETE http://api.dashy.io/test-dashboard-1
+curl -X DELETE http://api.dashy.io/example-dashboard
 ```
 
 ### WIP: GET /users/:user-id
