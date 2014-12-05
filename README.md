@@ -12,6 +12,14 @@ Returns:
  - `200 OK` if the system is working
 
 Example: http://api.dashy.io/status
+```bash
+curl http://api.dashy.io/dashboards/status
+```
+
+```js
+{
+  "env": "production"
+}
 
 ### GET /dashboards/:dashboard-id
 
@@ -43,26 +51,21 @@ Example: http://api.dashy.io/dashboards/example-dashboard
 
 ### POST /dashboards
 
-Creates a new dashboard
+Creates a new dashboard and implicitly an new short-code
 
 **Note:** Content-Type must be set to application/json.
 
 Returns:
  - `201 Created` If a new dashboard was created
- - `409 Conflict` If the posted json data contains an ID property
-
+ - `409 Conflict` If a dashboard with the same ID already exists
+ - `400 Bad Request` If ID not specified in the body
+ - `400 Bad Request` If there are unexpected parameters in the body
+ 
 Example:
 ```bash
 curl -X POST -H 'Content-Type: application/json' http://api.dashy.io/dashboards -d @- << EOF
 {
-  "interval" : 15,
-  "name" : "Test Dashboard",
-  "urls" : [
-    "http://citydashboard.org/london/",
-    "http://www.casa.ucl.ac.uk/cumulus/ipad.html",
-    "http://www.gridwatch.templar.co.uk/",
-    "http://www.casa.ucl.ac.uk/weather/colours.html"
-  ]
+  "id" : "c98ba5ef-08c1-4360-9eb3-85c4530e0d1a"
 }
 EOF
 ```
@@ -73,9 +76,11 @@ Updates an existing dashboard
 **Note:** Content-Type must be set to application/json.
 
 Returns:
- - `200 OK` if the dashboard was updated
- - `404 Not Found` if the dashboard was not found
- - `409 Conflict` If the posted json data contains an ID property
+ - `200 OK` If the dashboard was updated
+ - `404 Not Found` If the dashboard was not found
+ - `409 Conflict` If the dashboard ID in the body does not match the one in the url
+ - `400 Bad Request` If there are unexpected parameters in the body
+ - `409 Conflict` If trying to modify the code property
 
 Example:
 ```bash
