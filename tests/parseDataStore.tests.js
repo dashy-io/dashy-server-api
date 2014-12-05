@@ -8,6 +8,7 @@ var assert = chai.assert;
 chai.use(chaiString);
 
 var dashboardsToCleanup = [];
+
 function createDashboard() {
   var newId = 'test-dashboard-' + uuid.v4();
   dashboardsToCleanup.push(newId);
@@ -26,6 +27,7 @@ function createDashboard() {
 }
 
 after('ParseDataStore Cleanup', function (done) {
+  this.timeout(30000);
   var deletedCount = 0;
   console.log('Cleaning up (ParseDataStore)...');
   console.log(dashboardsToCleanup);
