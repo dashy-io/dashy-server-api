@@ -255,3 +255,38 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
   });
   // TODO: Returns 404 if ID missing
 });
+
+describe('GET ~/dashboards/:dashboard-id/code', function () {
+  it('returns code for a new dashboard', function (done) {
+    postDashboard(function(err, dashboard) {
+      request.get('/dashboards/' + dashboard.id + '/code')
+        .expect(200)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .end(function (err, res) {
+          if (err) { return done(err); }
+          assert.match(res.body.code, /[A-z0-9]{8}/);
+          done();
+        })
+    });
+  });
+  it('returns code for updated dashboard', function (done) {
+    postDashboard(function(err, dashboard) {
+      request.get('/dashboards/' + dashboard.id + '/code')
+        .expect(200)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .end(function (err, res) {
+          if (err) { return done(err); }
+          assert.match(res.body.code, /[A-z0-9]{8}/);
+          done();
+        })
+    });
+  });
+  it('does not return code non-existing dashboard', function (done) {
+    request.get('/dashboards/' + newDashboardId() + '/code')
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Dashboard Not Found' })
+      .end(done);
+  });
+  // TODO: Returns 404 if ID missing
+});

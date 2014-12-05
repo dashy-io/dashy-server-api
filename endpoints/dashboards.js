@@ -110,4 +110,19 @@ router.delete('/dashboards/:id', function(req, res, next) {
   });
 });
 
+router.get('/dashboards/:id/code', function(req, res, next) {
+  var id = req.params.id;
+  dataStore.getDashboard(id, function(err, dashboard) {
+    if (err) { return next(err); }
+    if (!dashboard) {
+      var notFoundError = new Error('Dashboard Not Found');
+      notFoundError.status = 404;
+      return next(notFoundError);
+    }
+    res.status(200);
+    // TODO: Return dashboard ID as well?
+    res.json({ code : dashboard.code });
+  });
+});
+
 module.exports = router;
