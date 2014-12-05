@@ -89,6 +89,25 @@ describe('Updating a dashboard', function () {
       });
     });
   });
+  it('persists additional fields', function (done) {
+    var newDashboard = createDashboard();
+    newDashboard.additional1 = 'additional field 1';
+    parseDataStore.createDashboard(newDashboard, function (err, createdDashboard) {
+      if (err) { return done(err); }
+      createdDashboard.additional2 = 'additional field 2';
+      parseDataStore.updateDashboard(createdDashboard.id, createdDashboard, function (err, updatedDashboard) {
+        if (err) { return done(err); }
+        parseDataStore.getDashboard(createdDashboard.id, function(err, dashboard) {
+          if (err) { return done(err); }
+          assert.equal(dashboard.additional1, 'additional field 1');
+          assert.equal(dashboard.additional2, 'additional field 2');
+          assert.deepEqual(dashboard, updatedDashboard);
+          done();
+        });
+        done();
+      });
+    });
+  });
   it('does not update a non-existing dashboard', function (done) {
     var newDashboard = createDashboard();
     parseDataStore.updateDashboard(newDashboard.id, newDashboard, function (err, updatedDashboard) {
