@@ -59,32 +59,42 @@ router.get('/dashboards/:id', function(req, res, next) {
 });
 
 router.put('/dashboards/:id', function(req, res, next) {
-  if (req.body.id) {
-    var conflictError = new Error('Parameter "id" MUST NOT be set in body');
-    conflictError.status = 400;
-    next(conflictError);
-    return;
-  }
-  if (req.body.code) {
-    var conflictError = new Error('Parameter "code" MUST NOT be set in body');
-    conflictError.status = 400;
-    next(conflictError);
-    return;
-  }
   var id = req.params.id;
-  dataStore.updateDashboard(id, req.body, function(err, dashboard) {
+  var dashboard = req.body;
+  var bodyId = dashboard.id;
+  var bodyCode = dashboard.code;
+  if (bodyId && bodyId !== id) {
+    var idConflictError = new Error('Dashboard ID in request body does not match ID in url');
+    idConflictError.status = 409;
+    next(idConflictError);
+    return;
+  }
+  dataStore.getDashboard(id, function(err, currentDashboard) {
     if (err) {
       next(err);
       return;
     }
-    if (!dashboard) {
-      var conflictError = new Error('Dashboard Not Found');
-      conflictError.status = 404;
-      next(conflictError);
+    if (!currentDashboard) {
+      var notFoundError = new Error('Dashboard not found');
+      notFoundError.status = 404;
+      next(notFoundError);
       return;
     }
-    res.status(200);
-    res.json(dashboard);
+    if (bodyCode && bodyCode !== currentDashboard.code) {
+      var codeConflictError = new Error('Dashboard\'s code cannot be changed');
+      codeConflictError.status = 409;
+      next(codeConflictError);
+      return;
+    }
+    dataStore.updateDashboard(id, dashboard, function(err, updatedDashboard) {
+      if (err) {
+        next(err);
+        return;
+      }
+      res.status(200);
+      res.json(updatedDashboard);
+      return;
+    });
   });
 });
 

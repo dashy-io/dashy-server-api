@@ -12,8 +12,9 @@ var assert = chai.assert;
 chai.use(chaiString);
 
 var dashboardsToCleanup = [];
+
 function newDashboardId() {
-  var newDashboardId = 'test-dashboard-' + uuid.v4()
+  var newDashboardId = 'test-dashboard-' + uuid.v4();
   dashboardsToCleanup.push(newDashboardId);
   return newDashboardId;
 }
@@ -32,6 +33,7 @@ function getDashboardUpdate() {
 }
 
 after('API Cleanup', function (done) {
+  this.timeout(30000);
   var deletedCount = 0;
   console.log('Cleaning up (API)...');
   console.log(dashboardsToCleanup);
@@ -122,7 +124,6 @@ function postAndPutDashboard(cb) {
 
 describe('GET ~/dashboards/:dashboard-id', function () {
   it('returns valid dashboard', function (done) {
-    this.timeout(3000);
     postAndPutDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id)
         .expect(200)
@@ -162,28 +163,34 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
       .send(getDashboardUpdate())
       .expect(404)
       .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Dashboard Not Found' })
+      .expect({ message : 'Dashboard not found' })
       .end(done);
   });
-  it('returns 400 Bad Request if dashboard ID in body', function (done) {
-    var dashboardUpdateWithId = getDashboardUpdate();
-    dashboardUpdateWithId.id = newDashboardId();
-    request.put('/dashboards/' + dashboardUpdateWithId.id)
-      .send(dashboardUpdateWithId)
-      .expect(400)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Parameter "id" MUST NOT be set in body' })
-      .end(done);
+  it('returns 409 Conflict if dashboard ID in body does not match :dashboard-id parameter', function (done) {
+    postDashboard(function (err, dashboard) {
+      if(err) { return done(err); }
+      var dashboardUpdateWithId = getDashboardUpdate();
+      dashboardUpdateWithId.id = newDashboardId();
+      request.put('/dashboards/' + dashboard.id)
+        .send(dashboardUpdateWithId)
+        .expect(409)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Dashboard ID in request body does not match ID in url' })
+        .end(done);
+    });
   });
-  it('returns 400 Bad Request if dashboard code in body', function (done) {
-    var dashboardUpdateWithCode = getDashboardUpdate();
-    dashboardUpdateWithCode.code = '12345678';
-    request.put('/dashboards/' + newDashboardId())
-      .send(dashboardUpdateWithCode)
-      .expect(400)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Parameter "code" MUST NOT be set in body' })
-      .end(done);
+  it('returns 409 Conflict if trying to modify dashboard code', function (done) {
+    postDashboard(function (err, dashboard) {
+      if (err) { return done(err); }
+      var dashboardUpdateWithCode = getDashboardUpdate();
+      dashboardUpdateWithCode.code = '12345678';
+      request.put('/dashboards/' + dashboard.id)
+        .send(dashboardUpdateWithCode)
+        .expect(409)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({message: 'Dashboard\'s code cannot be changed'})
+        .end(done);
+    });
   });
 });
 
