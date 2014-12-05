@@ -33,6 +33,7 @@ function getDashboardUpdate() {
 }
 
 after('API Cleanup', function (done) {
+  if (dashboardsToCleanup.length === 0) { return done(); }
   this.timeout(30000);
   var deletedCount = 0;
   console.log('Cleaning up (API)...');
@@ -43,7 +44,7 @@ after('API Cleanup', function (done) {
       deletedCount++;
       if (deletedCount === dashboardsToCleanup.length) {
         console.log('Done.');
-        done();
+        return done();
       }
     });
   });
