@@ -160,7 +160,7 @@ describe('GET ~/dashboards/:dashboard-id', function () {
         });
     });
   });
-  it('does not return non-existing dashboard', function (done) {
+  it('returns 404 Not Found for non-existing dashboards', function (done) {
     request.get('/dashboards/' + newDashboardId())
       .expect(404)
       .expect('Content-Type', 'application/json; charset=utf-8')
@@ -187,7 +187,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
         .end(done);
     });
   });
-  it('returns 404 Not Found for non-existing dashboard', function (done) {
+  it('returns 404 Not Found for non-existing dashboards', function (done) {
     request.put('/dashboards/' + newDashboardId())
       .send(getDashboardUpdate())
       .expect(404)
@@ -208,7 +208,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
         .end(done);
     });
   });
-  it('returns 400 Bad Request if other parameters in body', function (done) {
+  it('returns 400 Bad Request if unexpected properties in body', function (done) {
     postAndPutDashboard(function (err, dashboard) {
       if (err) { return done(err); }
       dashboard.other = 'other field';
@@ -258,7 +258,7 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
 });
 
 describe('GET ~/dashboards/:dashboard-id/code', function () {
-  it('returns code for a new dashboard', function (done) {
+  it('returns code for new dashboards', function (done) {
     postDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id + '/code')
         .expect(200)
@@ -282,7 +282,7 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
         })
     });
   });
-  it('does not return code non-existing dashboard', function (done) {
+  it('returns 404 Not Found for non-existing dashboards', function (done) {
     request.get('/dashboards/' + newDashboardId() + '/code')
       .expect(404)
       .expect('Content-Type', 'application/json; charset=utf-8')
