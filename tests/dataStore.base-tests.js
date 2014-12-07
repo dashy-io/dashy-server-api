@@ -51,7 +51,7 @@ function testDataStore(dataStore) {
       var newDashboard = createDashboard();
       dataStore.createDashboard(newDashboard, function (err) {
         if (err) { return done(err); }
-        pataStore.getDashboard(newDashboard.id, function (err, dashboard) {
+        dataStore.getDashboard(newDashboard.id, function (err, dashboard) {
           if (err) {
             return done(err);
           }
@@ -61,7 +61,7 @@ function testDataStore(dataStore) {
       });
     });
     it('does not return a non-existing dashboard', function (done) {
-      pataStore.getDashboard('test-dashboard-bad', function (err, dashboard) {
+      dataStore.getDashboard('test-dashboard-bad', function (err, dashboard) {
         if (err) { return done(err); }
         assert.isNull(dashboard);
         done();
@@ -109,7 +109,6 @@ function testDataStore(dataStore) {
             assert.deepEqual(dashboard, updatedDashboard);
             done();
           });
-          done();
         });
       });
     });
@@ -146,4 +145,4 @@ function testDataStore(dataStore) {
   });
 }
 
-module.exports = testDataStore();
+module.exports = testDataStore;
