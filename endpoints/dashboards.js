@@ -2,29 +2,32 @@
 var express = require('express');
 var randToken = require('rand-token');
 
-var dataStore = require('../lib/parseDataStore');
+var dataStore = require('../lib/dataStore').getDataStore();
 var router = express.Router();
 var app = express();
 
 router.post('/dashboards', function (req, res, next) {
+  var allowedProperties = ['id', 'name', 'interval', 'urls'];
   if (!req.body.id) {
-    var badRequestError = new Error('Parameter "id" missing in body');
+    var badRequestError = new Error('Property "id" missing in body');
     badRequestError.status = 400;
     return next(badRequestError);
   }
   for (var parameter in req.body) {
     if (req.body.hasOwnProperty(parameter)) {
-      if (parameter != 'id') {
-        var badRequestError = new Error('Parameter "' + parameter + '" not allowed in body');
+      if (allowedProperties.indexOf(parameter) === -1) {
+        var badRequestError = new Error('Property "' + parameter + '" not allowed in body');
         badRequestError.status = 400;
         return next(badRequestError);
       }
     }
   }
   var newDashboard = {
-    id : req.body.id,
     code : randToken.generate(8)
   };
+  allowedProperties.forEach(function (property) {
+    newDashboard[property] = req.body[property];
+  });
   dataStore.getDashboard(newDashboard.id, function(err, dashboard) {
     if (err) { return next(err); }
     if (dashboard) {

@@ -6,9 +6,10 @@ var chai = require('chai');
 var chaiString = require('chai-string');
 
 var app = require('../app');
-var dataStore = require('../lib/parseDataStore');
-request = request(app);
+var config = require('../config');
+var dataStore = require('../lib/dataStore').getDataStore();
 var assert = chai.assert;
+request = request(app);
 chai.use(chaiString);
 
 var dashboardsToCleanup = [];
@@ -58,7 +59,10 @@ describe('GET ~/status', function () {
       .expect('Access-Control-Allow-Origin', '*')
       .expect('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
       .expect('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-      .expect({ env : 'test' })
+      .expect({
+        env : config.env,
+        dataStore : config.env === 'test' ? 'InMemoryDataStore' : 'ParseDataStore'
+      })
       .end(done);
   });
 });
@@ -78,16 +82,33 @@ describe('POST ~/dashboards', function () {
       .send({ id: '' })
       .expect(400)
       .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message: 'Parameter "id" missing in body' })
+      .expect({ message: 'Property "id" missing in body' })
       .end(done);
   });
-  it('creates a new dashboard', function (done) {
+  it('creates a minimal new dashboard', function (done) {
     var newId = newDashboardId();
     request.post('/dashboards')
       .send({ id: newId })
       .expect(201)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect({ id: newId })
+      .end(function(err, res) {
+        if (err) { return done(err); }
+        var newDashboard = res.body;
+        assert.lengthOf(newDashboard.id, 51);
+        assert.match(newDashboard.id, /test-dashboard-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/);
+        done();
+      });
+  });
+  it('creates a new dashboard', function (done) {
+    var newId = newDashboardId();
+    var newDashboard = getDashboardUpdate();
+    newDashboard.id = newId;
+    request.post('/dashboards')
+      .send(newDashboard)
+      .expect(201)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect(newDashboard)
       .end(function(err, res) {
         if (err) { return done(err); }
         var newDashboard = res.body;
@@ -112,7 +133,7 @@ describe('POST ~/dashboards', function () {
       .send({ id: newDashboardId(), other : 'other field' })
       .expect(400)
       .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message: 'Parameter "other" not allowed in body' })
+      .expect({ message: 'Property "other" not allowed in body' })
       .end(done);
   });
   it('returns 400 Bad Request if code parameter in body', function (done) {
@@ -120,7 +141,7 @@ describe('POST ~/dashboards', function () {
       .send({ id: newDashboardId(), code : '11111111' })
       .expect(400)
       .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message: 'Parameter "code" not allowed in body' })
+      .expect({ message: 'Property "code" not allowed in body' })
       .end(done);
   });
   // TODO: Does not create a dashboard with non-UUID id

@@ -1,4 +1,6 @@
 'use strict';
+var express = require('express');
+var app = express();
 
 function checkAndLoadEnvironment(name) {
   if (!process.env[name]) {
@@ -7,8 +9,13 @@ function checkAndLoadEnvironment(name) {
   return process.env[name];
 }
 
+function getEnv() {
+  return app.get('env');
+}
+
 module.exports = {
   port : process.env.PORT || 3001,
+  env : getEnv(),
   parseAppId : checkAndLoadEnvironment('DASHY_PARSE_APP_ID'),
   parseMasterKey : checkAndLoadEnvironment('DASHY_PARSE_MASTER_KEY')
 };
