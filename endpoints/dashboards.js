@@ -13,6 +13,11 @@ router.post('/dashboards', function (req, res, next) {
     badRequestError.status = 400;
     return next(badRequestError);
   }
+  if (!/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/.test(req.body.id)) {
+    var badRequestError = new Error('Property "id" is not an UUID v4');
+    badRequestError.status = 400;
+    return next(badRequestError);
+  }
   for (var parameter in req.body) {
     if (req.body.hasOwnProperty(parameter)) {
       if (allowedProperties.indexOf(parameter) === -1) {

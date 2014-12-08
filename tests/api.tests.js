@@ -144,6 +144,13 @@ describe('POST ~/dashboards', function () {
       .expect({ message: 'Property "code" not allowed in body' })
       .end(done);
   });
+  it('returns 400 Bad Request if id not UUID', function (done) {
+    request.post('/dashboards')
+      .send({ id: 'abc' })
+      .expect(400)
+      .expect({ message: 'Property "id" is not an UUID v4' })
+      .end(done);
+  });
   // TODO: Does not create a dashboard with non-UUID id
 });
 
