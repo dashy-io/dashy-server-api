@@ -20,6 +20,7 @@ curl http://api.dashy.io/dashboards/status
 {
   "env": "production"
 }
+```
 
 ### GET /dashboards/:dashboard-id
 
@@ -127,6 +128,7 @@ curl http://api.dashy.io/dashboards/example-dashboard/code
 {
   "code" : "12345678"
 }
+```
 
 ### WIP: POST /users/:user-id/claims/
 
