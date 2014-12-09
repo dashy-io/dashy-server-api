@@ -76,6 +76,18 @@ function postDashboard(cb) {
     });
 }
 
+function postAndPutDashboard(cb) {
+  postDashboard(function (err, createdDashboard)  {
+    if (err) { return cb(err); }
+    request.put('/dashboards/' + createdDashboard.id)
+      .send(getDashboardUpdate())
+      .end(function (err, res) {
+        if (err) {return cb(err); }
+        cb(null, res.body);
+      });
+  });
+}
+
 describe('POST ~/dashboards', function () {
   it('returns 400 Bad Request if ID not specified in body', function (done) {
     request.post('/dashboards')
@@ -144,27 +156,14 @@ describe('POST ~/dashboards', function () {
       .expect({ message: 'Property "code" not allowed in body' })
       .end(done);
   });
-  it('returns 400 Bad Request if id not UUID', function (done) {
+  it('returns 400 Bad Request if ID not UUID', function (done) {
     request.post('/dashboards')
       .send({ id: 'abc' })
       .expect(400)
       .expect({ message: 'Property "id" is not an UUID v4' })
       .end(done);
   });
-  // TODO: Does not create a dashboard with non-UUID id
 });
-
-function postAndPutDashboard(cb) {
-  postDashboard(function (err, createdDashboard)  {
-    if (err) { return cb(err); }
-    request.put('/dashboards/' + createdDashboard.id)
-      .send(getDashboardUpdate())
-      .end(function (err, res) {
-        if (err) {return cb(err); }
-        cb(null, res.body);
-      });
-  });
-}
 
 describe('GET ~/dashboards/:dashboard-id', function () {
   it('returns valid dashboard', function (done) {
@@ -195,8 +194,13 @@ describe('GET ~/dashboards/:dashboard-id', function () {
       .expect({ message : 'Dashboard Not Found' })
       .end(done);
   });
-  // TODO: Returns 404 if ID missing
-  // TODO: Does not return other parameters after POST
+  it('returns 404 Not Found if ID missing from url', function (done) {
+    request.get('/dashboards/')
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Dashboard ID missing from url' })
+      .end(done)
+    });
 });
 
 describe('PUT ~/dashboards/:dashboard-id', function () {
@@ -261,8 +265,14 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
         .end(done);
     });
   });
-  // TODO: Returns 404 if ID missing
-  // TODO: Does not return other parameters after POST
+  it('returns 404 Not Found if ID missing from url', function (done) {
+    request.put('/dashboards')
+      .send({})
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Dashboard ID missing from url'})
+      .end(done);
+  });
 });
 
 describe('DELETE ~/dashboards/:dashboard-id', function () {
@@ -282,7 +292,12 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
         .end(done);
     });
   });
-  // TODO: Returns 404 if ID missing
+  it('returns 404 Not Found if ID missing from url', function (done) {
+    request.delete('/dashboards')
+      .expect(404)
+      .expect({ message : 'Dashboard ID missing from url'})
+      .end(done);
+  });
 });
 
 describe('GET ~/dashboards/:dashboard-id/code', function () {
@@ -317,5 +332,17 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
       .expect({ message : 'Dashboard Not Found' })
       .end(done);
   });
-  // TODO: Returns 404 if ID missing
+  // TODO: returns 404 Not Found if ID missing from url
+});
+
+describe('Completes a full user journey', function () {
+  // create a dashboard
+  // register a user
+  // get dashboard code
+  // connect a dashboard to user
+  // get user's dashboards
+  // edit a dashboard
+  // get a dashboard
+  // delete a dashboard
+  // delete a user
 });

@@ -13,6 +13,7 @@ router.post('/dashboards', function (req, res, next) {
     badRequestError.status = 400;
     return next(badRequestError);
   }
+  // strict UUID v4: ^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$
   if (!/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/.test(req.body.id)) {
     var badRequestError = new Error('Property "id" is not an UUID v4');
     badRequestError.status = 400;
@@ -49,8 +50,13 @@ router.post('/dashboards', function (req, res, next) {
   });
 });
 
-router.get('/dashboards/:id', function(req, res, next) {
+router.get('/dashboards/:id?', function(req, res, next) {
   var id = req.params.id;
+  if (!id) {
+    var notFoundError = new Error('Dashboard ID missing from url');
+    notFoundError.status = 404;
+    return next(notFoundError);
+  }
   dataStore.getDashboard(id, function(err, dashboard) {
     if (err) { return next(err); }
     if (!dashboard) {
@@ -64,9 +70,14 @@ router.get('/dashboards/:id', function(req, res, next) {
   });
 });
 
-router.put('/dashboards/:id', function(req, res, next) {
+router.put('/dashboards/:id?', function(req, res, next) {
   var allowedProperties = ['id', 'code', 'interval', 'name', 'urls'];
   var id = req.params.id;
+  if (!id) {
+    var notFoundError = new Error('Dashboard ID missing from url');
+    notFoundError.status = 404;
+    return next(notFoundError);
+  }
   for (var parameter in req.body) {
     if (req.body.hasOwnProperty(parameter)) {
       if (allowedProperties.indexOf(parameter) === -1) {
@@ -104,8 +115,13 @@ router.put('/dashboards/:id', function(req, res, next) {
   });
 });
 
-router.delete('/dashboards/:id', function(req, res, next) {
+router.delete('/dashboards/:id?', function(req, res, next) {
   var id = req.params.id;
+  if (!id) {
+    var notFoundError = new Error('Dashboard ID missing from url');
+    notFoundError.status = 404;
+    return next(notFoundError);
+  }
   dataStore.deleteDashboard(id, function(err, deleted) {
     if (err) { return next(err); }
     if (!deleted) {
@@ -120,6 +136,11 @@ router.delete('/dashboards/:id', function(req, res, next) {
 
 router.get('/dashboards/:id/code', function(req, res, next) {
   var id = req.params.id;
+  if (!id) {
+    var notFoundError = new Error('Dashboard ID missing from url');
+    notFoundError.status = 404;
+    return next(notFoundError);
+  }
   dataStore.getDashboard(id, function(err, dashboard) {
     if (err) { return next(err); }
     if (!dashboard) {
