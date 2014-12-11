@@ -5,9 +5,9 @@ var request = require('supertest');
 var chai = require('chai');
 var chaiString = require('chai-string');
 
-var app = require('../app');
-var config = require('../config');
-var dataStore = require('../lib/dataStore').getDataStore();
+var app = require('../../app');
+var config = require('../../config');
+var dataStore = require('../../lib/dataStore').getDataStore();
 var assert = chai.assert;
 request = request(app);
 chai.use(chaiString);
