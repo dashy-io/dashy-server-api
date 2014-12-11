@@ -335,14 +335,3 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
   // TODO: returns 404 Not Found if ID missing from url
 });
 
-describe('Completes a full user journey', function () {
-  // create a dashboard
-  // register a user
-  // get dashboard code
-  // connect a dashboard to user
-  // get user's dashboards
-  // edit a dashboard
-  // get a dashboard
-  // delete a dashboard
-  // delete a user
-});
