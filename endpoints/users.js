@@ -14,7 +14,7 @@ router.get('/users/:id', function (req, res, next) {
     case 'test-user':
       user.name = 'Test User';
       user.dashboards = [
-        'test-dashboard'
+        'example-dashboard'
       ];
       break;
     case 'cc1f2ba3-1a19-44f2-ae78-dc9784a2a60f':
