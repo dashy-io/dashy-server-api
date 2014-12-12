@@ -24,7 +24,7 @@ router.post('/users', function (req, res, next) {
   var requiredProperties = ['email', 'name'];
   var validationError = validator.requireProperties(req.body, requiredProperties);
   if (validationError) {
-    return next(errorGenerator.propertyMissing(validationError.missingProperty));
+    return next(errorGenerator.missingProperty(validationError.missingProperty));
   }
   res.status(201);
   res.json({});
