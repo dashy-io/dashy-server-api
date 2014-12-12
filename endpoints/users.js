@@ -1,7 +1,7 @@
 'use strict';
 
 var express = require('express');
-
+var validator = require('../lib/validator');
 var router = express.Router();
 var app = express();
 
