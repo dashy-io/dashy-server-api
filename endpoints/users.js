@@ -1,37 +1,32 @@
 'use strict';
-
+var uuid = require('node-uuid');
 var express = require('express');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
+var dataStore = require('../lib/dataStore').getDataStore();
 var router = express.Router();
 var app = express();
 
-//case 'test-user':
-//  user.name = 'Test User';
-//  user.dashboards = [
-//    'example-dashboard'
-//  ];
-//  break;
-//case 'cc1f2ba3-1a19-44f2-ae78-dc9784a2a60f':
-//  user.name = 'TechHub User';
-//  user.dashboards = [
-//    'e6e02fd1-6ed3-45d3-b1a7-de4fe3d32906',
-//    '9a173bac-a95c-4c89-95ef-3964c681f168'
-//  ];
-//  break;
+function clone(input) {
+  return JSON.parse(JSON.stringify(input));
+}
 
 router.post('/users', function (req, res, next) {
-  var requiredProperties = ['email', 'name'];
-  var validationError = validator.requireProperties(req.body, requiredProperties);
+  var user = clone(req.body);
+  var requiredProperties = ['email', 'name', 'dashboards'];
+  var validationError = validator.requireProperties(user, requiredProperties);
   if (validationError) {
     return next(errorGenerator.missingProperty(validationError.missingProperty));
   }
-  validationError = validator.allowProperties(req.body, requiredProperties);
+  validationError = validator.allowProperties(user, requiredProperties);
   if (validationError) {
     return next(errorGenerator.unexpectedProperty(validationError.unexpectedProperty));
   }
-  res.status(201);
-  res.json({});
+  user.id = 'user-' + uuid.v4();
+  dataStore.createUser(user, function (error, createdUser) {
+    res.status(201);
+    res.json(createdUser);
+  });
 });
 
 module.exports = router;
