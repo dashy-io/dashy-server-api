@@ -1,7 +1,7 @@
 'use strict';
 var chai = require('chai');
 var chaiString = require('chai-string');
-var validator = require('../lib/validator');
+var validator = require('../../lib/validator');
 var assert = chai.assert;
 chai.use(chaiString);
 

@@ -3,7 +3,7 @@ var uuid = require('node-uuid');
 var chai = require('chai');
 var chaiString = require('chai-string');
 
-var dataStore = require('../lib/dataStore').getDataStore();
+var dataStore = require('../../lib/dataStore').getDataStore();
 var assert = chai.assert;
 chai.use(chaiString);
 
