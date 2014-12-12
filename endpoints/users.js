@@ -23,8 +23,24 @@ router.post('/users', function (req, res, next) {
     return next(errorGenerator.unexpectedProperty(validationError.unexpectedProperty));
   }
   user.id = 'user-' + uuid.v4();
-  dataStore.createUser(user, function (error, createdUser) {
+  dataStore.createUser(user, function (err, createdUser) {
+    if (err) { return next(err); }
     res.status(201);
+    res.json(createdUser);
+  });
+});
+
+router.get('/users/:id?', function (req, res, next) {
+  var id = req.params.id;
+  if (!id) {
+    return next(errorGenerator.missingParameter('id'));
+  }
+  dataStore.getUser(id, function (err, createdUser) {
+    if (err) { return next(err); }
+    if (!createdUser) {
+      return next(errorGenerator.notFound('User'));
+    }
+    res.status(200);
     res.json(createdUser);
   });
 });

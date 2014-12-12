@@ -90,3 +90,41 @@ describe('POST ~/users', function () {
 });
 
 // TODO: test that only json is allowed in PUT and POST
+
+function post(cb) {
+  var newUser = createNewUser();
+  request.post('/users')
+    .send(newUser)
+    .end(function(err, res) {
+      if (err) { return cb(err); }
+      var createdUser = res.body;
+      usersToCleanup.push(createdUser.id);
+      cb(null, createdUser);
+    });
+}
+
+describe('GET ~/users/:user-id', function () {
+  it('returns valid user', function (done) {
+    post(function(err, user) {
+      request.get('/users/' + user.id)
+        .expect(200)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect(user)
+        .end(done)
+    });
+  });
+  it('returns 404 Not Found for non-existing users', function (done) {
+    request.get('/users/' + uuid.v4())
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'User not found' })
+      .end(done);
+  });
+  it('returns 404 Not Found if ID missing from url', function (done) {
+    request.get('/users/')
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Parameter "id" missing in url' })
+      .end(done)
+  });
+});

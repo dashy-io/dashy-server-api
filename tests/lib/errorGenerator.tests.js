@@ -20,4 +20,14 @@ describe('Error Generator', function () {
     assert.equal(error.status, 400);
     assert.equal(error.message, 'Property "propertyName" not allowed in body');
   });
+  it('generates 404 Not Found for missing parameter', function () {
+    var error = errorGenerator.missingParameter('ID');
+    assert.equal(error.status, 404);
+    assert.equal(error.message, 'Parameter "ID" missing in url');
+  });
+  it('generates 404 Not Found for when resource not found', function () {
+    var error = errorGenerator.notFound('User');
+    assert.equal(error.status, 404);
+    assert.equal(error.message, 'User not found');
+  });
 });
