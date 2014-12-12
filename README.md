@@ -1,9 +1,9 @@
-[![Stories in Ready](https://badge.waffle.io/dashy-io/dashy-server-api.png?label=ready&title=Ready)](https://waffle.io/dashy-io/dashy-server-api)
 dashy-server-api
 ================
 Dashboard Management Platform - Server API
 
 [![Codeship Status for dashy-io/dashy-server-api](https://codeship.com/projects/669bc9e0-5795-0132-c62d-2aedc25d7739/status)](https://codeship.com/projects/49856)
+[![Stories in Ready](https://badge.waffle.io/dashy-io/dashy-server-api.png?label=ready&title=Ready)](https://waffle.io/dashy-io/dashy-server-api)
 
 ### GET /status
 
