@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/dashy-io/dashy-server-api.png?label=ready&title=Ready)](https://waffle.io/dashy-io/dashy-server-api)
 dashy-server-api
 ================
 Dashboard Management Platform - Server API
