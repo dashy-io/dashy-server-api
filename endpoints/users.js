@@ -26,6 +26,10 @@ router.post('/users', function (req, res, next) {
   if (validationError) {
     return next(errorGenerator.missingProperty(validationError.missingProperty));
   }
+  validationError = validator.allowProperties(req.body, requiredProperties);
+  if (validationError) {
+    return next(errorGenerator.unexpectedProperty(validationError.unexpectedProperty));
+  }
   res.status(201);
   res.json({});
 });
