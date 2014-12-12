@@ -36,8 +36,7 @@ after('API Cleanup', function (done) {
   if (dashboardsToCleanup.length === 0) { return done(); }
   this.timeout(30000);
   var deletedCount = 0;
-  console.log('Cleaning up (API)...');
-  console.log(dashboardsToCleanup);
+  console.log('Cleaning up (Dashbaords API)...');
   dashboardsToCleanup.forEach(function (id) {
     dataStore.deleteDashboard(id, function(err, deleted) {
       if (err) { console.log(err); }

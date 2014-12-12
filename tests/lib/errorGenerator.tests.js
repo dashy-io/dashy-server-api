@@ -5,7 +5,7 @@ var errorGenerator = require('../../lib/errorGenerator');
 var assert = chai.assert;
 chai.use(chaiString);
 
-describe('errorGenerator', function () {
+describe('Error Generator', function () {
   it('generates error with custom status code and message', function () {
     var error = errorGenerator.create(500, 'custom error');
     assert.equal(error.status, 500);
