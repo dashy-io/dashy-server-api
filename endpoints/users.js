@@ -22,13 +22,12 @@ var app = express();
 
 router.post('/users', function (req, res, next) {
   var requiredProperties = ['email', 'name'];
-  var validationError = validator.hasRequiredProperties(req.body, requiredProperties);
+  var validationError = validator.requireProperties(req.body, requiredProperties);
   if (validationError) {
-    return next(errorGenerator.createPropertyMissing(validationError.missingProperty));
+    return next(errorGenerator.propertyMissing(validationError.missingProperty));
   }
   res.status(201);
   res.json({});
 });
-
 
 module.exports = router;

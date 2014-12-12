@@ -7,25 +7,25 @@ chai.use(chaiString);
 
 describe('Validating required properties', function () {
   it('handles no required properties', function () {
-    var validationResult = validator.hasRequiredProperties({});
+    var validationResult = validator.requireProperties({});
     assert.isNull(validationResult);
   });
   it('handles no body', function () {
-    var validationResult = validator.hasRequiredProperties();
+    var validationResult = validator.requireProperties();
     assert.isNull(validationResult);
   });
   it('does not validate missing property on a null body', function () {
-    var validationResult = validator.hasRequiredProperties(null, ['property1']);
+    var validationResult = validator.requireProperties(null, ['property1']);
     assert.isNotNull(validationResult);
     assert.equal(validationResult.missingProperty, 'property1')
   });
   it('does not validate missing property', function () {
-    var validationResult = validator.hasRequiredProperties({ prop : 'value' }, ['property1']);
+    var validationResult = validator.requireProperties({ prop : 'value' }, ['property1']);
     assert.isNotNull(validationResult);
     assert.equal(validationResult.missingProperty, 'property1')
   });
   it('validates property', function () {
-    var validationResult = validator.hasRequiredProperties({ prop : 'value' }, ['prop']);
+    var validationResult = validator.requireProperties({ prop : 'value' }, ['prop']);
     assert.isNull(validationResult);
   });
 });

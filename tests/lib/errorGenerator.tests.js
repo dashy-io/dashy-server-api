@@ -11,7 +11,7 @@ describe('errorGenerator', function () {
     assert.equal(error.status, 500);
   });
   it('generates 400 Bad Request for missing property', function () {
-    var error = errorGenerator.createPropertyMissing('propertyName');
+    var error = errorGenerator.propertyMissing('propertyName');
     assert.equal(error.status, 400);
     assert.equal(error.message, 'Property "propertyName" missing in body');
   });
