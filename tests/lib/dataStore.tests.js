@@ -85,6 +85,7 @@ describe('Getting a dashboard', function () {
       done();
     })
   });
+  // TODO: Does not get a dashboard if id not specified
 });
 
 describe('Creating a dashboard', function () {
@@ -97,6 +98,7 @@ describe('Creating a dashboard', function () {
       done();
     });
   });
+  // TODO: Does not create a dashboard if id not specified
 });
 
 describe('Updating a dashboard', function () {
@@ -138,6 +140,7 @@ describe('Updating a dashboard', function () {
       done();
     });
   });
+  // TODO: Does not update a dashboard if id not specified
 });
 
 describe('Deleting a dashboard', function () {
@@ -160,6 +163,7 @@ describe('Deleting a dashboard', function () {
       done();
     });
   });
+  // TODO: Does not delete a dashboard if id not specified
 });
 
 describe('Creating a user', function () {
@@ -171,6 +175,7 @@ describe('Creating a user', function () {
       done();
     });
   });
+  // TODO: Does not create a user if id not specified
 });
 
 describe('Getting a user', function () {
@@ -192,6 +197,7 @@ describe('Getting a user', function () {
       done();
     })
   });
+  // TODO: Does not get a user if id not specified
 });
 
 describe('Updating a user', function () {
@@ -233,6 +239,7 @@ describe('Updating a user', function () {
       done();
     });
   });
+  // TODO: Does not update a user if id not specified
 });
 
 describe('Deleting a user', function () {
@@ -255,4 +262,5 @@ describe('Deleting a user', function () {
       done();
     });
   });
+  // TODO: Does not delete a user if id not specified
 });
