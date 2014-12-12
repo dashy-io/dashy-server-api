@@ -2,6 +2,7 @@
 
 var express = require('express');
 var validator = require('../lib/validator');
+var errorGenerator = require('../lib/errorGenerator');
 var router = express.Router();
 var app = express();
 
@@ -21,17 +22,9 @@ var app = express();
 
 router.post('/users', function (req, res, next) {
   var requiredProperties = ['email', 'name'];
-
-  var badRequestError;
-  requiredProperties.forEach(function (propertyName) {
-    if (badRequestError) { return; }
-    if (!req.body[propertyName]) {
-      badRequestError = new Error('Property "' + propertyName + '" missing in body');
-      badRequestError.status = 400;
-    }
-  });
-  if (badRequestError) {
-    return next(badRequestError);
+  var validationError = validator.hasRequiredProperties(req.body, requiredProperties);
+  if (validationError) {
+    return next(errorGenerator.createPropertyMissing(validationError.missingProperty));
   }
   res.status(201);
   res.json({});
