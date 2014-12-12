@@ -317,3 +317,4 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
   // TODO: returns 404 Not Found if ID missing from url
 });
 
+// TODO: test that only json is allowed in PUT and POST

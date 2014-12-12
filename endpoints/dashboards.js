@@ -1,7 +1,6 @@
 'use strict';
 var express = require('express');
 var randToken = require('rand-token');
-
 var dataStore = require('../lib/dataStore').getDataStore();
 var router = express.Router();
 var app = express();
