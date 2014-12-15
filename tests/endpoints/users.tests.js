@@ -37,7 +37,18 @@ after('API Cleanup', function (done) {
   });
 });
 
+// TODO: test that only json is allowed in PUT and POST
+
 describe('POST ~/users', function () {
+  it('returns 400 Bad Request if id specified', function (done) {
+    var newUser = createNewUser();
+    newUser.id = 'test-user-' + uuid.v4();
+    request.post('/users')
+      .send(newUser)
+      .expect(400)
+      .expect({ message : 'Property "id" not allowed in body' })
+      .end(done);
+  });
   it('returns 400 Bad Request if email not specified', function (done) {
     request.post('/users')
       .send()
@@ -50,15 +61,6 @@ describe('POST ~/users', function () {
       .send({ email: 'info@example.com' })
       .expect(400)
       .expect({ message : 'Property "name" missing in body' })
-      .end(done);
-  });
-  it('returns 400 Bad Request if id specified', function (done) {
-    var newUser = createNewUser();
-    newUser.id = 'test-user-' + uuid.v4();
-    request.post('/users')
-      .send(newUser)
-      .expect(400)
-      .expect({ message : 'Property "id" not allowed in body' })
       .end(done);
   });
   it('returns 400 Bad Request if unexpected property specified', function (done) {
@@ -90,8 +92,6 @@ describe('POST ~/users', function () {
   // TODO: what happens if no dashboards specified?
 });
 
-// TODO: test that only json is allowed in PUT and POST
-
 function post(cb) {
   var newUser = createNewUser();
   request.post('/users')
@@ -105,14 +105,12 @@ function post(cb) {
 }
 
 describe('GET ~/users/:user-id', function () {
-  it('returns valid user', function (done) {
-    post(function(err, user) {
-      request.get('/users/' + user.id)
-        .expect(200)
-        .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect(user)
-        .end(done)
-    });
+  it('returns 404 Not Found if ID missing from url', function (done) {
+    request.get('/users/')
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Parameter "id" missing in url' })
+      .end(done)
   });
   it('returns 404 Not Found for non-existing users', function (done) {
     request.get('/users/' + uuid.v4())
@@ -121,12 +119,14 @@ describe('GET ~/users/:user-id', function () {
       .expect({ message : 'User not found' })
       .end(done);
   });
-  it('returns 404 Not Found if ID missing from url', function (done) {
-    request.get('/users/')
-      .expect(404)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Parameter "id" missing in url' })
-      .end(done)
+  it('returns valid user', function (done) {
+    post(function(err, user) {
+      request.get('/users/' + user.id)
+        .expect(200)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect(user)
+        .end(done)
+    });
   });
 });
 
