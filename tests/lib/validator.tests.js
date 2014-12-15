@@ -76,7 +76,7 @@ describe('Validating ID property', function () {
   });
   it('fails if ID property different', function () {
     var validationResult = validator.allowMatchingId({id: 'abc'}, '123');
-    assert.equal(validationResult.notMatching, 'id');
+    assert.equal(validationResult.notMatchingProperty, 'id');
   });
 });
 
