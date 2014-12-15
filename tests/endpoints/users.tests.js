@@ -121,6 +121,7 @@ describe('GET ~/users/:user-id', function () {
   });
   it('returns valid user', function (done) {
     post(function(err, user) {
+      if (err) { return done(err); }
       request.get('/users/' + user.id)
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
@@ -148,6 +149,7 @@ describe('PUT ~/users/:user-id', function () {
   });
   it('returns 400 Bad Request if ID in body different', function (done) {
     post(function (err, user) {
+      if (err) { return done(err); }
       var correctId = user.id;
       user.id = 'test-user-' + uuid.v4();
       request.put('/users/' + correctId)
@@ -160,6 +162,7 @@ describe('PUT ~/users/:user-id', function () {
   });
   it('returns 400 Bad Request if email not specified', function (done) {
     post(function (err, user) {
+      if (err) { return done(err); }
       delete user.email;
       request.put('/users/' + user.id)
         .send(user)
@@ -171,6 +174,7 @@ describe('PUT ~/users/:user-id', function () {
   });
   it('returns 400 Bad Request if email not specified', function (done) {
     post(function (err, user) {
+      if (err) { return done(err); }
       delete user.name;
       request.put('/users/' + user.id)
         .send(user)
@@ -182,6 +186,7 @@ describe('PUT ~/users/:user-id', function () {
   });
   it('returns 400 Bad Request if unexpected property specified', function (done) {
     post(function (err, user) {
+      if (err) { return done(err); }
       user.unexpected = 'value';
       request.put('/users/' + user.id)
         .send(user)
@@ -191,8 +196,9 @@ describe('PUT ~/users/:user-id', function () {
         .end(done)
     });
   });
-  it('updates valid user', function (done) {
+  it('updates a valid user', function (done) {
     post(function (err, user) {
+      if (err) { return done(err); }
       user.name += ' EDITED';
       request.put('/users/' + user.id)
         .send(user)
@@ -202,5 +208,29 @@ describe('PUT ~/users/:user-id', function () {
         .end(done)
     });
     // TODO: what happens if no dashboards specified?
+  });
+});
+
+describe('DELETE ~/users/:user-id', function () {
+  it('returns 404 Not Found if ID missing from url', function (done) {
+    request.delete('/users')
+      .expect(404)
+      .expect({ message : 'Parameter "id" missing in url' })
+      .end(done);
+  });
+  it('returns 404 Not Found for non-existing users', function (done) {
+    request.delete('/users/' + uuid.v4())
+      .expect(404)
+      .expect({ message: 'User not found'})
+      .end(done);
+  });
+  it('deletes a valid dashboard', function (done) {
+    post(function (err, user) {
+      if (err) { return done(err); }
+      request.delete('/users/' + user.id)
+        .expect(204)
+        .expect('')
+        .end(done)
+    });
   });
 });

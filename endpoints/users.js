@@ -78,4 +78,19 @@ router.put('/users/:id?', function (req, res, next) {
   });
 });
 
+router.delete('/users/:id?', function (req, res, next) {
+  var id = req.params.id;
+  if (!id) {
+    return next(errorGenerator.missingParameter('id'));
+  }
+  dataStore.deleteUser(id, function (err, deleted) {
+    if (err) { return err; }
+    if (!deleted) {
+      return next(errorGenerator.notFound('User'));
+    }
+    res.status(204);
+    res.end();
+  });
+});
+
 module.exports = router;
