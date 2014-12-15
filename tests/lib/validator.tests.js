@@ -63,5 +63,20 @@ describe('Validating allowed properties', function () {
     assert.isNotNull(validationResult);
     assert.equal(validationResult.unexpectedProperty, 'unexpected1')
   });
-
 });
+
+describe('Validating ID property', function () {
+  it('validates the same id if provided', function () {
+    var validationResult = validator.allowMatchingId({ id: '123'}, '123');
+    assert.isNull(validationResult);
+  });
+  it('validates if ID property omitted', function () {
+    var validationResult = validator.allowMatchingId({}, '123');
+    assert.isNull(validationResult);
+  });
+  it('fails if ID property different', function () {
+    var validationResult = validator.allowMatchingId({id: 'abc'}, '123');
+    assert.equal(validationResult.notMatching, 'id');
+  });
+});
+
