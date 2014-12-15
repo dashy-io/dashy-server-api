@@ -1,11 +1,11 @@
 //describe('Completes a full user journey', function (done) {
-//  // create a dashboard
-//  var newId = newDashboardId();
+//  // create a dashboard like a raspberry pi
 //  request.post('/dashboards')
-//    .send({ id: newId })
+//    .send({ id: uuid.v4() })
 //    .expect(201)
 //    .end(function(err, res) {
 //      if (err) { return done(err); }
+//      var dashboard = res.body;
 //      // register a user
 //      request.post('/user')
 //        .send({ email: 'user@example.com' })
