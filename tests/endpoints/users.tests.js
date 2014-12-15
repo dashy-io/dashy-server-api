@@ -87,6 +87,7 @@ describe('POST ~/users', function () {
         done();
       });
   });
+  // TODO: what happens if no dashboards specified?
 });
 
 // TODO: test that only json is allowed in PUT and POST
@@ -126,5 +127,80 @@ describe('GET ~/users/:user-id', function () {
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect({ message : 'Parameter "id" missing in url' })
       .end(done)
+  });
+});
+
+describe('PUT ~/users/:user-id', function () {
+  it('returns 404 Not Found if ID missing from url', function (done) {
+    request.put('/users/')
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Parameter "id" missing in url' })
+      .end(done)
+  });
+  it('returns 404 Not Found for non-existing users', function (done) {
+    request.put('/users/' + uuid.v4())
+      .send(createNewUser())
+      .expect(404)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'User not found' })
+      .end(done);
+  });
+  it('returns 400 Bad Request if ID in body different', function (done) {
+    post(function (err, user) {
+      var correctId = user.id;
+      user.id = 'test-user-' + uuid.v4();
+      request.put('/users/' + correctId)
+        .send(user)
+        .expect(400)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Property "id" in body must match parameter "id" in url' })
+        .end(done)
+    });
+  });
+  it('returns 400 Bad Request if email not specified', function (done) {
+    post(function (err, user) {
+      delete user.email;
+      request.put('/users/' + user.id)
+        .send(user)
+        .expect(400)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Property "email" missing in body' })
+        .end(done)
+    });
+  });
+  it('returns 400 Bad Request if email not specified', function (done) {
+    post(function (err, user) {
+      delete user.name;
+      request.put('/users/' + user.id)
+        .send(user)
+        .expect(400)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Property "name" missing in body' })
+        .end(done)
+    });
+  });
+  it('returns 400 Bad Request if unexpected property specified', function (done) {
+    post(function (err, user) {
+      user.unexpected = 'value';
+      request.put('/users/' + user.id)
+        .send(user)
+        .expect(400)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Property "unexpected" not allowed in body' })
+        .end(done)
+    });
+  });
+  it('updates valid user', function (done) {
+    post(function (err, user) {
+      user.name += ' EDITED';
+      request.put('/users/' + user.id)
+        .send(user)
+        .expect(200)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect(user)
+        .end(done)
+    });
+    // TODO: what happens if no dashboards specified?
   });
 });
