@@ -223,7 +223,7 @@ describe('POST ~/users/:user-id/dashboards', function () {
     });
   });
   // TODO: Not Found if Dashboard Code does not exist
-  // TODO: Handle duplicate dahsboard connection
+  // TODO: Handle duplicate dashboard connection
   it('connects a dashboard', function (done) {
     testHelpers.postEmptyDashboard(function (err, dashboard) {
       if (err) { return done(err); }
@@ -244,6 +244,7 @@ describe('POST ~/users/:user-id/dashboards', function () {
     });
   });
   // TODO: Try get after update
+  // TODO: Error if dashboard already connected
 });
 
 // TODO: Test ~/users/:user-id/dashboards
