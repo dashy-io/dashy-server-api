@@ -52,6 +52,7 @@ function cleanupDashboards(done) {
   });
 }
 
+// TODO: Review this code and split it in different files
 module.exports = {
   addUserToCleanup: function (id) {
     usersToCleanup.push(id);
