@@ -1,6 +1,9 @@
 'use strict';
 var uuid = require('node-uuid');
+var request = require('supertest');
 var dataStore = require('../../lib/dataStore').getDataStore();
+var app = require('../../app');
+request = request(app);
 var usersToCleanup = [];
 var dashboardsToCleanup = [];
 
@@ -54,6 +57,17 @@ module.exports = {
       email : 'test-user' + uuid.v4() + '@example.com',
       dashboards : [ 'example-dashboard' ]
     };
+  },
+  post : function (cb) {
+    var newUser = this.createNewUser();
+    request.post('/users')
+      .send(newUser)
+      .end(function(err, res) {
+        if (err) { return cb(err); }
+        var createdUser = res.body;
+        usersToCleanup.push(createdUser.id);
+        cb(null, createdUser);
+      });
   },
   newDashboardId : function () {
     var newDashboardId = 'test-dashboard-' + uuid.v4();
