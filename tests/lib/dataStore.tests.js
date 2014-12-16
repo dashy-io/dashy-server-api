@@ -1,74 +1,19 @@
 'use strict';
-var uuid = require('node-uuid');
 var chai = require('chai');
 var chaiString = require('chai-string');
-var randToken = require('rand-token');
 var dataStore = require('../../lib/dataStore').getDataStore();
+var testHelpers = require('../test-helpers');
 var assert = chai.assert;
 chai.use(chaiString);
 
-var dashboardsToCleanup = [];
-var usersToCleanup = [];
-
-function createDashboard() {
-  var newId = 'test-dashboard-' + uuid.v4();
-  dashboardsToCleanup.push(newId);
-  return {
-    id: newId,
-    code: randToken.generate(6),
-    interval: 15,
-    name: 'Test Dashboard',
-    urls: [
-      'http://citydashboard.org/london/',
-      'http://www.casa.ucl.ac.uk/cumulus/ipad.html',
-      'http://www.gridwatch.templar.co.uk/',
-      'http://www.casa.ucl.ac.uk/weather/colours.html'
-    ]
-  }
-}
-
-function createUser() {
-  var newId = 'test-user-' + uuid.v4();
-  usersToCleanup.push(newId);
-  return {
-    id : newId,
-    name : 'User Name',
-    email : newId + '@example.com'
-  }
-}
-
 after('DataStore Cleanup', function (done) {
-  if (dashboardsToCleanup.length === 0) {
-    return done();
-  }
   this.timeout(30000);
-  var deletedCount = 0;
-  console.log('Cleaning up (DataStore)...');
-  dashboardsToCleanup.forEach(function (id) {
-    dataStore.deleteDashboard(id, function (err) {
-      if (err) { console.log(err); }
-      deletedCount++;
-      if (deletedCount === dashboardsToCleanup.length + usersToCleanup.length) {
-        console.log('Done.');
-        return done();
-      }
-    });
-  });
-  usersToCleanup.forEach(function (id) {
-    dataStore.deleteUser(id, function (err) {
-      if (err) { console.log(err); }
-      deletedCount++;
-      if (deletedCount === dashboardsToCleanup.length + usersToCleanup.length) {
-        console.log('Done.');
-        return done();
-      }
-    });
-  });
+  testHelpers.cleanup(done);
 });
 
 describe('Getting a dashboard', function () {
   it('returns a valid dashboard', function (done) {
-    var newDashboard = createDashboard();
+    var newDashboard = testHelpers.createDashboard();
     dataStore.createDashboard(newDashboard, function (err) {
       if (err) { return done(err); }
       dataStore.getDashboard(newDashboard.id, function (err, dashboard) {
@@ -91,7 +36,7 @@ describe('Getting a dashboard', function () {
 
 describe('Getting a dashboard by code', function () {
   it('returns a dashboard', function (done) {
-    var newDashboard = createDashboard();
+    var newDashboard = testHelpers.createDashboard();
     dataStore.createDashboard(newDashboard, function (err) {
       if (err) { return done(err); }
       dataStore.getDashboardByCode(newDashboard.code, function (err, dashboard) {
@@ -105,7 +50,7 @@ describe('Getting a dashboard by code', function () {
 
 describe('Creating a dashboard', function () {
   it('creates a new dashboard', function (done) {
-    var newDashboard = createDashboard();
+    var newDashboard = testHelpers.createDashboard();
     dataStore.createDashboard(newDashboard, function (err, createdDashboard) {
       if (err) { return done(err); }
       assert.deepEqual(createdDashboard, newDashboard);
@@ -118,7 +63,7 @@ describe('Creating a dashboard', function () {
 
 describe('Updating a dashboard', function () {
   it('updates a valid dashboard', function (done) {
-    var newDashboard = createDashboard();
+    var newDashboard = testHelpers.createDashboard();
     dataStore.createDashboard(newDashboard, function (err, createdDashboard) {
       if (err) { return done(err); }
       createdDashboard.name += ' EDITED';
@@ -131,7 +76,7 @@ describe('Updating a dashboard', function () {
   });
   // TODO: Try get after update
   it('persists additional fields', function (done) {
-    var newDashboard = createDashboard();
+    var newDashboard = testHelpers.createDashboard();
     newDashboard.additional1 = 'additional field 1';
     dataStore.createDashboard(newDashboard, function (err, createdDashboard) {
       if (err) { return done(err); }
@@ -149,7 +94,7 @@ describe('Updating a dashboard', function () {
     });
   });
   it('does not update a non-existing dashboard', function (done) {
-    var newDashboard = createDashboard();
+    var newDashboard = testHelpers.createDashboard();
     dataStore.updateDashboard(newDashboard.id, newDashboard, function (err, updatedDashboard) {
       if (err) { return done(err); }
       assert.isNull(updatedDashboard);
@@ -161,7 +106,7 @@ describe('Updating a dashboard', function () {
 
 describe('Deleting a dashboard', function () {
   it('deletes a valid dashboard', function (done) {
-    var newDashboard = createDashboard();
+    var newDashboard = testHelpers.createDashboard();
     dataStore.createDashboard(newDashboard, function (err) {
       if (err) { return done(err); }
       dataStore.deleteDashboard(newDashboard.id, function (err, deleted) {
@@ -173,7 +118,7 @@ describe('Deleting a dashboard', function () {
   });
   // TODO: Try get after delete
   it('does not delete a non-existing dashboard', function (done) {
-    var newDashboard = createDashboard();
+    var newDashboard = testHelpers.createDashboard();
     dataStore.deleteDashboard(newDashboard.id, function (err, deleted) {
       if (err) { return done(err); }
       assert.isFalse(deleted);
@@ -185,7 +130,7 @@ describe('Deleting a dashboard', function () {
 
 describe('Creating a user', function () {
   it('creates a new user', function (done) {
-    var newUser = createUser();
+    var newUser = testHelpers.createUser();
     dataStore.createUser(newUser, function (err, createdUser) {
       if (err) { return done(err); }
       assert.deepEqual(createdUser, newUser);
@@ -198,7 +143,7 @@ describe('Creating a user', function () {
 
 describe('Getting a user', function () {
   it('returns a valid user', function (done) {
-    var newUser = createUser();
+    var newUser = testHelpers.createUser();
     dataStore.createUser(newUser, function (err) {
       if (err) { return done(err); }
       dataStore.getUser(newUser.id, function (err, user) {
@@ -220,7 +165,7 @@ describe('Getting a user', function () {
 
 describe('Updating a user', function () {
   it('updates a valid user', function (done) {
-    var newUser = createUser();
+    var newUser = testHelpers.createUser();
     dataStore.createUser(newUser, function (err, createdUser) {
       if (err) { return done(err); }
       createdUser.name += ' EDITED';
@@ -233,7 +178,7 @@ describe('Updating a user', function () {
   });
   // TODO: Try get after update
   it('persists additional fields', function (done) {
-    var newUser = createUser();
+    var newUser = testHelpers.createUser();
     newUser.additional1 = 'additional field 1';
     dataStore.createUser(newUser, function (err, createdUser) {
       if (err) { return done(err); }
@@ -251,7 +196,7 @@ describe('Updating a user', function () {
     });
   });
   it('does not update a non-existing user', function (done) {
-    var newUser = createUser();
+    var newUser = testHelpers.createUser();
     dataStore.updateUser(newUser.id, newUser, function (err, updatedUser) {
       if (err) { return done(err); }
       assert.isNull(updatedUser);
@@ -263,7 +208,7 @@ describe('Updating a user', function () {
 
 describe('Deleting a user', function () {
   it('deletes a valid user', function (done) {
-    var newUser = createUser();
+    var newUser = testHelpers.createUser();
     dataStore.createUser(newUser, function (err) {
       if (err) { return done(err); }
       dataStore.deleteUser(newUser.id, function (err, deleted) {
@@ -275,7 +220,7 @@ describe('Deleting a user', function () {
   });
   // TODO: Try get after delete
   it('does not delete a non-existing dashboard', function (done) {
-    var newUser = createUser();
+    var newUser = testHelpers.createUser();
     dataStore.deleteUser(newUser.id, function (err, deleted) {
       if (err) { return done(err); }
       assert.isFalse(deleted);

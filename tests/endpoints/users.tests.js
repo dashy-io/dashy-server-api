@@ -4,7 +4,7 @@ var request = require('supertest');
 var chai = require('chai');
 var chaiString = require('chai-string');
 var app = require('../../app');
-var testHelpers = require('./test-helpers');
+var testHelpers = require('./../test-helpers');
 var assert = chai.assert;
 request = request(app);
 chai.use(chaiString);
