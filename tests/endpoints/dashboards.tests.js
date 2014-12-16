@@ -1,57 +1,22 @@
 'use strict';
-
 var uuid = require('node-uuid');
 var request = require('supertest');
 var chai = require('chai');
 var chaiString = require('chai-string');
-
 var app = require('../../app');
-var dataStore = require('../../lib/dataStore').getDataStore();
+var testHelpers = require('./test-helpers');
 var assert = chai.assert;
 request = request(app);
 chai.use(chaiString);
 
-var dashboardsToCleanup = [];
-
-function newDashboardId() {
-  var newDashboardId = 'test-dashboard-' + uuid.v4();
-  dashboardsToCleanup.push(newDashboardId);
-  return newDashboardId;
-}
-
-function getDashboardUpdate() {
-  return {
-    interval: 15,
-    name: "Test Dashboard",
-    "urls": [
-      "http://citydashboard.org/london/",
-      "http://www.casa.ucl.ac.uk/cumulus/ipad.html",
-      "http://www.gridwatch.templar.co.uk/",
-      "http://www.casa.ucl.ac.uk/weather/colours.html"
-    ]
-  }
-}
-
 after('API Cleanup', function (done) {
-  if (dashboardsToCleanup.length === 0) { return done(); }
   this.timeout(30000);
-  var deletedCount = 0;
-  console.log('Cleaning up (Dashbaords API)...');
-  dashboardsToCleanup.forEach(function (id) {
-    dataStore.deleteDashboard(id, function(err, deleted) {
-      if (err) { console.log(err); }
-      deletedCount++;
-      if (deletedCount === dashboardsToCleanup.length) {
-        console.log('Done.');
-        return done();
-      }
-    });
-  });
+  testHelpers.cleanup(done);
 });
 
 function postDashboard(cb) {
   request.post('/dashboards')
-    .send({ id: newDashboardId() })
+    .send({ id: testHelpers.newDashboardId() })
     .end(function (err, res) {
       if (err) { return cb(err); }
       cb(null, res.body);
@@ -62,7 +27,7 @@ function postAndPutDashboard(cb) {
   postDashboard(function (err, createdDashboard)  {
     if (err) { return cb(err); }
     request.put('/dashboards/' + createdDashboard.id)
-      .send(getDashboardUpdate())
+      .send(testHelpers.getDashboardUpdate())
       .end(function (err, res) {
         if (err) {return cb(err); }
         cb(null, res.body);
@@ -80,7 +45,7 @@ describe('POST ~/dashboards', function () {
       .end(done);
   });
   it('creates a minimal new dashboard', function (done) {
-    var newId = newDashboardId();
+    var newId = testHelpers.newDashboardId();
     request.post('/dashboards')
       .send({ id: newId })
       .expect(201)
@@ -95,8 +60,8 @@ describe('POST ~/dashboards', function () {
       });
   });
   it('creates a new dashboard', function (done) {
-    var newId = newDashboardId();
-    var newDashboard = getDashboardUpdate();
+    var newId = testHelpers.newDashboardId();
+    var newDashboard = testHelpers.getDashboardUpdate();
     newDashboard.id = newId;
     request.post('/dashboards')
       .send(newDashboard)
@@ -124,7 +89,7 @@ describe('POST ~/dashboards', function () {
   });
   it('returns 400 Bad Request if other parameters in body', function (done) {
     request.post('/dashboards')
-      .send({ id: newDashboardId(), other : 'other field' })
+      .send({ id: testHelpers.newDashboardId(), other : 'other field' })
       .expect(400)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect({ message: 'Property "other" not allowed in body' })
@@ -132,7 +97,7 @@ describe('POST ~/dashboards', function () {
   });
   it('returns 400 Bad Request if code parameter in body', function (done) {
     request.post('/dashboards')
-      .send({ id: newDashboardId(), code : '11111111' })
+      .send({ id: testHelpers.newDashboardId(), code : '11111111' })
       .expect(400)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect({ message: 'Property "code" not allowed in body' })
@@ -170,7 +135,7 @@ describe('GET ~/dashboards/:dashboard-id', function () {
     });
   });
   it('returns 404 Not Found for non-existing dashboards', function (done) {
-    request.get('/dashboards/' + newDashboardId())
+    request.get('/dashboards/' + testHelpers.newDashboardId())
       .expect(404)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect({ message : 'Dashboard Not Found' })
@@ -189,7 +154,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
   it('updates a valid dashboard', function (done) {
     postDashboard(function(err, createdDashboard) {
       if (err) { return done(err); }
-      var updatedDashboard = getDashboardUpdate();
+      var updatedDashboard = testHelpers.getDashboardUpdate();
       updatedDashboard.name += 'Test Dashboard - EDITED';
       var expectedDashboard = JSON.parse(JSON.stringify(updatedDashboard));
       expectedDashboard.id = createdDashboard.id;
@@ -202,8 +167,8 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
     });
   });
   it('returns 404 Not Found for non-existing dashboards', function (done) {
-    request.put('/dashboards/' + newDashboardId())
-      .send(getDashboardUpdate())
+    request.put('/dashboards/' + testHelpers.newDashboardId())
+      .send(testHelpers.getDashboardUpdate())
       .expect(404)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect({ message : 'Dashboard not found' })
@@ -212,8 +177,8 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
   it('returns 409 Conflict if dashboard ID in body does not match :dashboard-id parameter', function (done) {
     postDashboard(function (err, dashboard) {
       if(err) { return done(err); }
-      var dashboardUpdateWithId = getDashboardUpdate();
-      dashboardUpdateWithId.id = newDashboardId();
+      var dashboardUpdateWithId = testHelpers.getDashboardUpdate();
+      dashboardUpdateWithId.id = testHelpers.newDashboardId();
       request.put('/dashboards/' + dashboard.id)
         .send(dashboardUpdateWithId)
         .expect(409)
@@ -237,7 +202,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
   it('returns 409 Conflict if trying to modify code property', function (done) {
     postDashboard(function (err, dashboard) {
       if (err) { return done(err); }
-      var dashboardUpdateWithCode = getDashboardUpdate();
+      var dashboardUpdateWithCode = testHelpers.getDashboardUpdate();
       dashboardUpdateWithCode.code = '12345678';
       request.put('/dashboards/' + dashboard.id)
         .send(dashboardUpdateWithCode)
@@ -259,7 +224,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
 
 describe('DELETE ~/dashboards/:dashboard-id', function () {
   it('returns 404 Not Found for non-existing dashboard', function (done) {
-    var newId = newDashboardId();
+    var newId = testHelpers.newDashboardId();
     request.delete('/dashboards/' + newId)
       .expect(404)
       .expect({ message: 'Dashboard not found'})
@@ -308,7 +273,7 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
     });
   });
   it('returns 404 Not Found for non-existing dashboards', function (done) {
-    request.get('/dashboards/' + newDashboardId() + '/code')
+    request.get('/dashboards/' + testHelpers.newDashboardId() + '/code')
       .expect(404)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect({ message : 'Dashboard Not Found' })
