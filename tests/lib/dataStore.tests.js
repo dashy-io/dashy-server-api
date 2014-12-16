@@ -88,6 +88,20 @@ describe('Getting a dashboard', function () {
   // TODO: Does not get a dashboard if id not specified
 });
 
+describe('Getting a dashboard by code', function () {
+  it('returns a dashboard', function (done) {
+    var newDashboard = createDashboard();
+    dataStore.createDashboard(newDashboard, function (err) {
+      if (err) { return done(err); }
+      dataStore.getDashboardByCode(newDashboard.code, function (err, dashboard) {
+        if (err) { return done(err); }
+        assert.deepEqual(dashboard, newDashboard);
+        done();
+      })
+    });
+  });
+});
+
 describe('Creating a dashboard', function () {
   it('creates a new dashboard', function (done) {
     var newDashboard = createDashboard();
