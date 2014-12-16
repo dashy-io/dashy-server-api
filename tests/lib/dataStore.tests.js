@@ -15,7 +15,7 @@ function createDashboard() {
   dashboardsToCleanup.push(newId);
   return {
     id: newId,
-    code: randToken.generate(8),
+    code: randToken.generate(6),
     interval: 15,
     name: 'Test Dashboard',
     urls: [

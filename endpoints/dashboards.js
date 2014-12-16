@@ -28,7 +28,7 @@ router.post('/dashboards', function (req, res, next) {
     }
   }
   var newDashboard = {
-    code : randToken.generate(8)
+    code : randToken.generate(6)
   };
   allowedProperties.forEach(function (property) {
     newDashboard[property] = req.body[property];
