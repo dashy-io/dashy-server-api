@@ -53,16 +53,16 @@ describe('User Journey', function () {
                           .expect(dashboard)
                           .end(function (err, res) {
                             if (err) { return done(err); }
-                              // delete a dashboard
-                              request.delete('/dashboards/' + dashboard.id)
-                                .expect(204)
-                                .end(function (err, res) {
-                                  if (err) { return done(err); }
-                                    // delete a user
-                                    request.delete('/users/' + user.id)
-                                      .expect(204)
-                                      .end(done);
-                                });
+                            // delete a dashboard
+                            request.delete('/dashboards/' + dashboard.id)
+                              .expect(204)
+                              .end(function (err, res) {
+                                if (err) { return done(err); }
+                                // delete a user
+                                request.delete('/users/' + user.id)
+                                  .expect(204)
+                                  .end(done);
+                              });
                           });
                       });
                   });
