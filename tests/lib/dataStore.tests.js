@@ -2,7 +2,7 @@
 var uuid = require('node-uuid');
 var chai = require('chai');
 var chaiString = require('chai-string');
-
+var randToken = require('rand-token');
 var dataStore = require('../../lib/dataStore').getDataStore();
 var assert = chai.assert;
 chai.use(chaiString);
@@ -15,7 +15,7 @@ function createDashboard() {
   dashboardsToCleanup.push(newId);
   return {
     id: newId,
-    code: '12345678',
+    code: randToken.generate(8),
     interval: 15,
     name: 'Test Dashboard',
     urls: [
