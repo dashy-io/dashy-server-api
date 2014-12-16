@@ -66,6 +66,7 @@ describe('POST ~/users', function () {
         done();
       });
   });
+  // TODO: Try get after create
   // TODO: what happens if no dashboards specified?
 });
 
@@ -174,6 +175,7 @@ describe('PUT ~/users/:user-id', function () {
     });
     // TODO: what happens if no dashboards specified?
   });
+  // TODO: Try get after update
 });
 
 describe('DELETE ~/users/:user-id', function () {
@@ -198,6 +200,7 @@ describe('DELETE ~/users/:user-id', function () {
         .end(done)
     });
   });
+  // TODO: Try get after delete
 });
 
 describe('POST ~/users/:user-id/dashboards', function () {
@@ -240,6 +243,7 @@ describe('POST ~/users/:user-id/dashboards', function () {
         });
     });
   });
+  // TODO: Try get after update
 });
 
 // TODO: Test ~/users/:user-id/dashboards

@@ -78,6 +78,7 @@ describe('Getting a dashboard', function () {
       })
     });
   });
+  // TODO: Try get after create
   it('does not return a non-existing dashboard', function (done) {
     dataStore.getDashboard('test-dashboard-bad', function (err, dashboard) {
       if (err) { return done(err); }
@@ -128,6 +129,7 @@ describe('Updating a dashboard', function () {
       });
     });
   });
+  // TODO: Try get after update
   it('persists additional fields', function (done) {
     var newDashboard = createDashboard();
     newDashboard.additional1 = 'additional field 1';
@@ -169,6 +171,7 @@ describe('Deleting a dashboard', function () {
       });
     });
   });
+  // TODO: Try get after delete
   it('does not delete a non-existing dashboard', function (done) {
     var newDashboard = createDashboard();
     dataStore.deleteDashboard(newDashboard.id, function (err, deleted) {
@@ -189,6 +192,7 @@ describe('Creating a user', function () {
       done();
     });
   });
+  // TODO: Try get after create
   // TODO: Does not create a user if id not specified
 });
 
@@ -227,6 +231,7 @@ describe('Updating a user', function () {
       });
     });
   });
+  // TODO: Try get after update
   it('persists additional fields', function (done) {
     var newUser = createUser();
     newUser.additional1 = 'additional field 1';
@@ -268,6 +273,7 @@ describe('Deleting a user', function () {
       });
     });
   });
+  // TODO: Try get after delete
   it('does not delete a non-existing dashboard', function (done) {
     var newUser = createUser();
     dataStore.deleteUser(newUser.id, function (err, deleted) {
