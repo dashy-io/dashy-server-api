@@ -1,7 +1,27 @@
 'use strict';
 var uuid = require('node-uuid');
-var cleanup = require('./cleanup');
+var dataStore = require('../../lib/dataStore').getDataStore();
 var usersToCleanup = [];
+
+function cleanupUsers (usersToCleanup, done) {
+  if (usersToCleanup.length === 0) { return done(); }
+  var deletedCount = 0;
+  var errorCount = 0;
+  console.log('Cleaning up (Users)...');
+  usersToCleanup.forEach(function (id) {
+    dataStore.deleteUser(id, function(err) {
+      if (err) {
+        errorCount++;
+        console.log(err);
+      }
+      deletedCount++;
+      if (deletedCount === usersToCleanup.length) {
+        console.log('Cleaned: ' + usersToCleanup.length + ', errors: ' + errorCount);
+        return done();
+      }
+    });
+  });
+}
 
 module.exports = {
   addUserToCleanup : function (id) {
@@ -15,7 +35,7 @@ module.exports = {
     };
   },
   cleanup : function (done) {
-    cleanup.users(usersToCleanup, done);
+    cleanupUsers(usersToCleanup, done);
   }
 };
 
