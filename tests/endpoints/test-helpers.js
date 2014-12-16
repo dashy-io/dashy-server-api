@@ -58,7 +58,7 @@ module.exports = {
       dashboards : [ 'example-dashboard' ]
     };
   },
-  post : function (cb) {
+  postNewUser : function (cb) {
     var newUser = this.createNewUser();
     request.post('/users')
       .send(newUser)

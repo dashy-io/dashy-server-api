@@ -85,7 +85,7 @@ describe('GET ~/users/:user-id', function () {
       .end(done);
   });
   it('returns valid user', function (done) {
-    testHelpers.post(function(err, user) {
+    testHelpers.postNewUser(function(err, user) {
       if (err) { return done(err); }
       request.get('/users/' + user.id)
         .expect(200)
@@ -113,7 +113,7 @@ describe('PUT ~/users/:user-id', function () {
       .end(done);
   });
   it('returns 400 Bad Request if ID in body different', function (done) {
-    testHelpers.post(function (err, user) {
+    testHelpers.postNewUser(function (err, user) {
       if (err) { return done(err); }
       var correctId = user.id;
       user.id = 'test-user-' + uuid.v4();
@@ -126,7 +126,7 @@ describe('PUT ~/users/:user-id', function () {
     });
   });
   it('returns 400 Bad Request if email not specified', function (done) {
-    testHelpers.post(function (err, user) {
+    testHelpers.postNewUser(function (err, user) {
       if (err) { return done(err); }
       delete user.email;
       request.put('/users/' + user.id)
@@ -138,7 +138,7 @@ describe('PUT ~/users/:user-id', function () {
     });
   });
   it('returns 400 Bad Request if email not specified', function (done) {
-    testHelpers.post(function (err, user) {
+    testHelpers.postNewUser(function (err, user) {
       if (err) { return done(err); }
       delete user.name;
       request.put('/users/' + user.id)
@@ -150,7 +150,7 @@ describe('PUT ~/users/:user-id', function () {
     });
   });
   it('returns 400 Bad Request if unexpected property specified', function (done) {
-    testHelpers.post(function (err, user) {
+    testHelpers.postNewUser(function (err, user) {
       if (err) { return done(err); }
       user.unexpected = 'value';
       request.put('/users/' + user.id)
@@ -162,7 +162,7 @@ describe('PUT ~/users/:user-id', function () {
     });
   });
   it('updates a valid user', function (done) {
-    testHelpers.post(function (err, user) {
+    testHelpers.postNewUser(function (err, user) {
       if (err) { return done(err); }
       user.name += ' EDITED';
       request.put('/users/' + user.id)
@@ -190,7 +190,7 @@ describe('DELETE ~/users/:user-id', function () {
       .end(done);
   });
   it('deletes a valid dashboard', function (done) {
-    testHelpers.post(function (err, user) {
+    testHelpers.postNewUser(function (err, user) {
       if (err) { return done(err); }
       request.delete('/users/' + user.id)
         .expect(204)
