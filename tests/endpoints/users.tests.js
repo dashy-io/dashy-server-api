@@ -137,7 +137,7 @@ describe('PUT ~/users/:user-id', function () {
         .end(done)
     });
   });
-  it('returns 400 Bad Request if email not specified', function (done) {
+  it('returns 400 Bad Request if name not specified', function (done) {
     testHelpers.postNewUser(function (err, user) {
       if (err) { return done(err); }
       delete user.name;
@@ -199,3 +199,47 @@ describe('DELETE ~/users/:user-id', function () {
     });
   });
 });
+
+describe('POST ~/users/:user-id/dashboards', function () {
+  it('returns 404 Not Found for non-existing users', function (done) {
+    request.post('/users/' + uuid.v4() + '/dashboards')
+      .send({ code: '12345678' })
+      .expect(404)
+      .expect({ message: 'User not found'})
+      .end(done);
+  });
+  it('returns 400 Bad Request if Dashboard Code not specified', function (done) {
+    testHelpers.postNewUser(function (err, user) {
+      if (err) { return done(err); }
+      request.post('/users/' + user.id + '/dashboards')
+        .send({})
+        .expect(400)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Property "code" missing in body' })
+        .end(done)
+    });
+  });
+  // TODO: Not Found if Dashboard Code does not exist
+  // TODO: Handle duplicate dahsboard connection
+  it('connects a dashboard', function (done) {
+    testHelpers.postEmptyDashboard(function (err, dashboard) {
+      if (err) { return done(err); }
+      request.get('/dashboards/' + dashboard.id + '/code')
+        .end(function (err, res) {
+          if (err) { return done(err); }
+          var code = res.body.code;
+          testHelpers.postNewUser(function (err, user) {
+            if (err) { return done(err); }
+            request.post('/users/' + user.id + '/dashboards')
+              .send({ code : code })
+              .expect(201)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .expect([ 'example-dashboard', dashboard.id ])
+              .end(done)
+          });
+        });
+    });
+  });
+});
+
+// TODO: Test ~/users/:user-id/dashboards

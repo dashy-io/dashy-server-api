@@ -35,13 +35,13 @@ router.get('/users/:id?', function (req, res, next) {
   if (!id) {
     return next(errorGenerator.missingParameter('id'));
   }
-  dataStore.getUser(id, function (err, createdUser) {
+  dataStore.getUser(id, function (err, user) {
     if (err) { return next(err); }
-    if (!createdUser) {
+    if (!user) {
       return next(errorGenerator.notFound('User'));
     }
     res.status(200);
-    res.json(createdUser);
+    res.json(user);
   });
 });
 
@@ -90,6 +90,33 @@ router.delete('/users/:id?', function (req, res, next) {
     }
     res.status(204);
     res.end();
+  });
+});
+
+router.post('/users/:id/dashboards', function (req, res, next) {
+  var userId = req.params.id;
+  var dashboardConnect = clone(req.body);
+  var requiredProperties = ['code'];
+  var validationError = validator.requireProperties(dashboardConnect, requiredProperties);
+  if (validationError) {
+    return next(errorGenerator.missingProperty(validationError.missingProperty));
+  }
+  dataStore.getUser(userId, function (err, user) {
+    if (err) { return next(err); }
+    if (!user) {
+      return next(errorGenerator.notFound('User'));
+    }
+    dataStore.getDashboardByCode(dashboardConnect.code, function(err, dashboard) {
+      if (err) { return next(err); }
+      if (!user) {
+        return next(errorGenerator.notFound('Dashboard'));
+      }
+      user.dashboards.push(dashboard.id);
+      dataStore.updateUser(user.id, user, function (err, updatedUser) {
+        res.status(201);
+        res.json(updatedUser.dashboards);
+      });
+    });
   });
 });
 
