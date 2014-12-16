@@ -234,6 +234,7 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
         .expect('Content-Type', 'application/json; charset=utf-8')
         .end(function (err, res) {
           if (err) { return done(err); }
+          assert.isString(res.body.code);
           assert.match(res.body.code, /[A-z0-9]{8}/);
           done();
         })
