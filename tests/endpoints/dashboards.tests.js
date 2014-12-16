@@ -14,7 +14,7 @@ after('API Cleanup', function (done) {
   testHelpers.cleanup(done);
 });
 
-function postDashboard(cb) {
+function postEmptyDashboard(cb) {
   request.post('/dashboards')
     .send({ id: testHelpers.newDashboardId() })
     .end(function (err, res) {
@@ -24,7 +24,7 @@ function postDashboard(cb) {
 }
 
 function postAndPutDashboard(cb) {
-  postDashboard(function (err, createdDashboard)  {
+  postEmptyDashboard(function (err, createdDashboard)  {
     if (err) { return cb(err); }
     request.put('/dashboards/' + createdDashboard.id)
       .send(testHelpers.getDashboardUpdate())
@@ -77,7 +77,7 @@ describe('POST ~/dashboards', function () {
       });
   });
   it('returns 409 Conflict if dashboard already exists', function (done) {
-    postDashboard(function (err, dashboard) {
+    postEmptyDashboard(function (err, dashboard) {
       if (err) { return done(err); }
       request.post('/dashboards')
         .send(dashboard)
@@ -152,7 +152,7 @@ describe('GET ~/dashboards/:dashboard-id', function () {
 
 describe('PUT ~/dashboards/:dashboard-id', function () {
   it('updates a valid dashboard', function (done) {
-    postDashboard(function(err, createdDashboard) {
+    postEmptyDashboard(function(err, createdDashboard) {
       if (err) { return done(err); }
       var updatedDashboard = testHelpers.getDashboardUpdate();
       updatedDashboard.name += 'Test Dashboard - EDITED';
@@ -175,7 +175,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
       .end(done);
   });
   it('returns 409 Conflict if dashboard ID in body does not match :dashboard-id parameter', function (done) {
-    postDashboard(function (err, dashboard) {
+    postEmptyDashboard(function (err, dashboard) {
       if(err) { return done(err); }
       var dashboardUpdateWithId = testHelpers.getDashboardUpdate();
       dashboardUpdateWithId.id = testHelpers.newDashboardId();
@@ -200,7 +200,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
     });
   });
   it('returns 409 Conflict if trying to modify code property', function (done) {
-    postDashboard(function (err, dashboard) {
+    postEmptyDashboard(function (err, dashboard) {
       if (err) { return done(err); }
       var dashboardUpdateWithCode = testHelpers.getDashboardUpdate();
       dashboardUpdateWithCode.code = '12345678';
@@ -231,7 +231,7 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
       .end(done);
   });
   it('deletes a valid dashboard', function (done) {
-    postDashboard(function(err, createdDashboard) {
+    postEmptyDashboard(function(err, createdDashboard) {
       if (err) { return done(err); }
       request.delete('/dashboards/' + createdDashboard.id)
         .expect(204)
@@ -249,7 +249,7 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
 
 describe('GET ~/dashboards/:dashboard-id/code', function () {
   it('returns code for new dashboards', function (done) {
-    postDashboard(function(err, dashboard) {
+    postEmptyDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id + '/code')
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
@@ -261,7 +261,7 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
     });
   });
   it('returns code for updated dashboard', function (done) {
-    postDashboard(function(err, dashboard) {
+    postEmptyDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id + '/code')
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
