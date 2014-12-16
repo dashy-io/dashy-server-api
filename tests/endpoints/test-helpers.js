@@ -7,13 +7,15 @@ request = request(app);
 var usersToCleanup = [];
 var dashboardsToCleanup = [];
 
-function cleanupUsers (done) {
-  if (usersToCleanup.length === 0) { return done(); }
+function cleanupUsers(done) {
+  if (usersToCleanup.length === 0) {
+    return done();
+  }
   var deletedCount = 0;
   var errorCount = 0;
   console.log('Cleaning up (Users)...');
   usersToCleanup.forEach(function (id) {
-    dataStore.deleteUser(id, function(err) {
+    dataStore.deleteUser(id, function (err) {
       if (err) {
         errorCount++;
         console.log(err);
@@ -28,12 +30,15 @@ function cleanupUsers (done) {
 }
 
 function cleanupDashboards(done) {
-  if (dashboardsToCleanup.length === 0) { return done(); }
+  if (dashboardsToCleanup.length === 0) {
+    return done();
+  }
   var deletedCount = 0;
-  var errorCount = 0;;
+  var errorCount = 0;
+  ;
   console.log('Cleaning up (Dashbaords)...');
   dashboardsToCleanup.forEach(function (id) {
-    dataStore.deleteDashboard(id, function(err, deleted) {
+    dataStore.deleteDashboard(id, function (err, deleted) {
       if (err) {
         errorCount++;
         console.log(err);
@@ -48,33 +53,35 @@ function cleanupDashboards(done) {
 }
 
 module.exports = {
-  addUserToCleanup : function (id) {
+  addUserToCleanup: function (id) {
     usersToCleanup.push(id);
   },
-  createNewUser : function () {
+  createNewUser: function () {
     return {
-      name : 'Test User',
-      email : 'test-user' + uuid.v4() + '@example.com',
-      dashboards : [ 'example-dashboard' ]
+      name: 'Test User',
+      email: 'test-user' + uuid.v4() + '@example.com',
+      dashboards: ['example-dashboard']
     };
   },
-  postNewUser : function (cb) {
+  postNewUser: function (cb) {
     var newUser = this.createNewUser();
     request.post('/users')
       .send(newUser)
-      .end(function(err, res) {
-        if (err) { return cb(err); }
+      .end(function (err, res) {
+        if (err) {
+          return cb(err);
+        }
         var createdUser = res.body;
         usersToCleanup.push(createdUser.id);
         cb(null, createdUser);
       });
   },
-  newDashboardId : function () {
+  newDashboardId: function () {
     var newDashboardId = 'test-dashboard-' + uuid.v4();
     dashboardsToCleanup.push(newDashboardId);
     return newDashboardId;
   },
-  getDashboardUpdate : function () {
+  getDashboardUpdate: function () {
     return {
       interval: 15,
       name: "Test Dashboard",
@@ -86,7 +93,33 @@ module.exports = {
       ]
     }
   },
-  cleanup : function (done) {
+  postEmptyDashboard: function (cb) {
+    request.post('/dashboards')
+      .send({id: this.newDashboardId()})
+      .end(function (err, res) {
+        if (err) {
+          return cb(err);
+        }
+        cb(null, res.body);
+      });
+  },
+  postAndPutDashboard: function (cb) {
+    var _this = this;
+    this.postEmptyDashboard(function (err, createdDashboard) {
+      if (err) {
+        return cb(err);
+      }
+      request.put('/dashboards/' + createdDashboard.id)
+        .send(_this.getDashboardUpdate())
+        .end(function (err, res) {
+          if (err) {
+            return cb(err);
+          }
+          cb(null, res.body);
+        });
+    });
+  },
+  cleanup: function (done) {
     cleanupUsers(function () {
       cleanupDashboards(done);
     });

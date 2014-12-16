@@ -14,27 +14,6 @@ after('API Cleanup', function (done) {
   testHelpers.cleanup(done);
 });
 
-function postEmptyDashboard(cb) {
-  request.post('/dashboards')
-    .send({ id: testHelpers.newDashboardId() })
-    .end(function (err, res) {
-      if (err) { return cb(err); }
-      cb(null, res.body);
-    });
-}
-
-function postAndPutDashboard(cb) {
-  postEmptyDashboard(function (err, createdDashboard)  {
-    if (err) { return cb(err); }
-    request.put('/dashboards/' + createdDashboard.id)
-      .send(testHelpers.getDashboardUpdate())
-      .end(function (err, res) {
-        if (err) {return cb(err); }
-        cb(null, res.body);
-      });
-  });
-}
-
 describe('POST ~/dashboards', function () {
   it('returns 400 Bad Request if ID not specified in body', function (done) {
     request.post('/dashboards')
@@ -77,7 +56,7 @@ describe('POST ~/dashboards', function () {
       });
   });
   it('returns 409 Conflict if dashboard already exists', function (done) {
-    postEmptyDashboard(function (err, dashboard) {
+    testHelpers.postEmptyDashboard(function (err, dashboard) {
       if (err) { return done(err); }
       request.post('/dashboards')
         .send(dashboard)
@@ -114,7 +93,7 @@ describe('POST ~/dashboards', function () {
 
 describe('GET ~/dashboards/:dashboard-id', function () {
   it('returns valid dashboard', function (done) {
-    postAndPutDashboard(function(err, dashboard) {
+    testHelpers.postAndPutDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id)
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
@@ -123,7 +102,7 @@ describe('GET ~/dashboards/:dashboard-id', function () {
     });
   });
   it('does not return code property', function (done) {
-    postAndPutDashboard(function(err, dashboard) {
+    testHelpers.postAndPutDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id)
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
@@ -152,7 +131,7 @@ describe('GET ~/dashboards/:dashboard-id', function () {
 
 describe('PUT ~/dashboards/:dashboard-id', function () {
   it('updates a valid dashboard', function (done) {
-    postEmptyDashboard(function(err, createdDashboard) {
+    testHelpers.postEmptyDashboard(function(err, createdDashboard) {
       if (err) { return done(err); }
       var updatedDashboard = testHelpers.getDashboardUpdate();
       updatedDashboard.name += 'Test Dashboard - EDITED';
@@ -175,7 +154,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
       .end(done);
   });
   it('returns 409 Conflict if dashboard ID in body does not match :dashboard-id parameter', function (done) {
-    postEmptyDashboard(function (err, dashboard) {
+    testHelpers.postEmptyDashboard(function (err, dashboard) {
       if(err) { return done(err); }
       var dashboardUpdateWithId = testHelpers.getDashboardUpdate();
       dashboardUpdateWithId.id = testHelpers.newDashboardId();
@@ -188,7 +167,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
     });
   });
   it('returns 400 Bad Request if unexpected properties in body', function (done) {
-    postAndPutDashboard(function (err, dashboard) {
+    testHelpers.postAndPutDashboard(function (err, dashboard) {
       if (err) { return done(err); }
       dashboard.other = 'other field';
       request.put('/dashboards/' + dashboard.id)
@@ -200,7 +179,7 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
     });
   });
   it('returns 409 Conflict if trying to modify code property', function (done) {
-    postEmptyDashboard(function (err, dashboard) {
+    testHelpers.postEmptyDashboard(function (err, dashboard) {
       if (err) { return done(err); }
       var dashboardUpdateWithCode = testHelpers.getDashboardUpdate();
       dashboardUpdateWithCode.code = '12345678';
@@ -231,7 +210,7 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
       .end(done);
   });
   it('deletes a valid dashboard', function (done) {
-    postEmptyDashboard(function(err, createdDashboard) {
+    testHelpers.postEmptyDashboard(function(err, createdDashboard) {
       if (err) { return done(err); }
       request.delete('/dashboards/' + createdDashboard.id)
         .expect(204)
@@ -249,7 +228,7 @@ describe('DELETE ~/dashboards/:dashboard-id', function () {
 
 describe('GET ~/dashboards/:dashboard-id/code', function () {
   it('returns code for new dashboards', function (done) {
-    postEmptyDashboard(function(err, dashboard) {
+    testHelpers.postEmptyDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id + '/code')
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
@@ -261,7 +240,7 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
     });
   });
   it('returns code for updated dashboard', function (done) {
-    postEmptyDashboard(function(err, dashboard) {
+    testHelpers.postEmptyDashboard(function(err, dashboard) {
       request.get('/dashboards/' + dashboard.id + '/code')
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
@@ -283,3 +262,4 @@ describe('GET ~/dashboards/:dashboard-id/code', function () {
 });
 
 // TODO: test that only json is allowed in PUT and POST
+// TODO: we can get rid of postAndPutDashboard as we can POST it
