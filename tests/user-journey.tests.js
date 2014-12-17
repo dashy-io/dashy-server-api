@@ -21,7 +21,7 @@ describe('User Journey', function () {
         var dashboard = res.body;
         // register a user
         request.post('/users')
-          .send({ email: 'user@example.com', name : 'Test user', dashboards : [] })
+          .send({ email: 'user' + uuid.v4() + '@example.com', name : 'Test user', dashboards : [] })
           .expect(201)
           .end(function (err, res) {
             if (err) { return done(err); }
