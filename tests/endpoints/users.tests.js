@@ -67,7 +67,8 @@ describe('POST ~/users', function () {
       });
   });
   // TODO: Try get after create
-  // TODO: what happens if no dashboards specified?
+  // TODO: What happens if no dashboards specified?
+  // TODO: Handle duplicate Google User ID Creation
 });
 
 describe('GET ~/users/:user-id', function () {
