@@ -41,16 +41,21 @@ function createToken(userId, cb) {
   });
 }
 
-router.post('/auth/google/login', function (req, res) {
+router.post('/auth/google/login', function (req, res, next) {
+  var login = req.body;
+  var requiredProperties = ['access_token'];
+  var validationError = validator.requireProperties(login, requiredProperties);
+  if (validationError) {
+    return next(errorGenerator.missingProperty(validationError.missingProperty));
+  }
   validateGoogleTokenInfo(req.body.access_token, function (err, tokenInfo) {
     if (err) { return next(err); }
     if (!tokenInfo) {
-      return res.status(401);
+      return next(errorGenerator.unauthorized('Cannot validate Google User'));
     }
     dataStore.getUserIdByGoogleUserId(tokenInfo.user_id, function (err, userId) {
       if (!userId) {
-        res.status(403);
-        return res.json({ error : 'User not found' });
+        return next(errorGenerator.forbidden('User not found'));
       }
       createToken(userId, function (err, token) {
         if (err) { return next(err); }
@@ -61,20 +66,19 @@ router.post('/auth/google/login', function (req, res) {
   });
 });
 
-router.post('/auth/google/signup', function (req, res) {
+router.post('/auth/google/signup', function (req, res, next) {
   var accessToken = req.body.access_token;
   validateGoogleTokenInfo(accessToken, function (err, tokenInfo) {
     if (err) { return next(err); }
     if (!tokenInfo) {
-      return res.status(401);
+      return next(errorGenerator.unauthorized('Cannot validate Google User'));
     }
     getGoogleUserProfile(accessToken, function (err, linkedUserProfile) {
       if (err) { return next(err); }
       dataStore.getUserIdByGoogleUserId(linkedUserProfile.id, function (err, userId) {
         if (err) { return next(err); }
         if (userId) {
-          res.status(409);
-          return res.json({ error: 'User already exists'} );
+          return next(errorGenerator.userAlreadyExists());
         }
         var user = {
           id : 'user-' + uuid.v4(),
@@ -87,7 +91,6 @@ router.post('/auth/google/signup', function (req, res) {
           res.status(201);
           res.json(createdUser);
         });
-
       });
    });
   });
