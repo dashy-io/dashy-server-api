@@ -1,12 +1,11 @@
 'use strict';
 var express = require('express');
 var request = require('request');
-var crypto = require('crypto');
-var cache = require('memory-cache');
 var uuid = require('node-uuid');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
 var dataStore = require('../lib/dataStore').getDataStore();
+var tokens = require('../lib/tokens');
 var router = express.Router();
 
 function validateGoogleTokenInfo(accessToken, cb) {
@@ -31,16 +30,6 @@ function getGoogleUserProfile(accessToken, cb) {
   });
 }
 
-function createToken(userId, cb) {
-  crypto.randomBytes(128, function (err, buf) {
-    if (err) { return cb(err); }
-    var token = buf.toString('base64');
-    var cacheKey = 'token:' + token;
-    cache.put(cacheKey, userId);
-    return cb(null, token);
-  });
-}
-
 router.post('/auth/google/login', function (req, res, next) {
   var login = req.body;
   var requiredProperties = ['access_token'];
@@ -57,7 +46,7 @@ router.post('/auth/google/login', function (req, res, next) {
       if (!userId) {
         return next(errorGenerator.forbidden('User not found'));
       }
-      createToken(userId, function (err, token) {
+      tokens.create(userId, function (err, token) {
         if (err) { return next(err); }
         res.status(200);
         res.json({ token : token });
