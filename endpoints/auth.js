@@ -8,6 +8,7 @@ var dataStore = require('../lib/dataStore').getDataStore();
 var tokens = require('../lib/tokens');
 var router = express.Router();
 
+// TODO: Test this
 function validateGoogleTokenInfo(accessToken, cb) {
   var tokenInfoUrl = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + accessToken;
   request(tokenInfoUrl, function (err, apiRes, apiBody) {
@@ -21,6 +22,7 @@ function validateGoogleTokenInfo(accessToken, cb) {
   });
 }
 
+// TODO: Test this
 function getGoogleUserProfile(accessToken, cb) {
   var peopleUrl = 'https://www.googleapis.com/plus/v1/people/me?access_token=' + accessToken;
   request(peopleUrl, function (err, apiRes, apiBody) {
@@ -30,6 +32,7 @@ function getGoogleUserProfile(accessToken, cb) {
   });
 }
 
+// TODO: Test this
 router.post('/auth/google/login', function (req, res, next) {
   var login = req.body;
   var requiredProperties = ['access_token'];
@@ -55,6 +58,7 @@ router.post('/auth/google/login', function (req, res, next) {
   });
 });
 
+// TODO: Test this
 router.post('/auth/google/signup', function (req, res, next) {
   var accessToken = req.body.access_token;
   validateGoogleTokenInfo(accessToken, function (err, tokenInfo) {
