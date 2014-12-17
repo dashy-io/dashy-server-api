@@ -40,9 +40,14 @@ describe('Error Generator', function () {
     assert.equal(error.status, 404);
     assert.equal(error.message, 'Parameter "ID" missing in url');
   });
-  it('generates 404 Not Found for when resource not found', function () {
+  it('generates 404 Not Found when resource not found', function () {
     var error = errorGenerator.notFound('User');
     assert.equal(error.status, 404);
     assert.equal(error.message, 'User not found');
+  });
+  it('generates 409 Conflict when user already exists', function () {
+    var error = errorGenerator.userAlreadyExists();
+    assert.equal(error.status, 409);
+    assert.equal(error.message, 'User already exists');
   });
 });
