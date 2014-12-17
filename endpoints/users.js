@@ -51,7 +51,7 @@ router.get('/user', function (req, res, next) {
   var token = tokens.parseHeader(req.headers.authorization);
   tokens.getUserId(token, function (err, id) {
     if (!id) {
-      return next(errorGenerator.missingParameter('id'));
+      return next(errorGenerator.unauthorized('Cannot access requested User'));
     }
     dataStore.getUser(id, function (err, user) {
       if (err) { return next(err); }
