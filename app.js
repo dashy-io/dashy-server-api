@@ -18,6 +18,7 @@ app.use(function (req, res, next) {
 app.use('/', require('./endpoints/status'));
 app.use('/', require('./endpoints/dashboards'));
 app.use('/', require('./endpoints/users'));
+app.use('/', require('./endpoints/auth'));
 
 app.use(function (req, res, next) {
   var err = new Error('Not Found');

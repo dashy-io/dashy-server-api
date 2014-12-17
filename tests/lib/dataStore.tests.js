@@ -1,4 +1,5 @@
 'use strict';
+var uuid = require('node-uuid');
 var chai = require('chai');
 var chaiString = require('chai-string');
 var dataStore = require('../../lib/dataStore').getDataStore();
@@ -161,6 +162,31 @@ describe('Getting a user', function () {
     })
   });
   // TODO: Does not get a user if id not specified
+});
+
+describe('Getting a user by Google User ID', function () {
+  it('does not return a non existing user', function (done) {
+    dataStore.getUserIdByGoogleUserId('bad-id', function (err, userId) {
+      if (err) { return done(err); }
+      assert.isNull(userId);
+      done();
+    });
+  });
+  it('returns a valid user', function (done) {
+    var newUser = testHelpers.createUser();
+    testHelpers.addUserToCleanup(newUser.id);
+    var googleUserId = uuid.v4();
+    newUser.linkedProfiles = { google : { id : googleUserId }};
+    dataStore.createUser(newUser, function (err) {
+      if (err) { return done(err); }
+      dataStore.getUserIdByGoogleUserId(googleUserId, function (err, userId) {
+        if (err) { return done(err); }
+        assert.deepEqual(userId, newUser.id);
+        done();
+      });
+    });
+  });
+  // TODO: Does not get a user if Google user id not specified
 });
 
 describe('Updating a user', function () {
