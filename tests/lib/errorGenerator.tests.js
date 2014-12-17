@@ -30,6 +30,11 @@ describe('Error Generator', function () {
     assert.equal(error.status, 401);
     assert.equal(error.message, 'Unauthorized: message');
   });
+  it('generates 403 Forbidden', function () {
+    var error = errorGenerator.forbidden('message');
+    assert.equal(error.status, 403);
+    assert.equal(error.message, 'Forbidden: message');
+  });
   it('generates 404 Not Found for missing parameter', function () {
     var error = errorGenerator.missingParameter('ID');
     assert.equal(error.status, 404);
