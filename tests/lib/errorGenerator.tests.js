@@ -20,6 +20,16 @@ describe('Error Generator', function () {
     assert.equal(error.status, 400);
     assert.equal(error.message, 'Property "propertyName" not allowed in body');
   });
+  it('generates 400 Bad Request for not matching property', function () {
+    var error = errorGenerator.notMatchingProperty('propertyName');
+    assert.equal(error.status, 400);
+    assert.equal(error.message, 'Property "propertyName" in body must match parameter "propertyName" in url');
+  });
+  it('generates 401 Unauthorized', function () {
+    var error = errorGenerator.unauthorized('message');
+    assert.equal(error.status, 401);
+    assert.equal(error.message, 'Unauthorized: message');
+  });
   it('generates 404 Not Found for missing parameter', function () {
     var error = errorGenerator.missingParameter('ID');
     assert.equal(error.status, 404);
@@ -29,10 +39,5 @@ describe('Error Generator', function () {
     var error = errorGenerator.notFound('User');
     assert.equal(error.status, 404);
     assert.equal(error.message, 'User not found');
-  });
-  it('generates 400 Bad Request for not matching property', function () {
-    var error = errorGenerator.notMatchingProperty('propertyName');
-    assert.equal(error.status, 400);
-    assert.equal(error.message, 'Property "propertyName" in body must match parameter "propertyName" in url');
   });
 });
