@@ -15,7 +15,7 @@ describe('GET ~/status', function () {
       .expect(200)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect('Access-Control-Allow-Origin', '*')
-      .expect('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+      .expect('Access-Control-Allow-Headers', '"Accept, Authorization, Content-Type, Origin, X-Requested-With')
       .expect('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
       .expect({
         env : config.env,
