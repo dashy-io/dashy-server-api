@@ -17,5 +17,6 @@ module.exports = {
   port : process.env.PORT || 3001,
   env : getEnv(),
   parseAppId : checkAndLoadEnvironment('DASHY_PARSE_APP_ID'),
-  parseMasterKey : checkAndLoadEnvironment('DASHY_PARSE_MASTER_KEY')
+  parseMasterKey : checkAndLoadEnvironment('DASHY_PARSE_MASTER_KEY'),
+  googleClientId : '955388086787-1llsm4tuo5tbn050f0huu37kc17j6rru.apps.googleusercontent.com'
 };

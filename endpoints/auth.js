@@ -2,6 +2,7 @@
 var express = require('express');
 var request = require('request');
 var uuid = require('node-uuid');
+var config = require('../config');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
 var dataStore = require('../lib/dataStore').getDataStore();
@@ -14,7 +15,7 @@ function validateGoogleTokenInfo(accessToken, cb) {
   request(tokenInfoUrl, function (err, apiRes, apiBody) {
     var tokenInfoResponse = JSON.parse(apiBody);
     if (err) { return cb(err); }
-    if (tokenInfoResponse.audience !== process.env.GOOGLE_CLIENT_ID) {
+    if (tokenInfoResponse.audience !== config.googleClientId) {
       return cb(null, null);
     } else {
       return cb(null, tokenInfoResponse);
