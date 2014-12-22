@@ -29,6 +29,9 @@ function getGoogleUserProfile(accessToken, cb) {
   request(peopleUrl, function (err, apiRes, apiBody) {
     var peopleMeResponse = JSON.parse(apiBody);
     if (err) { cb(err) }
+    if (peopleMeResponse.error)  {
+      return cb(peopleMeResponse.error.message);
+    }
     cb(null, peopleMeResponse);
   });
 }
