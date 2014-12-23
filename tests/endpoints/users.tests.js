@@ -245,7 +245,8 @@ describe('POST ~/users/:user-id/dashboards', function () {
     });
   });
   // TODO: Try get after update
-  // TODO: Error if dashboard already connected
+  // TODO: Error if dashboard already connected to another user
+  // TODO: A dashboard can be connected multiple times to the same user
 });
 
 // TODO: Test ~/users/:user-id/dashboards
