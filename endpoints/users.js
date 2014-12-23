@@ -134,6 +134,10 @@ router.post('/users/:id/dashboards', function (req, res, next) {
       if (!user) {
         return next(errorGenerator.notFound('Dashboard'));
       }
+      // TODO: This should always be an array
+      if (!user.dashboards) {
+        user.dashboards = [];
+      }
       user.dashboards.push(dashboard.id);
       dataStore.updateUser(user.id, user, function (err, updatedUser) {
         res.status(201);
