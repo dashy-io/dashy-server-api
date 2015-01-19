@@ -5,7 +5,8 @@ Dashboard Management Platform - Server API
 [![Codeship Status for dashy-io/dashy-server-api](https://codeship.com/projects/669bc9e0-5795-0132-c62d-2aedc25d7739/status)](https://codeship.com/projects/49856)
 [![Stories in Ready](https://badge.waffle.io/dashy-io/dashy-server-api.png?label=ready&title=Ready)](https://waffle.io/dashy-io/dashy-server-api)
 
-[![Uptime Report for api.dashy.io: Last 30 days](https://share.pingdom.com/banners/26424ea8)](http://stats.pingdom.com/bg5bhl3d7504/1481718)
+[![Uptime Report for api.dashy.io: Last 30  days](https://share.pingdom.com/banners/26424ea8)](http://stats.pingdom.com/bg5bhl3d7504/1481718)
+[![Response Time Report for api.dashy.io: Last 30 days](https://share.pingdom.com/banners/a3efa098)](http://stats.pingdom.com/bg5bhl3d7504/1481718)
 
 ### GET /status
 
