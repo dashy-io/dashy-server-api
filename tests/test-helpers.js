@@ -2,7 +2,7 @@
 var uuid = require('node-uuid');
 var randToken = require('rand-token');
 var request = require('supertest');
-var dataStore = require('../lib/dataStore').getDataStore();
+var DataStore = require('../lib/dataStore');
 var app = require('../app');
 request = request(app);
 var usersToCleanup = [];
@@ -16,16 +16,21 @@ function cleanupUsers(done) {
   var errorCount = 0;
   console.log('Cleaning up (Users)...');
   usersToCleanup.forEach(function (id) {
-    dataStore.deleteUser(id, function (err) {
+    DataStore.create(function (err, dataStore) {
       if (err) {
-        errorCount++;
-        console.log(err);
+        throw err;
       }
-      deletedCount++;
-      if (deletedCount === usersToCleanup.length) {
-        console.log('Cleaned: ' + usersToCleanup.length + ', errors: ' + errorCount);
-        return done();
-      }
+      dataStore.deleteUser(id, function (err) {
+        if (err) {
+          errorCount++;
+          console.log(err);
+        }
+        deletedCount++;
+        if (deletedCount === usersToCleanup.length) {
+          console.log('Cleaned: ' + usersToCleanup.length + ', errors: ' + errorCount);
+          return done();
+        }
+      });
     });
   });
 }
@@ -38,16 +43,21 @@ function cleanupDashboards(done) {
   var errorCount = 0;
   console.log('Cleaning up (Dashbaords)...');
   dashboardsToCleanup.forEach(function (id) {
-    dataStore.deleteDashboard(id, function (err, deleted) {
+    DataStore.create(function (err, dataStore) {
       if (err) {
-        errorCount++;
-        console.log(err);
+        throw err;
       }
-      deletedCount++;
-      if (deletedCount === dashboardsToCleanup.length) {
-        console.log('Cleaned: ' + dashboardsToCleanup.length + ', errors: ' + errorCount);
-        return done();
-      }
+      dataStore.deleteDashboard(id, function (err, deleted) {
+        if (err) {
+          errorCount++;
+          console.log(err);
+        }
+        deletedCount++;
+        if (deletedCount === dashboardsToCleanup.length) {
+          console.log('Cleaned: ' + dashboardsToCleanup.length + ', errors: ' + errorCount);
+          return done();
+        }
+      });
     });
   });
 }

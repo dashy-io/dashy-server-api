@@ -4,7 +4,7 @@ var express = require('express');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
 var tokens = require('../lib/tokens');
-var dataStore = require('../lib/dataStore').getDataStore();
+var DataStore = require('../lib/dataStore');
 var router = express.Router();
 var app = express();
 
@@ -24,10 +24,13 @@ router.post('/users', function (req, res, next) {
     return next(errorGenerator.unexpectedProperty(validationError.unexpectedProperty));
   }
   user.id = 'user-' + uuid.v4();
-  dataStore.createUser(user, function (err, createdUser) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    res.status(201);
-    res.json(createdUser);
+    dataStore.createUser(user, function (err, createdUser) {
+      if (err) { return next(err); }
+      res.status(201);
+      res.json(createdUser);
+    });
   });
 });
 
@@ -36,13 +39,16 @@ router.get('/users/:id?', function (req, res, next) {
   if (!id) {
     return next(errorGenerator.missingParameter('id'));
   }
-  dataStore.getUser(id, function (err, user) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    if (!user) {
-      return next(errorGenerator.notFound('User'));
-    }
-    res.status(200);
-    res.json(user);
+    dataStore.getUser(id, function (err, user) {
+      if (err) { return next(err); }
+      if (!user) {
+        return next(errorGenerator.notFound('User'));
+      }
+      res.status(200);
+      res.json(user);
+    });
   });
 });
 
@@ -53,17 +59,20 @@ router.get('/user', function (req, res, next) {
     if (!id) {
       return next(errorGenerator.unauthorized('Cannot access requested User'));
     }
-    dataStore.getUser(id, function (err, user) {
+    DataStore.create(function (err, dataStore) {
       if (err) { return next(err); }
-      if (!user) {
-        return next(errorGenerator.notFound('User'));
-      }
-      user.emails = user.linkedProfiles.google.emails.map(function (email) { return email.value });
-      user.name = user.linkedProfiles.google.displayName || user.emails[0];
-      user.imageUrl = user.linkedProfiles.google.image.url.replace('?sz=50', '');
-      user.domain = user.linkedProfiles.google.domain;
-      res.status(200);
-      res.json(user);
+      dataStore.getUser(id, function (err, user) {
+        if (err) { return next(err); }
+        if (!user) {
+          return next(errorGenerator.notFound('User'));
+        }
+        user.emails = user.linkedProfiles.google.emails.map(function (email) { return email.value });
+        user.name = user.linkedProfiles.google.displayName || user.emails[0];
+        user.imageUrl = user.linkedProfiles.google.image.url.replace('?sz=50', '');
+        user.domain = user.linkedProfiles.google.domain;
+        res.status(200);
+        res.json(user);
+      });
     });
   });
 });
@@ -88,15 +97,18 @@ router.put('/users/:id?', function (req, res, next) {
   if (validationError) {
     return next(errorGenerator.unexpectedProperty(validationError.unexpectedProperty));
   }
-  dataStore.getUser(id, function (err, existingUser) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    if (!existingUser) {
-      return next(errorGenerator.notFound('User'));
-    }
-    dataStore.updateUser(id, user, function(err, updatedUser) {
+    dataStore.getUser(id, function (err, existingUser) {
       if (err) { return next(err); }
-      res.status(200);
-      res.json(updatedUser);
+      if (!existingUser) {
+        return next(errorGenerator.notFound('User'));
+      }
+      dataStore.updateUser(id, user, function(err, updatedUser) {
+        if (err) { return next(err); }
+        res.status(200);
+        res.json(updatedUser);
+      });
     });
   });
 });
@@ -106,13 +118,16 @@ router.delete('/users/:id?', function (req, res, next) {
   if (!id) {
     return next(errorGenerator.missingParameter('id'));
   }
-  dataStore.deleteUser(id, function (err, deleted) {
-    if (err) { return err; }
-    if (!deleted) {
-      return next(errorGenerator.notFound('User'));
-    }
-    res.status(204);
-    res.end();
+  DataStore.create(function (err, dataStore) {
+    if (err) { return next(err); }
+    dataStore.deleteUser(id, function (err, deleted) {
+      if (err) { return next(err); }
+      if (!deleted) {
+        return next(errorGenerator.notFound('User'));
+      }
+      res.status(204);
+      res.end();
+    });
   });
 });
 
@@ -124,24 +139,27 @@ router.post('/users/:id/dashboards', function (req, res, next) {
   if (validationError) {
     return next(errorGenerator.missingProperty(validationError.missingProperty));
   }
-  dataStore.getUser(userId, function (err, user) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    if (!user) {
-      return next(errorGenerator.notFound('User'));
-    }
-    dataStore.getDashboardByCode(dashboardConnect.code, function(err, dashboard) {
+    dataStore.getUser(userId, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
-        return next(errorGenerator.notFound('Dashboard'));
+        return next(errorGenerator.notFound('User'));
       }
-      // TODO: This should always be an array
-      if (!user.dashboards) {
-        user.dashboards = [];
-      }
-      user.dashboards.push(dashboard.id);
-      dataStore.updateUser(user.id, user, function (err, updatedUser) {
-        res.status(201);
-        res.json(updatedUser.dashboards);
+      dataStore.getDashboardByCode(dashboardConnect.code, function(err, dashboard) {
+        if (err) { return next(err); }
+        if (!user) {
+          return next(errorGenerator.notFound('Dashboard'));
+        }
+        // TODO: This should always be an array
+        if (!user.dashboards) {
+          user.dashboards = [];
+        }
+        user.dashboards.push(dashboard.id);
+        dataStore.updateUser(user.id, user, function (err, updatedUser) {
+          res.status(201);
+          res.json(updatedUser.dashboards);
+        });
       });
     });
   });

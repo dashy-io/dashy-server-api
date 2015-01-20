@@ -1,7 +1,7 @@
 'use strict';
 var express = require('express');
 var randToken = require('rand-token');
-var dataStore = require('../lib/dataStore').getDataStore();
+var DataStore = require('../lib/dataStore');
 var router = express.Router();
 var app = express();
 
@@ -33,18 +33,21 @@ router.post('/dashboards', function (req, res, next) {
   allowedProperties.forEach(function (property) {
     newDashboard[property] = req.body[property];
   });
-  dataStore.getDashboard(newDashboard.id, function(err, dashboard) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    if (dashboard) {
-      var conflictError = new Error('Duplicate Dashboard ID');
-      conflictError.status = 409;
-      return next(conflictError);
-    }
-    dataStore.createDashboard(newDashboard, function(err, createdDashboard) {
+    dataStore.getDashboard(newDashboard.id, function(err, dashboard) {
       if (err) { return next(err); }
-      delete createdDashboard.code;
-      res.status(201);
-      res.json(createdDashboard);
+      if (dashboard) {
+        var conflictError = new Error('Duplicate Dashboard ID');
+        conflictError.status = 409;
+        return next(conflictError);
+      }
+      dataStore.createDashboard(newDashboard, function(err, createdDashboard) {
+        if (err) { return next(err); }
+        delete createdDashboard.code;
+        res.status(201);
+        res.json(createdDashboard);
+      });
     });
   });
 });
@@ -56,16 +59,19 @@ router.get('/dashboards/:id?', function(req, res, next) {
     notFoundError.status = 404;
     return next(notFoundError);
   }
-  dataStore.getDashboard(id, function(err, dashboard) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    if (!dashboard) {
-      var notFoundError = new Error('Dashboard Not Found');
-      notFoundError.status = 404;
-      return next(notFoundError);
-    }
-    delete dashboard.code;
-    res.status(200);
-    res.json(dashboard);
+    dataStore.getDashboard(id, function (err, dashboard) {
+      if (err) { return next(err); }
+      if (!dashboard) {
+        var notFoundError = new Error('Dashboard Not Found');
+        notFoundError.status = 404;
+        return next(notFoundError);
+      }
+      delete dashboard.code;
+      res.status(200);
+      res.json(dashboard);
+    });
   });
 });
 
@@ -97,22 +103,25 @@ router.put('/dashboards/:id?', function(req, res, next) {
     idConflictError.status = 409;
     return next(idConflictError);
   }
-  dataStore.getDashboard(id, function(err, currentDashboard) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    if (!currentDashboard) {
-      var notFoundError = new Error('Dashboard not found');
-      notFoundError.status = 404;
-      return next(notFoundError);
-    }
-    if (bodyCode && bodyCode !== currentDashboard.code) {
-      var codeConflictError = new Error('Property \"code\" cannot be changed');
-      codeConflictError.status = 409;
-      return next(codeConflictError);
-    }
-    dataStore.updateDashboard(id, dashboard, function(err, updatedDashboard) {
+    dataStore.getDashboard(id, function(err, currentDashboard) {
       if (err) { return next(err); }
-      res.status(200);
-      res.json(updatedDashboard);
+      if (!currentDashboard) {
+        var notFoundError = new Error('Dashboard not found');
+        notFoundError.status = 404;
+        return next(notFoundError);
+      }
+      if (bodyCode && bodyCode !== currentDashboard.code) {
+        var codeConflictError = new Error('Property \"code\" cannot be changed');
+        codeConflictError.status = 409;
+        return next(codeConflictError);
+      }
+      dataStore.updateDashboard(id, dashboard, function(err, updatedDashboard) {
+        if (err) { return next(err); }
+        res.status(200);
+        res.json(updatedDashboard);
+      });
     });
   });
 });
@@ -124,15 +133,18 @@ router.delete('/dashboards/:id?', function(req, res, next) {
     notFoundError.status = 404;
     return next(notFoundError);
   }
-  dataStore.deleteDashboard(id, function(err, deleted) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    if (!deleted) {
-      var notFoundError = new Error('Dashboard not found');
-      notFoundError.status = 404;
-      return next(notFoundError);
-    }
-    res.status(204);
-    res.end();
+    dataStore.deleteDashboard(id, function(err, deleted) {
+      if (err) { return next(err); }
+      if (!deleted) {
+        var notFoundError = new Error('Dashboard not found');
+        notFoundError.status = 404;
+        return next(notFoundError);
+      }
+      res.status(204);
+      res.end();
+    });
   });
 });
 
@@ -143,16 +155,19 @@ router.get('/dashboards/:id/code', function(req, res, next) {
     notFoundError.status = 404;
     return next(notFoundError);
   }
-  dataStore.getDashboard(id, function(err, dashboard) {
+  DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    if (!dashboard) {
-      var notFoundError = new Error('Dashboard Not Found');
-      notFoundError.status = 404;
-      return next(notFoundError);
-    }
-    res.status(200);
-    // TODO: Return dashboard ID as well?
-    res.json({ code : dashboard.code });
+    dataStore.getDashboard(id, function(err, dashboard) {
+      if (err) { return next(err); }
+      if (!dashboard) {
+        var notFoundError = new Error('Dashboard Not Found');
+        notFoundError.status = 404;
+        return next(notFoundError);
+      }
+      res.status(200);
+      // TODO: Return dashboard ID as well?
+      res.json({ code : dashboard.code });
+    });
   });
 });
 

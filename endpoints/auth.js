@@ -5,7 +5,7 @@ var uuid = require('node-uuid');
 var config = require('../config');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
-var dataStore = require('../lib/dataStore').getDataStore();
+var DataStore = require('../lib/dataStore');
 var tokens = require('../lib/tokens');
 var router = express.Router();
 
@@ -49,16 +49,20 @@ router.post('/auth/google/login', function (req, res, next) {
     if (!tokenInfo) {
       return next(errorGenerator.unauthorized('Cannot validate Google User'));
     }
-    dataStore.getUserIdByGoogleUserId(tokenInfo.user_id, function (err, userId) {
-      if (!userId) {
-        return next(errorGenerator.forbidden('User not found'));
-      }
-      tokens.create(userId, function (err, token) {
-        if (err) { return next(err); }
-        res.status(200);
-        res.json({ token : token });
+    DataStore.create(function (err, dataStore) {
+      if (err) { return next(err); }
+      dataStore.getUserIdByGoogleUserId(tokenInfo.user_id, function (err, userId) {
+        if (!userId) {
+          return next(errorGenerator.forbidden('User not found'));
+        }
+        tokens.create(userId, function (err, token) {
+          if (err) { return next(err); }
+          res.status(200);
+          res.json({ token : token });
+        });
       });
     });
+
   });
 });
 
@@ -72,21 +76,24 @@ router.post('/auth/google/signup', function (req, res, next) {
     }
     getGoogleUserProfile(accessToken, function (err, linkedUserProfile) {
       if (err) { return next(err); }
-      dataStore.getUserIdByGoogleUserId(linkedUserProfile.id, function (err, userId) {
+      DataStore.create(function (err, dataStore) {
         if (err) { return next(err); }
-        if (userId) {
-          return next(errorGenerator.userAlreadyExists());
-        }
-        var user = {
-          id : 'user-' + uuid.v4(),
-          linkedProfiles : {
-            google: linkedUserProfile
-          }
-        };
-        dataStore.createUser(user, function (err, createdUser) {
+        dataStore.getUserIdByGoogleUserId(linkedUserProfile.id, function (err, userId) {
           if (err) { return next(err); }
-          res.status(201);
-          res.json(createdUser);
+          if (userId) {
+            return next(errorGenerator.userAlreadyExists());
+          }
+          var user = {
+            id : 'user-' + uuid.v4(),
+            linkedProfiles : {
+              google: linkedUserProfile
+            }
+          };
+          dataStore.createUser(user, function (err, createdUser) {
+            if (err) { return next(err); }
+            res.status(201);
+            res.json(createdUser);
+          });
         });
       });
    });
