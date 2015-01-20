@@ -87,9 +87,12 @@ router.put('/dashboards/:id?', function(req, res, next) {
     }
   }
   var dashboard = req.body;
+  if (!dashboard.id) {
+    dashboard.id = id;
+  }
   var bodyId = dashboard.id;
   var bodyCode = dashboard.code;
-  if (bodyId && bodyId !== id) {
+  if (bodyId !== id) {
     var idConflictError = new Error('Dashboard ID in request body does not match ID in url');
     idConflictError.status = 409;
     return next(idConflictError);
