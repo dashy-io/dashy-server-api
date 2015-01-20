@@ -19,7 +19,7 @@ describe('GET ~/status', function () {
       .expect('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
       .expect({
         env : config.env,
-        dataStore : config.env === 'test' ? 'InMemoryDataStore' : 'ParseDataStore'
+        dataStore : config.env === 'test' ? 'InMemoryDataStore' : 'MongoDataStore'
       })
       .end(done);
   });
