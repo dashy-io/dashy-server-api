@@ -4,7 +4,8 @@ var request = require('supertest');
 var chai = require('chai');
 var chaiString = require('chai-string');
 var app = require('../../app');
-var testHelpers = require('./../test-helpers');
+var testHelpers = require('../test-helpers');
+var tokens = require('../../lib/tokens');
 var assert = chai.assert;
 request = request(app);
 chai.use(chaiString);
@@ -251,29 +252,52 @@ describe('POST ~/users/:user-id/dashboards', function () {
 });
 
 describe('GET ~/user', function () {
-    it('returns 401 Unauthorized if Authorization header not provided', function (done) {
-    request.get('/user')
-      .expect(401)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Unauthorized: Token missing or invalid' })
-      .end(done)
+  it('returns 401 Unauthorized if Authorization header not provided', function (done) {
+  request.get('/user')
+    .expect(401)
+    .expect('Content-Type', 'application/json; charset=utf-8')
+    .expect({ message : 'Unauthorized: Missing or invalid Authorization header' })
+    .end(done)
   });
-    it('returns 401 Unauthorized if token not provided', function (done) {
-    request.get('/user')
-      .set('Authorization', 'Bearer')
-      .expect(401)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Unauthorized: Token missing or invalid' })
-      .end(done)
+  it('returns 401 Unauthorized if token not provided', function (done) {
+  request.get('/user')
+    .set('Authorization', 'Bearer')
+    .expect(401)
+    .expect('Content-Type', 'application/json; charset=utf-8')
+    .expect({ message : 'Unauthorized: Missing or invalid Authorization header' })
+    .end(done)
   });
-  // it('returns valid user', function (done) {
-  //   testHelpers.postNewUser(function(err, user) {
-  //     if (err) { return done(err); }
-  //     request.get('/users/' + user.id)
-  //       .expect(200)
-  //       .expect('Content-Type', 'application/json; charset=utf-8')
-  //       .expect(user)
-  //       .end(done)
-  //   });
-  // });
+  it('returns 401 Unauthorized if token invalid', function (done) {
+  request.get('/user')
+    .set('Authorization', 'Bearer 123abc')
+    .expect(401)
+    .expect('Content-Type', 'application/json; charset=utf-8')
+    .expect({ message : 'Unauthorized: Invalid token' })
+    .end(done)
+  });
+  it('returns valid user', function (done) {
+    testHelpers.postNewUser(function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err) }
+        request.get('/user')
+          .set('Authorization', 'Bearer ' + token)
+          .expect(200)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect(user)
+          .end(done)
+      });
+    });
+  });
+  it('returns 404 Not Found when the user mapped to a token not found', function (done) {
+    tokens.create(uuid.v4(), function (err, token) {
+      if (err) { return done(err) }
+      request.get('/user')
+        .set('Authorization', 'Bearer ' + token)
+        .expect(404)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'User associated with token not found' })
+        .end(done)
+    });
+  });
 });

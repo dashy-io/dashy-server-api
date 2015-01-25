@@ -56,28 +56,28 @@ router.get('/users/:id?', function (req, res, next) {
 router.get('/user', function (req, res, next) {
   var token = tokens.parseHeader(req.headers.authorization);
   if (!token) {
-    return next(errorGenerator.unauthorized('Token missing or invalid'));
+    return next(errorGenerator.unauthorized('Missing or invalid Authorization header'));
   }
-  // tokens.getUserId(token, function (err, id) {
-  //   if (!id) {
-  //     return next(errorGenerator.unauthorized('Cannot access requested User'));
-  //   }
-  //   DataStore.create(function (err, dataStore) {
-  //     if (err) { return next(err); }
-  //     dataStore.getUser(id, function (err, user) {
-  //       if (err) { return next(err); }
-  //       if (!user) {
-  //         return next(errorGenerator.notFound('User'));
-  //       }
-  //       user.emails = user.linkedProfiles.google.emails.map(function (email) { return email.value });
-  //       user.name = user.linkedProfiles.google.displayName || user.emails[0];
-  //       user.imageUrl = user.linkedProfiles.google.image.url.replace('?sz=50', '');
-  //       user.domain = user.linkedProfiles.google.domain;
-  //       res.status(200);
-  //       res.json(user);
-  //     });
-  //   });
-  // });
+  tokens.getUserId(token, function (err, id) {
+    if (!id) {
+      return next(errorGenerator.unauthorized('Invalid token'));
+    }
+    DataStore.create(function (err, dataStore) {
+      if (err) { return next(err); }
+      dataStore.getUser(id, function (err, user) {
+        if (err) { return next(err); }
+        if (!user) {
+          return next(errorGenerator.notFound('User associated with token'));
+        }
+        // user.emails = user.linkedProfiles.google.emails.map(function (email) { return email.value });
+        // user.name = user.linkedProfiles.google.displayName || user.emails[0];
+        // user.imageUrl = user.linkedProfiles.google.image.url.replace('?sz=50', '');
+        // user.domain = user.linkedProfiles.google.domain;
+        res.status(200);
+        res.json(user);
+      });
+    });
+  });
 });
 
 router.put('/users/:id?', function (req, res, next) {
