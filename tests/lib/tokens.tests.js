@@ -73,6 +73,7 @@ describe('Parsing authorization header', function () {
     var token = tokens.parseHeader('Bearer 123456');
     assert.isString(token);
     assert.lengthOf(token, 6);
+    assert.equal(token, '123456');
   });
 });
 
