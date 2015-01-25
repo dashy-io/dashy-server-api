@@ -15,6 +15,7 @@ after('API Cleanup', function (done) {
 });
 
 // TODO: test that only json is allowed in PUT and POST
+// TODO: Test ~/users/:user-id/dashboards
 
 describe('POST ~/users', function () {
   it('returns 400 Bad Request if id specified', function (done) {
@@ -249,4 +250,30 @@ describe('POST ~/users/:user-id/dashboards', function () {
   // TODO: A dashboard can be connected multiple times to the same user
 });
 
-// TODO: Test ~/users/:user-id/dashboards
+describe('GET ~/user', function () {
+    it('returns 401 Unauthorized if Authorization header not provided', function (done) {
+    request.get('/user')
+      .expect(401)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Unauthorized: Token missing or invalid' })
+      .end(done)
+  });
+    it('returns 401 Unauthorized if token not provided', function (done) {
+    request.get('/user')
+      .set('Authorization', 'Bearer')
+      .expect(401)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Unauthorized: Token missing or invalid' })
+      .end(done)
+  });
+  // it('returns valid user', function (done) {
+  //   testHelpers.postNewUser(function(err, user) {
+  //     if (err) { return done(err); }
+  //     request.get('/users/' + user.id)
+  //       .expect(200)
+  //       .expect('Content-Type', 'application/json; charset=utf-8')
+  //       .expect(user)
+  //       .end(done)
+  //   });
+  // });
+});
