@@ -4,8 +4,13 @@ var log = require('debug')('app');
 var logError = require('debug')('app:error');
 var app = require('express')();
 var bodyParser = require('body-parser');
+var config = require('./config');
 
 logError.log = console.error.bind(console);
+
+if (config.env === 'SLOW') {
+  app.use(function(req,res,next) { setTimeout(next, 2000); } );
+}
 
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
