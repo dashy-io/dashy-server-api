@@ -28,7 +28,7 @@ function getGoogleUserProfile(accessToken, cb) {
   var peopleUrl = 'https://www.googleapis.com/plus/v1/people/me?access_token=' + accessToken;
   request(peopleUrl, function (err, apiRes, apiBody) {
     var peopleMeResponse = JSON.parse(apiBody);
-    if (err) { cb(err) }
+    if (err) { cb(err); }
     if (peopleMeResponse.error)  {
       return cb(peopleMeResponse.error.message);
     }
