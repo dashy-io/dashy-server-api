@@ -225,7 +225,17 @@ describe('POST ~/users/:user-id/dashboards', function () {
         .end(done)
     });
   });
-  // TODO: Not Found if Dashboard Code does not exist
+  it('returns 404 Not Found if Dashboard Code not valid', function (done) {
+    testHelpers.postNewUser(function (err, user) {
+      if (err) { return done(err); }
+      request.post('/users/' + user.id + '/dashboards')
+        .send({ code : '123456' })
+        .expect(404)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Dashboard not found' })
+        .end(done);
+    });
+  });
   // TODO: Handle duplicate dashboard connection
   it('connects a dashboard', function (done) {
     testHelpers.postEmptyDashboard(function (err, dashboard) {

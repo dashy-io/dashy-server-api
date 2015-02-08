@@ -151,7 +151,7 @@ router.post('/users/:id/dashboards', function (req, res, next) {
       }
       dataStore.getDashboardByCode(dashboardConnect.code, function(err, dashboard) {
         if (err) { return next(err); }
-        if (!user) {
+        if (!dashboard) {
           return next(errorGenerator.notFound('Dashboard'));
         }
         // TODO: This should always be an array
