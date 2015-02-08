@@ -68,6 +68,7 @@ router.get('/dashboards/:id?', function(req, res, next) {
         notFoundError.status = 404;
         return next(notFoundError);
       }
+      dashboard.interval = dashboard.interval || 60;
       delete dashboard.code;
       res.status(200);
       res.json(dashboard);
@@ -95,6 +96,9 @@ router.put('/dashboards/:id?', function(req, res, next) {
   var dashboard = req.body;
   if (!dashboard.id) {
     dashboard.id = id;
+  }
+  if (dashboard.interval < 10) {
+    dashboard.interval = 10;
   }
   var bodyId = dashboard.id;
   var bodyCode = dashboard.code;
