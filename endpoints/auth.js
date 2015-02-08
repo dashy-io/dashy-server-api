@@ -86,7 +86,7 @@ router.post('/auth/google/signup', function (req, res, next) {
           var user = {
             id : 'user-' + uuid.v4(),
             linkedProfiles : {
-              google: linkedUserProfile
+              google: [ linkedUserProfile ]
             }
           };
           dataStore.createUser(user, function (err, createdUser) {
@@ -99,5 +99,7 @@ router.post('/auth/google/signup', function (req, res, next) {
    });
   });
 });
+
+// TODO: Test linking same google ID multiple times
 
 module.exports = router;

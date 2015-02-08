@@ -35,8 +35,8 @@ describe('Getting a dashboard', function () {
         if (err) { return done(err); }
         assert.isNull(dashboard);
         done();
-      })
-    })
+      });
+    });
   });
   // TODO: Does not get a dashboard if id not specified
 });
@@ -160,7 +160,11 @@ describe('Creating a user', function () {
   it('creates a new user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      var newUser = testHelpers.createUser();
+      var newUserId = 'test-user-' + uuid.v4();
+      var newUser =  {
+        id: newUserId
+      };
+      testHelpers.addUserToCleanup(newUserId);
       dataStore.createUser(newUser, function (err, createdUser) {
         if (err) { return done(err); }
         assert.deepEqual(createdUser, newUser);
@@ -176,14 +180,13 @@ describe('Getting a user', function () {
   it('returns a valid user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      var newUser = testHelpers.createUser();
-      dataStore.createUser(newUser, function (err) {
+      testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
         dataStore.getUser(newUser.id, function (err, user) {
           if (err) { return done(err); }
           assert.deepEqual(user, newUser);
           done();
-        })
+        });
       });
     });
   });
@@ -194,8 +197,8 @@ describe('Getting a user', function () {
         if (err) { return done(err); }
         assert.isNull(user);
         done();
-      })
-    })
+      });
+    });
   });
   // TODO: Does not get a user if id not specified
 });
@@ -214,12 +217,9 @@ describe('Getting a user by Google User ID', function () {
   it('returns a valid user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      var newUser = testHelpers.createUser();
-      testHelpers.addUserToCleanup(newUser.id);
-      var googleUserId = uuid.v4();
-      newUser.linkedProfiles = { google : { id : googleUserId }};
-      dataStore.createUser(newUser, function (err) {
+      testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
+        var googleUserId = newUser.profiles.google[0].id;
         dataStore.getUserIdByGoogleUserId(googleUserId, function (err, userId) {
           if (err) { return done(err); }
           assert.deepEqual(userId, newUser.id);
@@ -235,13 +235,12 @@ describe('Updating a user', function () {
   it('updates a valid user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      var newUser = testHelpers.createUser();
-      dataStore.createUser(newUser, function (err, createdUser) {
+      testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
-        createdUser.name += ' EDITED';
-        dataStore.updateUser(createdUser.id, createdUser, function (err, updatedUser) {
+        newUser.name += ' EDITED';
+        dataStore.updateUser(newUser.id, newUser, function (err, updatedUser) {
           if (err) { return done(err); }
-          assert.deepEqual(updatedUser, createdUser);
+          assert.deepEqual(updatedUser, newUser);
           done();
         });
       });
@@ -251,17 +250,14 @@ describe('Updating a user', function () {
   it('persists additional fields', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      var newUser = testHelpers.createUser();
-      newUser.additional1 = 'additional field 1';
-      dataStore.createUser(newUser, function (err, createdUser) {
+      testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
-        createdUser.additional2 = 'additional field 2';
-        dataStore.updateUser(createdUser.id, createdUser, function (err, updatedUser) {
+        newUser.additional = 'additional field';
+        dataStore.updateUser(newUser.id, newUser, function (err, updatedUser) {
           if (err) { return done(err); }
-          dataStore.getUser(createdUser.id, function (err, user) {
+          dataStore.getUser(newUser.id, function (err, user) {
             if (err) { return done(err); }
-            assert.equal(user.additional1, 'additional field 1');
-            assert.equal(user.additional2, 'additional field 2');
+            assert.equal(user.additional, 'additional field');
             assert.deepEqual(user, updatedUser);
             done();
           });
@@ -272,7 +268,11 @@ describe('Updating a user', function () {
   it('does not update a non-existing user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      var newUser = testHelpers.createUser();
+      var newUserId = 'test-user-' + uuid.v4();
+      var newUser =  {
+        id: newUserId
+      };
+      testHelpers.addUserToCleanup(newUserId);
       dataStore.updateUser(newUser.id, newUser, function (err, updatedUser) {
         if (err) { return done(err); }
         assert.isNull(updatedUser);
@@ -287,8 +287,7 @@ describe('Deleting a user', function () {
   it('deletes a valid user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      var newUser = testHelpers.createUser();
-      dataStore.createUser(newUser, function (err) {
+      testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
         dataStore.deleteUser(newUser.id, function (err, deleted) {
           if (err) { return done(err); }
@@ -299,11 +298,10 @@ describe('Deleting a user', function () {
     });
   });
   // TODO: Try get after delete
-  it('does not delete a non-existing dashboard', function (done) {
+  it('does not delete a non-existing user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      var newUser = testHelpers.createUser();
-      dataStore.deleteUser(newUser.id, function (err, deleted) {
+      dataStore.deleteUser('test-user-' + uuid.v4(), function (err, deleted) {
         if (err) { return done(err); }
         assert.isFalse(deleted);
         done();

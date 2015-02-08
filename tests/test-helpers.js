@@ -64,38 +64,72 @@ function cleanupDashboards(done) {
 
 // TODO: Review this code and split it in different files
 module.exports = {
-  addUserToCleanup: function (id) {
+  addUserToCleanup : function (id) {
     usersToCleanup.push(id);
   },
-  createNewUser: function () {
-    return {
-      name: 'Test User',
-      email: 'test-user' + uuid.v4() + '@example.com',
-      dashboards: ['example-dashboard']
+  createUser : function (cb) {
+    var newUserId = 'test-user-' + uuid.v4();
+    var newGoogleId = 'google-id-' + uuid.v4();
+    usersToCleanup.push(newUserId);
+    var newUser = {
+      id: newUserId,
+      //defaultProfile : {
+      //  type : 'test',
+      //  id : 1
+      //},
+      profiles: {
+        google: [
+          {
+            id: newGoogleId,
+            displayName: 'Test google profile',
+            url: 'http://...',
+            image: { url: 'http://...' }
+          }
+        ] //,
+        //test: [
+        //  {
+        //    id: 1,
+        //    name: 'Blah blah'
+        //  }
+        //]
+      }
     };
-  },
-  createUser : function () {
-    var newId = 'test-user-' + uuid.v4();
-    usersToCleanup.push(newId);
-    return {
-      id : newId,
-      name : 'User Name',
-      email : newId + '@example.com'
-    }
-  },
-  postNewUser: function (cb) {
-    var newUser = this.createNewUser();
-    request.post('/users')
-      .send(newUser)
-      .end(function (err, res) {
-        if (err) {
-          return cb(err);
-        }
-        var createdUser = res.body;
-        usersToCleanup.push(createdUser.id);
-        cb(null, createdUser);
+    DataStore.create(function (err, dataStore) {
+      if (err) { return cb(err); }
+      dataStore.createUser(newUser, function (err, createdUser) {
+        cb(err, createdUser);
       });
+    });
   },
+  //createNewUser: function () {
+  //  return {
+  //    name: 'Test User',
+  //    email: 'test-user' + uuid.v4() + '@example.com',
+  //    dashboards: ['example-dashboard']
+  //  };
+  //},
+  //createUser : function () {
+  //  var newId = 'test-user-' + uuid.v4();
+  //  usersToCleanup.push(newId);
+  //  return {
+  //    id : newId,
+  //    name : 'User Name',
+  //    email : newId + '@example.com'
+  //  }
+  //},
+  //postNewUser: function (cb) {
+  //  var newUser = this.createNewUser();
+  //  request.post('/users')
+  //    .send(newUser)
+  //    .end(function (err, res) {
+  //      if (err) {
+  //        return cb(err);
+  //      }
+  //      var createdUser = res.body;
+  //      usersToCleanup.push(createdUser.id);
+  //      cb(null, createdUser);
+  //    });
+  //},
   newDashboardId: function () {
     var newDashboardId = 'test-dashboard-' + uuid.v4();
     dashboardsToCleanup.push(newDashboardId);
