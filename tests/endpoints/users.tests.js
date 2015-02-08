@@ -199,7 +199,6 @@ describe('POST ~/users/:user-id/dashboards', function () {
         .end(done);
     });
   });
-  // TODO: Handle duplicate dashboard connection
   it('connects a dashboard', function (done) {
     testHelpers.postEmptyDashboard(function (err, dashboard) {
       if (err) { return done(err); }
@@ -215,6 +214,33 @@ describe('POST ~/users/:user-id/dashboards', function () {
               .expect('Content-Type', 'application/json; charset=utf-8')
               .expect([ dashboard.id ])
               .end(done);
+          });
+        });
+    });
+  });
+  it('connects a multiple time the same dashboard without generating duplicates', function (done) {
+    testHelpers.postEmptyDashboard(function (err, dashboard) {
+      if (err) { return done(err); }
+      request.get('/dashboards/' + dashboard.id + '/code')
+        .end(function (err, res) {
+          if (err) { return done(err); }
+          var code = res.body.code;
+          testHelpers.createUser(function(err, user) {
+            if (err) { return done(err); }
+            request.post('/users/' + user.id + '/dashboards')
+              .send({ code : code })
+              .expect(201)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .expect([ dashboard.id ])
+              .end(function(err) {
+                if (err) { return done(err); }
+                request.post('/users/' + user.id + '/dashboards')
+                  .send({ code : code })
+                  .expect(201)
+                  .expect('Content-Type', 'application/json; charset=utf-8')
+                  .expect([ dashboard.id ])
+                  .end(done);
+              });
           });
         });
     });
