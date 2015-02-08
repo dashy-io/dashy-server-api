@@ -85,7 +85,7 @@ router.post('/auth/google/signup', function (req, res, next) {
           }
           var user = {
             id : 'user-' + uuid.v4(),
-            linkedProfiles : {
+            profiles : {
               google: [ linkedUserProfile ]
             }
           };
