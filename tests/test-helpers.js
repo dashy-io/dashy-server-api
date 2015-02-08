@@ -85,13 +85,7 @@ module.exports = {
             url: 'http://...',
             image: { url: 'http://...' }
           }
-        ] //,
-        //test: [
-        //  {
-        //    id: 1,
-        //    name: 'Blah blah'
-        //  }
-        //]
+        ]
       }
     };
     DataStore.create(function (err, dataStore) {
@@ -101,35 +95,6 @@ module.exports = {
       });
     });
   },
-  //createNewUser: function () {
-  //  return {
-  //    name: 'Test User',
-  //    email: 'test-user' + uuid.v4() + '@example.com',
-  //    dashboards: ['example-dashboard']
-  //  };
-  //},
-  //createUser : function () {
-  //  var newId = 'test-user-' + uuid.v4();
-  //  usersToCleanup.push(newId);
-  //  return {
-  //    id : newId,
-  //    name : 'User Name',
-  //    email : newId + '@example.com'
-  //  }
-  //},
-  //postNewUser: function (cb) {
-  //  var newUser = this.createNewUser();
-  //  request.post('/users')
-  //    .send(newUser)
-  //    .end(function (err, res) {
-  //      if (err) {
-  //        return cb(err);
-  //      }
-  //      var createdUser = res.body;
-  //      usersToCleanup.push(createdUser.id);
-  //      cb(null, createdUser);
-  //    });
-  //},
   newDashboardId: function () {
     var newDashboardId = 'test-dashboard-' + uuid.v4();
     dashboardsToCleanup.push(newDashboardId);
