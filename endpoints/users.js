@@ -108,4 +108,29 @@ router.post('/users/:id/dashboards', function (req, res, next) {
   });
 });
 
+router.delete('/users/:id/dashboards/:dashboardId', function (req, res, next) {
+  var userId = req.params.id;
+  var dashboardId = req.params.dashboardId;
+  // TODO: Throw error if the request has a body
+  DataStore.create(function (err, dataStore) {
+    if (err) { return next(err); }
+    dataStore.getUser(userId, function (err, user) {
+      if (err) { return next(err); }
+      if (!user) {
+        return next(errorGenerator.notFound('User'));
+      }
+      var index = user.dashboards.indexOf(dashboardId);
+      if (index > -1) {
+        user.dashboards.splice(index, 1);
+      } else {
+        return next(errorGenerator.notFound('Connected Dashboard'));
+      }
+      dataStore.updateUser(user.id, user, function (err, updatedUser) {
+        res.status(200);
+        res.json(updatedUser.dashboards);
+      });
+    });
+  });
+});
+
 module.exports = router;

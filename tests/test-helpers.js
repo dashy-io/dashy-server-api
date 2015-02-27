@@ -95,7 +95,7 @@ module.exports = {
       });
     });
   },
-  newDashboardId: function () {
+  newDashboardId : function () {
     var newDashboardId = 'test-dashboard-' + uuid.v4();
     dashboardsToCleanup.push(newDashboardId);
     return newDashboardId;
@@ -114,7 +114,7 @@ module.exports = {
       ]
     }
   },
-  getDashboardUpdate: function () {
+  getDashboardUpdate : function () {
     return {
       interval: 15,
       name: "Test Dashboard",
@@ -126,7 +126,7 @@ module.exports = {
       ]
     }
   },
-  postEmptyDashboard: function (cb) {
+  postEmptyDashboard : function (cb) {
     request.post('/dashboards')
       .send({id: this.newDashboardId()})
       .end(function (err, res) {
@@ -136,7 +136,7 @@ module.exports = {
         cb(null, res.body);
       });
   },
-  postAndPutDashboard: function (cb) {
+  postAndPutDashboard : function (cb) {
     var _this = this;
     this.postEmptyDashboard(function (err, createdDashboard) {
       if (err) {
@@ -152,7 +152,26 @@ module.exports = {
         });
     });
   },
-  cleanup: function (done) {
+  postDashboardConnection : function (userId, code, cb) {
+    request.post('/users/' + userId + '/dashboards')
+      .send({ code : code })
+      .end(function (err, res) {
+        if (err) {
+          return cb(err);
+        }
+        cb(null, res.body);
+      })
+  },
+  getDashboardCode : function (dashboardId, cb) {
+    request.get('/dashboards/' + dashboardId + '/code')
+      .end(function (err, res) {
+        if (err) {
+          return cb(err);
+        }
+        cb(null, res.body.code);
+      });
+  },
+  cleanup : function (done) {
     cleanupUsers(function () {
       cleanupDashboards(done);
     });

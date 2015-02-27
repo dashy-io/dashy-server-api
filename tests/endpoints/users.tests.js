@@ -157,7 +157,7 @@ describe('DELETE ~/users/:user-id', function () {
       .expect({ message: 'User not found'})
       .end(done);
   });
-  it('deletes a valid dashboard', function (done) {
+  it('deletes a user', function (done) {
     testHelpers.createUser(function(err, user) {
       if (err) { return done(err); }
       request.delete('/users/' + user.id)
@@ -249,6 +249,37 @@ describe('POST ~/users/:user-id/dashboards', function () {
   // TODO: Error if dashboard already connected to another user
   // TODO: A dashboard can be connected multiple times to the same user
   // TODO: Test connecting multiple dashboards
+});
+
+describe('DELETE ~/users/:user-id/dashboards/:dashboard-id', function () {
+  it('returns 404 Not Found when a dashboard is not connected to that user', function (done) {
+    testHelpers.postNewUser(function (err, user) {
+      if (err) { return done(err); }
+      request.delete('/users/' + user.id + '/dashboards/' + uuid.v4())
+        .expect(404)
+        .expect({ message: 'Connected Dashboard not found'})
+        .end(done);
+    });
+  });
+  it('deletes a dashboard connection', function (done) {
+    testHelpers.postEmptyDashboard(function (err, dashboard) {
+      if (err) { return done(err); }
+      testHelpers.postNewUser(function (err, user) {
+        if (err) { return done(err); }
+        testHelpers.getDashboardCode(dashboard.id, function (err, dashboardCode) {
+          if (err) { return done(err); }
+          testHelpers.postDashboardConnection(user.id, dashboardCode, function (err, connectedDashboards) {
+            if (err) { return done(err); }
+            assert.deepEqual( connectedDashboards, [ 'example-dashboard', dashboard.id ]);
+            request.delete('/users/' + user.id + '/dashboards/' + dashboard.id)
+              .expect(200)
+              .expect([ 'example-dashboard' ])
+              .end(done);
+          });
+        });
+      });
+    });
+  });
 });
 
 describe('GET ~/user', function () {
