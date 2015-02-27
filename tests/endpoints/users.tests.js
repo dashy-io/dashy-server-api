@@ -253,7 +253,7 @@ describe('POST ~/users/:user-id/dashboards', function () {
 
 describe('DELETE ~/users/:user-id/dashboards/:dashboard-id', function () {
   it('returns 404 Not Found when a dashboard is not connected to that user', function (done) {
-    testHelpers.postNewUser(function (err, user) {
+    testHelpers.createUser(function (err, user) {
       if (err) { return done(err); }
       request.delete('/users/' + user.id + '/dashboards/' + uuid.v4())
         .expect(404)
@@ -264,16 +264,16 @@ describe('DELETE ~/users/:user-id/dashboards/:dashboard-id', function () {
   it('deletes a dashboard connection', function (done) {
     testHelpers.postEmptyDashboard(function (err, dashboard) {
       if (err) { return done(err); }
-      testHelpers.postNewUser(function (err, user) {
+      testHelpers.createUser(function (err, user) {
         if (err) { return done(err); }
         testHelpers.getDashboardCode(dashboard.id, function (err, dashboardCode) {
           if (err) { return done(err); }
           testHelpers.postDashboardConnection(user.id, dashboardCode, function (err, connectedDashboards) {
             if (err) { return done(err); }
-            assert.deepEqual( connectedDashboards, [ 'example-dashboard', dashboard.id ]);
+            assert.deepEqual( connectedDashboards, [ dashboard.id ]);
             request.delete('/users/' + user.id + '/dashboards/' + dashboard.id)
               .expect(200)
-              .expect([ 'example-dashboard' ])
+              .expect([ ])
               .end(done);
           });
         });

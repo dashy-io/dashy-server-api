@@ -119,6 +119,10 @@ router.delete('/users/:id/dashboards/:dashboardId', function (req, res, next) {
       if (!user) {
         return next(errorGenerator.notFound('User'));
       }
+      // TODO: This should always be an array
+      if (!user.dashboards) {
+        user.dashboards = [];
+      }
       var index = user.dashboards.indexOf(dashboardId);
       if (index > -1) {
         user.dashboards.splice(index, 1);
