@@ -4,7 +4,7 @@
   "description": "Dashy.io Server",
   "main": "app.js",
   "scripts": {
-    "develop": "DEBUG=app,app:* nodemon ./bin/www",
+    "dev": "DEBUG=app,app:* nodemon ./bin/www",
     "start": "DEBUG=app,app:* node ./bin/www",
     "test": "DEBUG=app,app:* mocha --reporter spec --timeout 10000 \"tests/**/*.tests.js\"",
     "test-w": "NODE_ENV=test nodemon -x 'npm test'"
