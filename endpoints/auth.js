@@ -62,7 +62,6 @@ router.post('/auth/google/login', function (req, res, next) {
         });
       });
     });
-
   });
 });
 
@@ -76,6 +75,7 @@ router.post('/auth/google/signup', function (req, res, next) {
     }
     getGoogleUserProfile(accessToken, function (err, linkedUserProfile) {
       if (err) { return next(err); }
+      // TODO: Ensure that the scope contains email address
       DataStore.create(function (err, dataStore) {
         if (err) { return next(err); }
         dataStore.getUserIdByGoogleUserId(linkedUserProfile.id, function (err, userId) {
