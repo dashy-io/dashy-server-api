@@ -30,7 +30,6 @@ router.get('/users/:id?', function (req, res, next) {
   });
 });
 
-// TODO: Test this
 router.get('/user', function (req, res, next) {
   var token = tokens.parseHeader(req.headers.authorization);
   if (!token) {
