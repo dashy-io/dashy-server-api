@@ -87,7 +87,8 @@ router.post('/auth/google/signup', function (req, res, next) {
             id : 'user-' + uuid.v4(),
             profiles : {
               google: [ linkedUserProfile ]
-            }
+            },
+            dashboards : []
           };
           dataStore.createUser(user, function (err, createdUser) {
             if (err) { return next(err); }
