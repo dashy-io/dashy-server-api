@@ -252,7 +252,7 @@ describe('POST ~/users/:user-id/dashboards', function () {
 });
 
 describe('DELETE ~/users/:user-id/dashboards/:dashboard-id', function () {
-  it('returns 404 Not Found when a dashboard is not connected to that user', function (done) {
+  it('returns 404 Not Found when dashboard not connected to user', function (done) {
     testHelpers.createUser(function (err, user) {
       if (err) { return done(err); }
       request.delete('/users/' + user.id + '/dashboards/' + uuid.v4())
