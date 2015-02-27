@@ -1,10 +1,8 @@
 'use strict';
-var uuid = require('node-uuid');
 var request = require('supertest');
 var chai = require('chai');
 var chaiString = require('chai-string');
 var app = require('../app');
-var DataStore = require('../lib/dataStore');
 var testHelpers = require('./test-helpers');
 var assert = chai.assert;
 request = request(app);
@@ -13,9 +11,8 @@ chai.use(chaiString);
 describe('User Journey', function () {
   this.timeout(20000);
   it('Completes a full user journey', function (done) {
-    // create a dashboard like a raspberry pi
     request.post('/dashboards')
-      .send({id: uuid.v4()})
+      .send({ name : 'Test Dashboard - user-journey.tests.js' })
       .expect(201)
       .end(function (err, res) {
         if (err) { return done(err); }

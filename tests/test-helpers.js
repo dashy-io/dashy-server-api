@@ -67,6 +67,9 @@ module.exports = {
   addUserToCleanup : function (id) {
     usersToCleanup.push(id);
   },
+  addDashboardToCleanup : function (id) {
+    dashboardsToCleanup.push(id);
+  },
   createUser : function (cb) {
     var newUserId = 'test-user-' + uuid.v4();
     var newGoogleId = 'google-id-' + uuid.v4();
@@ -128,7 +131,7 @@ module.exports = {
   },
   postEmptyDashboard : function (cb) {
     request.post('/dashboards')
-      .send({id: this.newDashboardId()})
+      .send({ name : 'Test Dashboard - test-helpers.js' })
       .end(function (err, res) {
         if (err) {
           return cb(err);

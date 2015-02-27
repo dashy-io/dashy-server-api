@@ -2,22 +2,13 @@
 var express = require('express');
 var randToken = require('rand-token');
 var DataStore = require('../lib/dataStore');
+var uuid = require('node-uuid');
+var config = require('../config');
 var router = express.Router();
 var app = express();
 
 router.post('/dashboards', function (req, res, next) {
-  var allowedProperties = ['id', 'name', 'interval', 'urls'];
-  if (!req.body.id) {
-    var badRequestError = new Error('Property "id" missing in body');
-    badRequestError.status = 400;
-    return next(badRequestError);
-  }
-  // strict UUID v4: ^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$
-  if (!/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/.test(req.body.id)) {
-    var badRequestError = new Error('Property "id" is not an UUID v4');
-    badRequestError.status = 400;
-    return next(badRequestError);
-  }
+  var allowedProperties = [ 'name' ];
   for (var parameter in req.body) {
     if (req.body.hasOwnProperty(parameter)) {
       if (allowedProperties.indexOf(parameter) === -1) {
@@ -27,7 +18,11 @@ router.post('/dashboards', function (req, res, next) {
       }
     }
   }
+  var dashboardPrefix = config.env === "production"
+    ? "dashboard-"
+    :  "test-dashboard-";
   var newDashboard = {
+    id : dashboardPrefix + uuid.v4(),
     code : randToken.generate(6)
   };
   allowedProperties.forEach(function (property) {

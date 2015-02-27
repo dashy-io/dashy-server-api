@@ -3,6 +3,7 @@ var request = require('supertest');
 var chai = require('chai');
 var chaiString = require('chai-string');
 var app = require('../../app');
+var uuid = require('node-uuid');
 var testHelpers = require('./../test-helpers');
 var assert = chai.assert;
 request = request(app);
@@ -14,79 +15,42 @@ after('API Cleanup', function (done) {
 });
 
 describe('POST ~/dashboards', function () {
-  it('returns 400 Bad Request if ID not specified in body', function (done) {
-    request.post('/dashboards')
-      .send({ id: '' })
-      .expect(400)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message: 'Property "id" missing in body' })
-      .end(done);
-  });
   it('creates a minimal new dashboard', function (done) {
-    var newId = testHelpers.newDashboardId();
     request.post('/dashboards')
-      .send({ id: newId })
+      .send()
       .expect(201)
       .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ id: newId })
       .end(function(err, res) {
         if (err) { return done(err); }
         var newDashboard = res.body;
         assert.lengthOf(newDashboard.id, 51);
-        assert.match(newDashboard.id, /test-dashboard-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/);
+        assert.startsWith(newDashboard.id, 'test-dashboard-');
+        assert.match(newDashboard.id, /[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/);
+        testHelpers.addDashboardToCleanup(newDashboard.id);
         done();
       });
   });
   it('creates a new dashboard', function (done) {
-    var newId = testHelpers.newDashboardId();
-    var newDashboard = testHelpers.getDashboardUpdate();
-    newDashboard.id = newId;
+    var expectedName = 'Test Dashboard - dashboards.tests.js';
     request.post('/dashboards')
-      .send(newDashboard)
+      .send({ name : expectedName })
       .expect(201)
       .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect(newDashboard)
       .end(function(err, res) {
         if (err) { return done(err); }
         var newDashboard = res.body;
-        assert.lengthOf(newDashboard.id, 51);
-        assert.match(newDashboard.id, /test-dashboard-[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}/);
+        assert.startsWith(newDashboard.id, 'test-dashboard-');
+        assert.equal(newDashboard.name, expectedName);
         done();
       });
   });
   // TODO: Try get after create
-  it('returns 409 Conflict if dashboard already exists', function (done) {
-    testHelpers.postEmptyDashboard(function (err, dashboard) {
-      if (err) { return done(err); }
-      request.post('/dashboards')
-        .send(dashboard)
-        .expect(409)
-        .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect({ message : 'Duplicate Dashboard ID' })
-        .end(done);
-    });
-  });
   it('returns 400 Bad Request if other parameters in body', function (done) {
     request.post('/dashboards')
-      .send({ id: testHelpers.newDashboardId(), other : 'other field' })
+      .send({ id: 'test-dashboard-' + uuid.v4(), other : 'other field' })
       .expect(400)
       .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message: 'Property "other" not allowed in body' })
-      .end(done);
-  });
-  it('returns 400 Bad Request if code parameter in body', function (done) {
-    request.post('/dashboards')
-      .send({ id: testHelpers.newDashboardId(), code : '11111111' })
-      .expect(400)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message: 'Property "code" not allowed in body' })
-      .end(done);
-  });
-  it('returns 400 Bad Request if ID not UUID', function (done) {
-    request.post('/dashboards')
-      .send({ id: 'abc' })
-      .expect(400)
-      .expect({ message: 'Property "id" is not an UUID v4' })
+      .expect({ message: 'Property "id" not allowed in body' })
       .end(done);
   });
 });
