@@ -21,7 +21,7 @@ function cleanupUsers(done) {
       if (err) {
         throw err;
       }
-      dataStore.delete({ users : { id : id }}, function (err) {
+      users.remove(id, function (err, removed) {
         if (err) {
           errorCount++;
           console.log(err);

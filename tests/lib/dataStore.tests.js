@@ -291,9 +291,9 @@ describe('Deleting a user', function () {
       if (err) { return done(err); }
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
-        dataStore.delete({ users : { id : newUser.id }}, function (err, deleted) {
+        users.remove(newUser.id, function (err, removed) {
           if (err) { return done(err); }
-          assert.isTrue(deleted);
+          assert.isTrue(removed);
           done();
         });
       });
@@ -303,9 +303,9 @@ describe('Deleting a user', function () {
   it('does not delete a non-existing user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      dataStore.delete({ users : { id : 'test-user-' + uuid.v4() }}, function (err, deleted) {
+      users.remove('test-user-' + uuid.v4(), function (err, removed) {
         if (err) { return done(err); }
-        assert.isFalse(deleted);
+        assert.isFalse(removed);
         done();
       });
     });
