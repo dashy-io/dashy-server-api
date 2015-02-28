@@ -91,7 +91,7 @@ router.post('/users/:id/dashboards', function (req, res, next) {
         }
         dataStore.update({ dashboards : { id : dashboard.id }}, { code: null }, function(err, updatedDashboard){
           if (err) { return next(err); }
-          dataStore.updateUser(user.id, user, function (err, updatedUser) {
+          dataStore.update({ users : { id : user.id }}, user, function (err, updatedUser) {
             res.status(201);
             res.json(updatedUser.dashboards);
           });
@@ -122,7 +122,7 @@ router.delete('/users/:id/dashboards/:dashboardId', function (req, res, next) {
       } else {
         return next(errorGenerator.notFound('Connected Dashboard'));
       }
-      dataStore.updateUser(user.id, user, function (err, updatedUser) {
+      dataStore.update({ users : { id : user.id }}, user, function (err, updatedUser) {
         res.status(200);
         res.json(updatedUser.dashboards);
       });

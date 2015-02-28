@@ -238,7 +238,7 @@ describe('Updating a user', function () {
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
         newUser.name += ' EDITED';
-        dataStore.updateUser(newUser.id, newUser, function (err, updatedUser) {
+        dataStore.update({ users : { id : newUser.id }}, newUser, function (err, updatedUser) {
           if (err) { return done(err); }
           assert.deepEqual(updatedUser, newUser);
           done();
@@ -253,7 +253,7 @@ describe('Updating a user', function () {
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
         newUser.additional = 'additional field';
-        dataStore.updateUser(newUser.id, newUser, function (err, updatedUser) {
+        dataStore.update({ users : { id : newUser.id }}, newUser, function (err, updatedUser) {
           if (err) { return done(err); }
           dataStore.get({ users : { id : newUser.id }}, function (err, user) {
             if (err) { return done(err); }
@@ -273,7 +273,7 @@ describe('Updating a user', function () {
         id: newUserId
       };
       testHelpers.addUserToCleanup(newUserId);
-      dataStore.updateUser(newUser.id, newUser, function (err, updatedUser) {
+      dataStore.update({ users : { id : newUser.id }}, newUser, function (err, updatedUser) {
         if (err) { return done(err); }
         assert.isNull(updatedUser);
         done();
