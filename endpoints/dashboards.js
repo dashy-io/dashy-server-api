@@ -116,7 +116,7 @@ router.put('/dashboards/:id?', function(req, res, next) {
         codeConflictError.status = 409;
         return next(codeConflictError);
       }
-      dataStore.updateDashboard(id, dashboard, function(err, updatedDashboard) {
+      dataStore.update({ dashboards : { id : id }}, dashboard, function(err, updatedDashboard) {
         if (err) { return next(err); }
         res.status(200);
         res.json(updatedDashboard);
