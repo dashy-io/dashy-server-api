@@ -17,7 +17,7 @@ describe('Getting a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.insert({ dashboards : newDashboard }, function (err) {
+      dataStore.insert({ dashboards : null }, newDashboard, function (err) {
         if (err) { return done(err); }
         dataStore.get({ dashboards : { id : newDashboard.id }}, function (err, dashboard) {
           if (err) { return done(err); }
@@ -46,7 +46,7 @@ describe('Getting a dashboard by code', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.insert({ dashboards : newDashboard }, function (err) {
+      dataStore.insert({ dashboards : null }, newDashboard, function (err) {
         if (err) { return done(err); }
         dataStore.get({ dashboards : { code : newDashboard.code }}, function (err, dashboard) {
           if (err) { return done(err); }
@@ -63,7 +63,7 @@ describe('Creating a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.insert({ dashboards : newDashboard }, function (err, createdDashboard) {
+      dataStore.insert({ dashboards : null }, newDashboard, function (err, createdDashboard) {
         if (err) { return done(err); }
         assert.deepEqual(createdDashboard, newDashboard);
         assert.startsWith(createdDashboard.id, 'test-dashboard-');
@@ -79,7 +79,7 @@ describe('Updating a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.insert({ dashboards : newDashboard }, function (err, createdDashboard) {
+      dataStore.insert({ dashboards : null }, newDashboard, function (err, createdDashboard) {
         if (err) { return done(err); }
         createdDashboard.name += ' EDITED';
         dataStore.update({ dashboards : { id : createdDashboard.id }}, createdDashboard, function (err, updatedDashboard) {
@@ -96,7 +96,7 @@ describe('Updating a dashboard', function () {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
       newDashboard.additional1 = 'additional field 1';
-      dataStore.insert({ dashboards : newDashboard }, function (err, createdDashboard) {
+      dataStore.insert({ dashboards : null }, newDashboard, function (err, createdDashboard) {
         if (err) { return done(err); }
         createdDashboard.additional2 = 'additional field 2';
         dataStore.update({ dashboards : { id : createdDashboard.id }}, createdDashboard, function (err, updatedDashboard) {
@@ -131,7 +131,7 @@ describe('Deleting a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.insert({ dashboards : newDashboard }, function (err) {
+      dataStore.insert({ dashboards : null }, newDashboard, function (err) {
         if (err) { return done(err); }
         dataStore.deleteDashboard(newDashboard.id, function (err, deleted) {
           if (err) { return done(err); }
@@ -165,7 +165,7 @@ describe('Creating a user', function () {
         id: newUserId
       };
       testHelpers.addUserToCleanup(newUserId);
-      dataStore.insert({ users : newUser }, function (err, createdUser) {
+      dataStore.insert({ users : null }, newUser, function (err, createdUser) {
         if (err) { return done(err); }
         assert.deepEqual(createdUser, newUser);
         done();

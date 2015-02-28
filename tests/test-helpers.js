@@ -93,7 +93,7 @@ module.exports = {
     };
     DataStore.create(function (err, dataStore) {
       if (err) { return cb(err); }
-      dataStore.insert({ users : newUser }, function (err, createdUser) {
+      dataStore.insert({ users : null }, newUser, function (err, createdUser) {
         cb(err, createdUser);
       });
     });

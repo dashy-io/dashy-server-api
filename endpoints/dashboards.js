@@ -37,7 +37,7 @@ router.post('/dashboards', function (req, res, next) {
         conflictError.status = 409;
         return next(conflictError);
       }
-      dataStore.insert({ dashboards : newDashboard }, function(err, createdDashboard) {
+      dataStore.insert({ dashboards : null }, newDashboard, function(err, createdDashboard) {
         if (err) { return next(err); }
         delete createdDashboard.code;
         res.status(201);
