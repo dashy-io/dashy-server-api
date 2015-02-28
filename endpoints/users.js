@@ -3,7 +3,7 @@ var uuid = require('node-uuid');
 var express = require('express');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
-var tokens = require('../lib/tokens');
+var requireAuthorization = require('../lib/authorizationMiddleware');
 var DataStore = require('../lib/dataStore');
 var router = express.Router();
 var app = express();
@@ -30,25 +30,16 @@ router.get('/users/:id?', function (req, res, next) {
   });
 });
 
-router.get('/user', function (req, res, next) {
-  var token = tokens.parseHeader(req.headers.authorization);
-  if (!token) {
-    return next(errorGenerator.unauthorized('Missing or invalid Authorization header'));
-  }
-  tokens.getUserId(token, function (err, id) {
-    if (!id) {
-      return next(errorGenerator.unauthorized('Invalid token'));
-    }
-    DataStore.create(function (err, dataStore) {
+router.get('/user', requireAuthorization, function (req, res, next) {
+  DataStore.create(function (err, dataStore) {
+    if (err) { return next(err); }
+    dataStore.getUser(req.user, function (err, user) {
       if (err) { return next(err); }
-      dataStore.getUser(id, function (err, user) {
-        if (err) { return next(err); }
-        if (!user) {
-          return next(errorGenerator.notFound('User associated with token'));
-        }
-        res.status(200);
-        res.json(user);
-      });
+      if (!user) {
+        return next(errorGenerator.notFound('User associated with token'));
+      }
+      res.status(200);
+      res.json(user);
     });
   });
 });
