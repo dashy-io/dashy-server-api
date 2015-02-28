@@ -84,7 +84,7 @@ describe('Updating a dashboard', function () {
       dashboards.add(newDashboard, function (err, createdDashboard) {
         if (err) { return done(err); }
         createdDashboard.name += ' EDITED';
-        dataStore.update({ dashboards : { id : createdDashboard.id }}, createdDashboard, function (err, updatedDashboard) {
+        dashboards.update(createdDashboard, function (err, updatedDashboard) {
           if (err) { return done(err); }
           assert.equal(updatedDashboard.name, createdDashboard.name);
           done();
@@ -101,7 +101,7 @@ describe('Updating a dashboard', function () {
       dashboards.add(newDashboard, function (err, createdDashboard) {
         if (err) { return done(err); }
         createdDashboard.additional2 = 'additional field 2';
-        dataStore.update({ dashboards : { id : createdDashboard.id }}, createdDashboard, function (err, updatedDashboard) {
+        dashboards.update(createdDashboard, function (err, updatedDashboard) {
           if (err) { return done(err); }
           dashboards.get(createdDashboard.id, function (err, dashboard) {
             if (err) { return done(err); }
@@ -118,7 +118,7 @@ describe('Updating a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.update({ dashboards : { id : newDashboard.id }}, newDashboard, function (err, updatedDashboard) {
+      dashboards.update(newDashboard, function (err, updatedDashboard) {
         if (err) { return done(err); }
         assert.isNull(updatedDashboard);
         done();
