@@ -17,7 +17,7 @@ describe('Getting a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.createDashboard(newDashboard, function (err) {
+      dataStore.insert({ dashboards : newDashboard }, function (err) {
         if (err) { return done(err); }
         dataStore.get({ dashboards : { id : newDashboard.id }}, function (err, dashboard) {
           if (err) { return done(err); }
@@ -46,13 +46,13 @@ describe('Getting a dashboard by code', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.createDashboard(newDashboard, function (err) {
+      dataStore.insert({ dashboards : newDashboard }, function (err) {
         if (err) { return done(err); }
-        dataStore.getDashboardByCode(newDashboard.code, function (err, dashboard) {
+        dataStore.get({ dashboards : { code : newDashboard.code }}, function (err, dashboard) {
           if (err) { return done(err); }
           assert.deepEqual(dashboard, newDashboard);
           done();
-        })
+        });
       });
     });
   });
@@ -63,7 +63,7 @@ describe('Creating a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.createDashboard(newDashboard, function (err, createdDashboard) {
+      dataStore.insert({ dashboards : newDashboard }, function (err, createdDashboard) {
         if (err) { return done(err); }
         assert.deepEqual(createdDashboard, newDashboard);
         assert.startsWith(createdDashboard.id, 'test-dashboard-');
@@ -79,7 +79,7 @@ describe('Updating a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.createDashboard(newDashboard, function (err, createdDashboard) {
+      dataStore.insert({ dashboards : newDashboard }, function (err, createdDashboard) {
         if (err) { return done(err); }
         createdDashboard.name += ' EDITED';
         dataStore.updateDashboard(createdDashboard.id, createdDashboard, function (err, updatedDashboard) {
@@ -96,7 +96,7 @@ describe('Updating a dashboard', function () {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
       newDashboard.additional1 = 'additional field 1';
-      dataStore.createDashboard(newDashboard, function (err, createdDashboard) {
+      dataStore.insert({ dashboards : newDashboard }, function (err, createdDashboard) {
         if (err) { return done(err); }
         createdDashboard.additional2 = 'additional field 2';
         dataStore.updateDashboard(createdDashboard.id, createdDashboard, function (err, updatedDashboard) {
@@ -131,7 +131,7 @@ describe('Deleting a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.createDashboard(newDashboard, function (err) {
+      dataStore.insert({ dashboards : newDashboard }, function (err) {
         if (err) { return done(err); }
         dataStore.deleteDashboard(newDashboard.id, function (err, deleted) {
           if (err) { return done(err); }
@@ -165,7 +165,7 @@ describe('Creating a user', function () {
         id: newUserId
       };
       testHelpers.addUserToCleanup(newUserId);
-      dataStore.createUser(newUser, function (err, createdUser) {
+      dataStore.insert({ users : newUser }, function (err, createdUser) {
         if (err) { return done(err); }
         assert.deepEqual(createdUser, newUser);
         done();
@@ -182,7 +182,7 @@ describe('Getting a user', function () {
       if (err) { return done(err); }
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
-        dataStore.getUser(newUser.id, function (err, user) {
+        dataStore.get({ users : { id : newUser.id }}, function (err, user) {
           if (err) { return done(err); }
           assert.deepEqual(user, newUser);
           done();
@@ -193,7 +193,7 @@ describe('Getting a user', function () {
   it('does not return a non-existing user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      dataStore.getUser('test-user-bad', function (err, user) {
+      dataStore.get({ users : { id : 'test-user-bad' }}, function (err, user) {
         if (err) { return done(err); }
         assert.isNull(user);
         done();
@@ -255,7 +255,7 @@ describe('Updating a user', function () {
         newUser.additional = 'additional field';
         dataStore.updateUser(newUser.id, newUser, function (err, updatedUser) {
           if (err) { return done(err); }
-          dataStore.getUser(newUser.id, function (err, user) {
+          dataStore.get({ users : { id : newUser.id }}, function (err, user) {
             if (err) { return done(err); }
             assert.equal(user.additional, 'additional field');
             assert.deepEqual(user, updatedUser);

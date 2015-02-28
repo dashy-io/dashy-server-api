@@ -19,7 +19,7 @@ router.get('/users/:id?', function (req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.getUser(id, function (err, user) {
+    dataStore.get({ users : { id : id }}, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
         return next(errorGenerator.notFound('User'));
@@ -33,7 +33,7 @@ router.get('/users/:id?', function (req, res, next) {
 router.get('/user', requireAuthorization, function (req, res, next) {
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.getUser(req.user, function (err, user) {
+    dataStore.get({ users : { id : req.user }}, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
         return next(errorGenerator.notFound('User associated with token'));
@@ -72,7 +72,7 @@ router.post('/users/:id/dashboards', function (req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.getUser(userId, function (err, user) {
+    dataStore.get({ users : { id : userId }}, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
         return next(errorGenerator.notFound('User'));
@@ -107,7 +107,7 @@ router.delete('/users/:id/dashboards/:dashboardId', function (req, res, next) {
   // TODO: Throw error if the request has a body
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.getUser(userId, function (err, user) {
+    dataStore.get({ users : { id : userId }}, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
         return next(errorGenerator.notFound('User'));

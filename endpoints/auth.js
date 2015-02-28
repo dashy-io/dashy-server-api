@@ -90,7 +90,7 @@ router.post('/auth/google/signup', function (req, res, next) {
             },
             dashboards : []
           };
-          dataStore.createUser(user, function (err, createdUser) {
+          dataStore.insert({ users : user }, function (err, createdUser) {
             if (err) { return next(err); }
             res.status(201);
             res.json(createdUser);
