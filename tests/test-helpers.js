@@ -41,7 +41,7 @@ function cleanupDashboards(done) {
   }
   var deletedCount = 0;
   var errorCount = 0;
-  console.log('Cleaning up (Dashbaords)...');
+  console.log('Cleaning up (Dashboards)...');
   dashboardsToCleanup.forEach(function (id) {
     DataStore.create(function (err, dataStore) {
       if (err) {
