@@ -51,11 +51,11 @@ router.post('/auth/google/login', function (req, res, next) {
     }
     DataStore.create(function (err, dataStore) {
       if (err) { return next(err); }
-      dataStore.getUserIdByGoogleUserId(tokenInfo.user_id, function (err, userId) {
-        if (!userId) {
+      dataStore.get({ users : { 'profiles.google.id' : tokenInfo.user_id }}, function (err, user) {
+        if (!user) {
           return next(errorGenerator.forbidden('User not found'));
         }
-        tokens.create(userId, function (err, token) {
+        tokens.create(user.id, function (err, token) {
           if (err) { return next(err); }
           res.status(200);
           res.json({ token : token });
@@ -78,9 +78,9 @@ router.post('/auth/google/signup', function (req, res, next) {
       // TODO: Ensure that the scope contains email address
       DataStore.create(function (err, dataStore) {
         if (err) { return next(err); }
-        dataStore.getUserIdByGoogleUserId(linkedUserProfile.id, function (err, userId) {
+        dataStore.get({ users : { 'profiles.google.id' : linkedUserProfile.id }}, function (err, existingUser) {
           if (err) { return next(err); }
-          if (userId) {
+          if (existingUser) {
             return next(errorGenerator.userAlreadyExists());
           }
           var user = {
