@@ -184,7 +184,7 @@ describe('Getting a user', function () {
       if (err) { return done(err); }
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
-        users.getById(newUser.id, function (err, user) {
+        users.get(newUser.id, function (err, user) {
           if (err) { return done(err); }
           assert.deepEqual(user, newUser);
           done();
@@ -195,7 +195,7 @@ describe('Getting a user', function () {
   it('does not return a non-existing user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      users.getById('test-user-bad', function (err, user) {
+      users.get('test-user-bad', function (err, user) {
         if (err) { return done(err); }
         assert.isNull(user);
         done();
@@ -257,7 +257,7 @@ describe('Updating a user', function () {
         newUser.additional = 'additional field';
         users.update(newUser, function (err, updatedUser) {
           if (err) { return done(err); }
-          users.getById(newUser.id, function (err, user) {
+          users.get(newUser.id, function (err, user) {
             if (err) { return done(err); }
             assert.equal(user.additional, 'additional field');
             assert.deepEqual(user, updatedUser);
