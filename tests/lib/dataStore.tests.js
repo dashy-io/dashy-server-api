@@ -167,7 +167,7 @@ describe('Creating a user', function () {
         id: newUserId
       };
       testHelpers.addUserToCleanup(newUserId);
-      dataStore.insert({ users : null }, newUser, function (err, createdUser) {
+      users.add(newUser, function (err, createdUser) {
         if (err) { return done(err); }
         assert.deepEqual(createdUser, newUser);
         done();

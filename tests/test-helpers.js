@@ -3,6 +3,7 @@ var uuid = require('node-uuid');
 var randToken = require('rand-token');
 var request = require('supertest');
 var DataStore = require('../lib/dataStore');
+var users = require('../lib/users');
 var app = require('../app');
 request = request(app);
 var usersToCleanup = [];
@@ -93,7 +94,7 @@ module.exports = {
     };
     DataStore.create(function (err, dataStore) {
       if (err) { return cb(err); }
-      dataStore.insert({ users : null }, newUser, function (err, createdUser) {
+      users.add(newUser, function (err, createdUser) {
         cb(err, createdUser);
       });
     });
