@@ -2,7 +2,6 @@
 var uuid = require('node-uuid');
 var randToken = require('rand-token');
 var request = require('supertest');
-var DataStore = require('../lib/dataStore');
 var users = require('../lib/users');
 var dashboards = require('../lib/dashboards');
 var app = require('../app');
@@ -18,21 +17,16 @@ function cleanupUsers(done) {
   var errorCount = 0;
   console.log('Cleaning up (Users)...');
   usersToCleanup.forEach(function (id) {
-    DataStore.create(function (err, dataStore) {
+    users.remove(id, function (err, removed) {
       if (err) {
-        throw err;
+        errorCount++;
+        console.log(err);
       }
-      users.remove(id, function (err, removed) {
-        if (err) {
-          errorCount++;
-          console.log(err);
-        }
-        deletedCount++;
-        if (deletedCount === usersToCleanup.length) {
-          console.log('Cleaned: ' + usersToCleanup.length + ', errors: ' + errorCount);
-          return done();
-        }
-      });
+      deletedCount++;
+      if (deletedCount === usersToCleanup.length) {
+        console.log('Cleaned: ' + usersToCleanup.length + ', errors: ' + errorCount);
+        return done();
+      }
     });
   });
 }
@@ -45,21 +39,16 @@ function cleanupDashboards(done) {
   var errorCount = 0;
   console.log('Cleaning up (Dashboards)...');
   dashboardsToCleanup.forEach(function (id) {
-    DataStore.create(function (err, dataStore) {
+    dashboards.remove(id, function (err, removed) {
       if (err) {
-        throw err;
+        errorCount++;
+        console.log(err);
       }
-      dashboards.remove(id, function (err, removed) {
-        if (err) {
-          errorCount++;
-          console.log(err);
-        }
-        deletedCount++;
-        if (deletedCount === dashboardsToCleanup.length) {
-          console.log('Cleaned: ' + dashboardsToCleanup.length + ', errors: ' + errorCount);
-          return done();
-        }
-      });
+      deletedCount++;
+      if (deletedCount === dashboardsToCleanup.length) {
+        console.log('Cleaned: ' + dashboardsToCleanup.length + ', errors: ' + errorCount);
+        return done();
+      }
     });
   });
 }
@@ -93,11 +82,8 @@ module.exports = {
         ]
       }
     };
-    DataStore.create(function (err, dataStore) {
-      if (err) { return cb(err); }
-      users.add(newUser, function (err, createdUser) {
-        cb(err, createdUser);
-      });
+    users.add(newUser, function (err, createdUser) {
+      cb(err, createdUser);
     });
   },
   newDashboardId : function () {
