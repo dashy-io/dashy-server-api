@@ -5,7 +5,7 @@ var uuid = require('node-uuid');
 var config = require('../config');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
-var users = require('../lib/users');
+var User =require('../models/user');
 var tokens = require('../lib/tokens');
 var router = express.Router();
 
@@ -49,7 +49,7 @@ router.post('/auth/google/login', function (req, res, next) {
     if (!tokenInfo) {
       return next(errorGenerator.unauthorized('Cannot validate Google User'));
     }
-    users.getByGoogleId(tokenInfo.user_id, function (err, user) {
+    User.getByGoogleId(tokenInfo.user_id, function (err, user) {
       if (!user) {
         return next(errorGenerator.forbidden('User not found'));
       }
@@ -73,7 +73,7 @@ router.post('/auth/google/signup', function (req, res, next) {
     getGoogleUserProfile(accessToken, function (err, linkedUserProfile) {
       if (err) { return next(err); }
       // TODO: Ensure that the scope contains email address
-      users.getByGoogleId(linkedUserProfile.id, function (err, existingUser) {
+      User.getByGoogleId(linkedUserProfile.id, function (err, existingUser) {
         if (err) { return next(err); }
         if (existingUser) {
           return next(errorGenerator.userAlreadyExists());
@@ -85,7 +85,7 @@ router.post('/auth/google/signup', function (req, res, next) {
           },
           dashboards : []
         };
-        users.add(user, function (err, createdUser) {
+        User.add(user, function (err, createdUser) {
           if (err) { return next(err); }
           res.status(201);
           res.json(createdUser);

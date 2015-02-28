@@ -3,8 +3,8 @@ var express = require('express');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
 var requireAuthorization = require('../lib/authorizationMiddleware');
-var dashboards = require('../lib/dashboards');
-var users = require('../lib/users');
+var Dashboard = require('../models/dashboard');
+var User =require('../models/user');
 var router = express.Router();
 
 function clone(input) {
@@ -16,7 +16,7 @@ router.get('/users/:id?', function (req, res, next) {
   if (!id) {
     return next(errorGenerator.missingParameter('id'));
   }
-  users.get(id, function (err, user) {
+  User.get(id, function (err, user) {
     if (err) { return next(err); }
     if (!user) {
       return next(errorGenerator.notFound('User'));
@@ -36,7 +36,7 @@ router.delete('/users/:id?', function (req, res, next) {
   if (!id) {
     return next(errorGenerator.missingParameter('id'));
   }
-  users.remove(id, function (err, removed) {
+  User.remove(id, function (err, removed) {
     if (err) { return next(err); }
     if (!removed) {
       return next(errorGenerator.notFound('User'));
@@ -54,12 +54,12 @@ router.post('/users/:id/dashboards', function (req, res, next) {
   if (validationError) {
     return next(errorGenerator.missingProperty(validationError.missingProperty));
   }
-  users.get(userId, function (err, user) {
+  User.get(userId, function (err, user) {
     if (err) { return next(err); }
     if (!user) {
       return next(errorGenerator.notFound('User'));
     }
-    dashboards.getByCode(dashboardConnect.code, function(err, dashboard) {
+    Dashboard.getByCode(dashboardConnect.code, function(err, dashboard) {
       if (err) { return next(err); }
       if (!dashboard) {
         return next(errorGenerator.notFound('Dashboard'));
@@ -71,9 +71,9 @@ router.post('/users/:id/dashboards', function (req, res, next) {
       if (user.dashboards.indexOf(dashboard.id) === -1) {
         user.dashboards.push(dashboard.id);
       }
-      dashboards.removeCode(dashboard.id, function(err, removed){
+      Dashboard.removeCode(dashboard.id, function(err, removed){
         if (err) { return next(err); }
-        users.update(user, function (err, updatedUser) {
+        User.update(user, function (err, updatedUser) {
           res.status(201);
           res.json(updatedUser.dashboards);
         });
@@ -86,7 +86,7 @@ router.delete('/users/:id/dashboards/:dashboardId', function (req, res, next) {
   var userId = req.params.id;
   var dashboardId = req.params.dashboardId;
   // TODO: Throw error if the request has a body
-  users.get(userId, function (err, user) {
+  User.get(userId, function (err, user) {
     if (err) { return next(err); }
     if (!user) {
       return next(errorGenerator.notFound('User'));
@@ -101,7 +101,7 @@ router.delete('/users/:id/dashboards/:dashboardId', function (req, res, next) {
     } else {
       return next(errorGenerator.notFound('Connected Dashboard'));
     }
-    users.update(user, function (err, updatedUser) {
+    User.update(user, function (err, updatedUser) {
       res.status(200);
       res.json(updatedUser.dashboards);
     });

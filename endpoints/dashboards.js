@@ -1,7 +1,7 @@
 'use strict';
 var express = require('express');
 var randToken = require('rand-token');
-var dashboards = require('../lib/dashboards');
+var Dashboard = require('../models/dashboard');
 var uuid = require('node-uuid');
 var config = require('../config');
 var router = express.Router();
@@ -27,14 +27,14 @@ router.post('/dashboards', function (req, res, next) {
   allowedProperties.forEach(function (property) {
     newDashboard[property] = req.body[property];
   });
-  dashboards.get(newDashboard.id, function(err, dashboard) {
+  Dashboard.get(newDashboard.id, function(err, dashboard) {
     if (err) { return next(err); }
     if (dashboard) {
       var conflictError = new Error('Duplicate Dashboard ID');
       conflictError.status = 409;
       return next(conflictError);
     }
-    dashboards.add(newDashboard, function(err, createdDashboard) {
+    Dashboard.add(newDashboard, function(err, createdDashboard) {
       if (err) { return next(err); }
       delete createdDashboard.code;
       res.status(201);
@@ -50,7 +50,7 @@ router.get('/dashboards/:id?', function(req, res, next) {
     notFoundError.status = 404;
     return next(notFoundError);
   }
-  dashboards.get(id, function (err, dashboard) {
+  Dashboard.get(id, function (err, dashboard) {
     if (err) { return next(err); }
     if (!dashboard) {
       var notFoundError = new Error('Dashboard Not Found');
@@ -95,7 +95,7 @@ router.put('/dashboards/:id?', function(req, res, next) {
     idConflictError.status = 409;
     return next(idConflictError);
   }
-  dashboards.get(id, function(err, currentDashboard) {
+  Dashboard.get(id, function(err, currentDashboard) {
     if (err) { return next(err); }
     if (!currentDashboard) {
       var notFoundError = new Error('Dashboard not found');
@@ -107,7 +107,7 @@ router.put('/dashboards/:id?', function(req, res, next) {
       codeConflictError.status = 409;
       return next(codeConflictError);
     }
-    dashboards.update(dashboard, function(err, updatedDashboard) {
+    Dashboard.update(dashboard, function(err, updatedDashboard) {
       if (err) { return next(err); }
       res.status(200);
       res.json(updatedDashboard);
@@ -122,7 +122,7 @@ router.delete('/dashboards/:id?', function(req, res, next) {
     notFoundError.status = 404;
     return next(notFoundError);
   }
-  dashboards.remove(id, function(err, removed) {
+  Dashboard.remove(id, function(err, removed) {
     if (err) { return next(err); }
     if (!removed) {
       var notFoundError = new Error('Dashboard not found');
@@ -141,7 +141,7 @@ router.get('/dashboards/:id/code', function(req, res, next) {
     notFoundError.status = 404;
     return next(notFoundError);
   }
-  dashboards.get(id, function(err, dashboard) {
+  Dashboard.get(id, function(err, dashboard) {
     if (err) { return next(err); }
     if (!dashboard) {
       var notFoundError = new Error('Dashboard Not Found');

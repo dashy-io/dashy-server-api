@@ -2,8 +2,8 @@
 var uuid = require('node-uuid');
 var chai = require('chai');
 var chaiString = require('chai-string');
-var dashboards = require('../../lib/dashboards');
-var users = require('../../lib/users');
+var Dashboard = require('../../models/dashboard');
+var User =require('../../models/user');
 var testHelpers = require('../test-helpers');
 var assert = chai.assert;
 chai.use(chaiString);
@@ -16,9 +16,9 @@ after('DataStore Cleanup', function (done) {
 describe('Getting a dashboard', function () {
   it('returns a valid dashboard', function (done) {
     var newDashboard = testHelpers.createDashboard();
-    dashboards.add(newDashboard, function (err) {
+    Dashboard.add(newDashboard, function (err) {
       if (err) { return done(err); }
-      dashboards.get(newDashboard.id, function (err, dashboard) {
+      Dashboard.get(newDashboard.id, function (err, dashboard) {
         if (err) { return done(err); }
         assert.deepEqual(dashboard, newDashboard);
         done();
@@ -27,7 +27,7 @@ describe('Getting a dashboard', function () {
   });
   // TODO: Try get after create
   it('does not return a non-existing dashboard', function (done) {
-    dashboards.get('test-dashboard-bad', function (err, dashboard) {
+    Dashboard.get('test-dashboard-bad', function (err, dashboard) {
       if (err) { return done(err); }
       assert.isNull(dashboard);
       done();
@@ -39,9 +39,9 @@ describe('Getting a dashboard', function () {
 describe('Getting a dashboard by code', function () {
   it('returns a dashboard', function (done) {
     var newDashboard = testHelpers.createDashboard();
-    dashboards.add(newDashboard, function (err) {
+    Dashboard.add(newDashboard, function (err) {
       if (err) { return done(err); }
-      dashboards.getByCode(newDashboard.code, function (err, dashboard) {
+      Dashboard.getByCode(newDashboard.code, function (err, dashboard) {
         if (err) { return done(err); }
         assert.deepEqual(dashboard, newDashboard);
         done();
@@ -53,7 +53,7 @@ describe('Getting a dashboard by code', function () {
 describe('Creating a dashboard', function () {
   it('creates a new dashboard', function (done) {
     var newDashboard = testHelpers.createDashboard();
-    dashboards.add(newDashboard, function (err, createdDashboard) {
+    Dashboard.add(newDashboard, function (err, createdDashboard) {
       if (err) { return done(err); }
       assert.deepEqual(createdDashboard, newDashboard);
       assert.startsWith(createdDashboard.id, 'test-dashboard-');
@@ -66,10 +66,10 @@ describe('Creating a dashboard', function () {
 describe('Updating a dashboard', function () {
   it('updates a valid dashboard', function (done) {
     var newDashboard = testHelpers.createDashboard();
-    dashboards.add(newDashboard, function (err, createdDashboard) {
+    Dashboard.add(newDashboard, function (err, createdDashboard) {
       if (err) { return done(err); }
       createdDashboard.name += ' EDITED';
-      dashboards.update(createdDashboard, function (err, updatedDashboard) {
+      Dashboard.update(createdDashboard, function (err, updatedDashboard) {
         if (err) { return done(err); }
         assert.equal(updatedDashboard.name, createdDashboard.name);
         done();
@@ -80,12 +80,12 @@ describe('Updating a dashboard', function () {
   it('persists additional fields', function (done) {
     var newDashboard = testHelpers.createDashboard();
     newDashboard.additional1 = 'additional field 1';
-    dashboards.add(newDashboard, function (err, createdDashboard) {
+    Dashboard.add(newDashboard, function (err, createdDashboard) {
       if (err) { return done(err); }
       createdDashboard.additional2 = 'additional field 2';
-      dashboards.update(createdDashboard, function (err, updatedDashboard) {
+      Dashboard.update(createdDashboard, function (err, updatedDashboard) {
         if (err) { return done(err); }
-        dashboards.get(createdDashboard.id, function (err, dashboard) {
+        Dashboard.get(createdDashboard.id, function (err, dashboard) {
           if (err) { return done(err); }
           assert.equal(dashboard.additional1, 'additional field 1');
           assert.equal(dashboard.additional2, 'additional field 2');
@@ -97,7 +97,7 @@ describe('Updating a dashboard', function () {
   });
   it('does not update a non-existing dashboard', function (done) {
     var newDashboard = testHelpers.createDashboard();
-    dashboards.update(newDashboard, function (err, updatedDashboard) {
+    Dashboard.update(newDashboard, function (err, updatedDashboard) {
       if (err) { return done(err); }
       assert.isNull(updatedDashboard);
       done();
@@ -109,9 +109,9 @@ describe('Updating a dashboard', function () {
 describe('Deleting a dashboard', function () {
   it('deletes a valid dashboard', function (done) {
     var newDashboard = testHelpers.createDashboard();
-    dashboards.add(newDashboard, function (err) {
+    Dashboard.add(newDashboard, function (err) {
       if (err) { return done(err); }
-      dashboards.remove(newDashboard.id, function (err, removed) {
+      Dashboard.remove(newDashboard.id, function (err, removed) {
         if (err) { return done(err); }
         assert.isTrue(removed);
         done();
@@ -121,7 +121,7 @@ describe('Deleting a dashboard', function () {
   // TODO: Try get after delete
   it('does not delete a non-existing dashboard', function (done) {
     var newDashboard = testHelpers.createDashboard();
-    dashboards.remove(newDashboard.id, function (err, removed) {
+    Dashboard.remove(newDashboard.id, function (err, removed) {
       if (err) { return done(err); }
       assert.isFalse(removed);
       done();
@@ -137,7 +137,7 @@ describe('Creating a user', function () {
       id: newUserId
     };
     testHelpers.addUserToCleanup(newUserId);
-    users.add(newUser, function (err, createdUser) {
+    User.add(newUser, function (err, createdUser) {
       if (err) { return done(err); }
       assert.deepEqual(createdUser, newUser);
       done();
@@ -151,7 +151,7 @@ describe('Getting a user', function () {
   it('returns a valid user', function (done) {
     testHelpers.createUser(function (err, newUser) {
       if (err) { return done(err); }
-      users.get(newUser.id, function (err, user) {
+      User.get(newUser.id, function (err, user) {
         if (err) { return done(err); }
         assert.deepEqual(user, newUser);
         done();
@@ -159,7 +159,7 @@ describe('Getting a user', function () {
     });
   });
   it('does not return a non-existing user', function (done) {
-    users.get('test-user-bad', function (err, user) {
+    User.get('test-user-bad', function (err, user) {
       if (err) { return done(err); }
       assert.isNull(user);
       done();
@@ -170,7 +170,7 @@ describe('Getting a user', function () {
 
 describe('Getting a user by Google User ID', function () {
   it('does not return a non existing user', function (done) {
-    users.getByGoogleId('bad-id', function (err, user) {
+    User.getByGoogleId('bad-id', function (err, user) {
       if (err) { return done(err); }
       assert.isNull(user);
       done();
@@ -180,7 +180,7 @@ describe('Getting a user by Google User ID', function () {
     testHelpers.createUser(function (err, newUser) {
       if (err) { return done(err); }
       var googleUserId = newUser.profiles.google[0].id;
-      users.getByGoogleId(googleUserId, function (err, user) {
+      User.getByGoogleId(googleUserId, function (err, user) {
         if (err) { return done(err); }
         assert.deepEqual(user.id, newUser.id);
         done();
@@ -195,7 +195,7 @@ describe('Updating a user', function () {
     testHelpers.createUser(function (err, newUser) {
       if (err) { return done(err); }
       newUser.name += ' EDITED';
-      users.update(newUser, function (err, updatedUser) {
+      User.update(newUser, function (err, updatedUser) {
         if (err) { return done(err); }
         assert.deepEqual(updatedUser, newUser);
         done();
@@ -207,9 +207,9 @@ describe('Updating a user', function () {
     testHelpers.createUser(function (err, newUser) {
       if (err) { return done(err); }
       newUser.additional = 'additional field';
-      users.update(newUser, function (err, updatedUser) {
+      User.update(newUser, function (err, updatedUser) {
         if (err) { return done(err); }
-        users.get(newUser.id, function (err, user) {
+        User.get(newUser.id, function (err, user) {
           if (err) { return done(err); }
           assert.equal(user.additional, 'additional field');
           assert.deepEqual(user, updatedUser);
@@ -224,7 +224,7 @@ describe('Updating a user', function () {
       id: newUserId
     };
     testHelpers.addUserToCleanup(newUserId);
-    users.update(newUser, function (err, updatedUser) {
+    User.update(newUser, function (err, updatedUser) {
       if (err) { return done(err); }
       assert.isNull(updatedUser);
       done();
@@ -237,7 +237,7 @@ describe('Deleting a user', function () {
   it('deletes a valid user', function (done) {
     testHelpers.createUser(function (err, newUser) {
       if (err) { return done(err); }
-      users.remove(newUser.id, function (err, removed) {
+      User.remove(newUser.id, function (err, removed) {
         if (err) { return done(err); }
         assert.isTrue(removed);
         done();
@@ -246,7 +246,7 @@ describe('Deleting a user', function () {
   });
   // TODO: Try get after delete
   it('does not delete a non-existing user', function (done) {
-    users.remove('test-user-' + uuid.v4(), function (err, removed) {
+    User.remove('test-user-' + uuid.v4(), function (err, removed) {
       if (err) { return done(err); }
       assert.isFalse(removed);
       done();

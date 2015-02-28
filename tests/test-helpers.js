@@ -2,8 +2,8 @@
 var uuid = require('node-uuid');
 var randToken = require('rand-token');
 var request = require('supertest');
-var users = require('../lib/users');
-var dashboards = require('../lib/dashboards');
+var User =require('../models/user');
+var Dashboard = require('../models/dashboard');
 var app = require('../app');
 request = request(app);
 var usersToCleanup = [];
@@ -17,7 +17,7 @@ function cleanupUsers(done) {
   var errorCount = 0;
   console.log('Cleaning up (Users)...');
   usersToCleanup.forEach(function (id) {
-    users.remove(id, function (err, removed) {
+    User.remove(id, function (err, removed) {
       if (err) {
         errorCount++;
         console.log(err);
@@ -39,7 +39,7 @@ function cleanupDashboards(done) {
   var errorCount = 0;
   console.log('Cleaning up (Dashboards)...');
   dashboardsToCleanup.forEach(function (id) {
-    dashboards.remove(id, function (err, removed) {
+    Dashboard.remove(id, function (err, removed) {
       if (err) {
         errorCount++;
         console.log(err);
@@ -82,7 +82,7 @@ module.exports = {
         ]
       }
     };
-    users.add(newUser, function (err, createdUser) {
+    User.add(newUser, function (err, createdUser) {
       cb(err, createdUser);
     });
   },
