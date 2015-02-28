@@ -89,7 +89,7 @@ router.post('/users/:id/dashboards', function (req, res, next) {
         if (user.dashboards.indexOf(dashboard.id) === -1) {
           user.dashboards.push(dashboard.id);
         }
-        dataStore.update({ dashboards : { id : dashboard.id }}, { code: null }, function(err, updatedDashboard){
+        dashboards.removeCode(dashboard.id, function(err, removed){
           if (err) { return next(err); }
           users.update(user, function (err, updatedUser) {
             res.status(201);
