@@ -5,6 +5,7 @@ var errorGenerator = require('../lib/errorGenerator');
 var requireAuthorization = require('../lib/authorizationMiddleware');
 var DataStore = require('../lib/dataStore');
 var dashboards = require('../lib/dashboards');
+var users = require('../lib/users');
 var router = express.Router();
 
 function clone(input) {
@@ -18,7 +19,7 @@ router.get('/users/:id?', function (req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.get({ users : { id : id }}, function (err, user) {
+    users.getById(id, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
         return next(errorGenerator.notFound('User'));
@@ -32,7 +33,7 @@ router.get('/users/:id?', function (req, res, next) {
 router.get('/user', requireAuthorization, function (req, res, next) {
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.get({ users : { id : req.user }}, function (err, user) {
+    users.getById(req.user, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
         return next(errorGenerator.notFound('User associated with token'));
@@ -71,7 +72,7 @@ router.post('/users/:id/dashboards', function (req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.get({ users : { id : userId }}, function (err, user) {
+    users.getById(userId, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
         return next(errorGenerator.notFound('User'));
@@ -106,7 +107,7 @@ router.delete('/users/:id/dashboards/:dashboardId', function (req, res, next) {
   // TODO: Throw error if the request has a body
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.get({ users : { id : userId }}, function (err, user) {
+    users.getById(userId, function (err, user) {
       if (err) { return next(err); }
       if (!user) {
         return next(errorGenerator.notFound('User'));

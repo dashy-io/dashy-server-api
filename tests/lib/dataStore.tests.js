@@ -4,6 +4,7 @@ var chai = require('chai');
 var chaiString = require('chai-string');
 var DataStore = require('../../lib/dataStore');
 var dashboards = require('../../lib/dashboards');
+var users = require('../../lib/users');
 var testHelpers = require('../test-helpers');
 var assert = chai.assert;
 chai.use(chaiString);
@@ -183,7 +184,7 @@ describe('Getting a user', function () {
       if (err) { return done(err); }
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
-        dataStore.get({ users : { id : newUser.id }}, function (err, user) {
+        users.getById(newUser.id, function (err, user) {
           if (err) { return done(err); }
           assert.deepEqual(user, newUser);
           done();
@@ -194,7 +195,7 @@ describe('Getting a user', function () {
   it('does not return a non-existing user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      dataStore.get({ users : { id : 'test-user-bad' }}, function (err, user) {
+      users.getById('test-user-bad', function (err, user) {
         if (err) { return done(err); }
         assert.isNull(user);
         done();
@@ -256,7 +257,7 @@ describe('Updating a user', function () {
         newUser.additional = 'additional field';
         dataStore.update({ users : { id : newUser.id }}, newUser, function (err, updatedUser) {
           if (err) { return done(err); }
-          dataStore.get({ users : { id : newUser.id }}, function (err, user) {
+          users.getById(newUser.id, function (err, user) {
             if (err) { return done(err); }
             assert.equal(user.additional, 'additional field');
             assert.deepEqual(user, updatedUser);
