@@ -6,7 +6,6 @@ var dashboards = require('../lib/dashboards');
 var uuid = require('node-uuid');
 var config = require('../config');
 var router = express.Router();
-var app = express();
 
 router.post('/dashboards', function (req, res, next) {
   var allowedProperties = [ 'name' ];
@@ -31,7 +30,7 @@ router.post('/dashboards', function (req, res, next) {
   });
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.get({ dashboards : { id : newDashboard.id }}, function(err, dashboard) {
+    dashboards.getById(newDashboard.id, function(err, dashboard) {
       if (err) { return next(err); }
       if (dashboard) {
         var conflictError = new Error('Duplicate Dashboard ID');
