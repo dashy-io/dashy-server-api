@@ -98,9 +98,12 @@ router.post('/users/:id/dashboards', function (req, res, next) {
         if (user.dashboards.indexOf(dashboard.id) === -1) {
           user.dashboards.push(dashboard.id);
         }
-        dataStore.updateUser(user.id, user, function (err, updatedUser) {
-          res.status(201);
-          res.json(updatedUser.dashboards);
+        dataStore.updateDashboard(dashboard.id, { code: null }, function(err, newDashboard){
+          if (err) { return next(err); }
+          dataStore.updateUser(user.id, user, function (err, updatedUser) {
+            res.status(201);
+            res.json(updatedUser.dashboards);
+          });
         });
       });
     });
