@@ -3,6 +3,7 @@ var uuid = require('node-uuid');
 var chai = require('chai');
 var chaiString = require('chai-string');
 var DataStore = require('../../lib/dataStore');
+var dashboards = require('../../lib/dashboards');
 var testHelpers = require('../test-helpers');
 var assert = chai.assert;
 chai.use(chaiString);
@@ -19,7 +20,7 @@ describe('Getting a dashboard', function () {
       var newDashboard = testHelpers.createDashboard();
       dataStore.insert({ dashboards : null }, newDashboard, function (err) {
         if (err) { return done(err); }
-        dataStore.get({ dashboards : { id : newDashboard.id }}, function (err, dashboard) {
+        dashboards.getById(newDashboard.id, function (err, dashboard) {
           if (err) { return done(err); }
           assert.deepEqual(dashboard, newDashboard);
           done();
@@ -31,7 +32,7 @@ describe('Getting a dashboard', function () {
   it('does not return a non-existing dashboard', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      dataStore.get({ dashboards : { id : 'test-dashboard-bad' }}, function (err, dashboard) {
+      dashboards.getById('test-dashboard-bad', function (err, dashboard) {
         if (err) { return done(err); }
         assert.isNull(dashboard);
         done();
@@ -101,7 +102,7 @@ describe('Updating a dashboard', function () {
         createdDashboard.additional2 = 'additional field 2';
         dataStore.update({ dashboards : { id : createdDashboard.id }}, createdDashboard, function (err, updatedDashboard) {
           if (err) { return done(err); }
-          dataStore.get({ dashboards : { id : createdDashboard.id }}, function (err, dashboard) {
+          dashboards.getById(createdDashboard.id, function (err, dashboard) {
             if (err) { return done(err); }
             assert.equal(dashboard.additional1, 'additional field 1');
             assert.equal(dashboard.additional2, 'additional field 2');
