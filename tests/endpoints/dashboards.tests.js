@@ -44,7 +44,6 @@ describe('POST ~/dashboards', function () {
         done();
       });
   });
-  // TODO: Try get after create
   it('returns 400 Bad Request if other parameters in body', function (done) {
     request.post('/dashboards')
       .send({ id: 'test-dashboard-' + uuid.v4(), other : 'other field' })
