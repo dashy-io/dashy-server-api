@@ -4,6 +4,7 @@ var randToken = require('rand-token');
 var request = require('supertest');
 var DataStore = require('../lib/dataStore');
 var users = require('../lib/users');
+var dashboards = require('../lib/dashboards');
 var app = require('../app');
 request = request(app);
 var usersToCleanup = [];
@@ -48,7 +49,7 @@ function cleanupDashboards(done) {
       if (err) {
         throw err;
       }
-      dataStore.delete({ dashboards : { id : id }}, function (err, deleted) {
+      dashboards.remove(id, function (err, removed) {
         if (err) {
           errorCount++;
           console.log(err);

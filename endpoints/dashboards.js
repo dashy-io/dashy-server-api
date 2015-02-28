@@ -134,9 +134,9 @@ router.delete('/dashboards/:id?', function(req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.delete({ dashboards : { id : id }}, function(err, deleted) {
+    dashboards.remove(id, function(err, removed) {
       if (err) { return next(err); }
-      if (!deleted) {
+      if (!removed) {
         var notFoundError = new Error('Dashboard not found');
         notFoundError.status = 404;
         return next(notFoundError);

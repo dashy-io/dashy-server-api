@@ -135,9 +135,9 @@ describe('Deleting a dashboard', function () {
       var newDashboard = testHelpers.createDashboard();
       dashboards.add(newDashboard, function (err) {
         if (err) { return done(err); }
-        dataStore.delete({ dashboards : { id : newDashboard.id }}, function (err, deleted) {
+        dashboards.remove(newDashboard.id, function (err, removed) {
           if (err) { return done(err); }
-          assert.isTrue(deleted);
+          assert.isTrue(removed);
           done();
         });
       });
@@ -148,9 +148,9 @@ describe('Deleting a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.delete({ dashboards : { id : newDashboard.id }}, function (err, deleted) {
+      dashboards.remove(newDashboard.id, function (err, removed) {
         if (err) { return done(err); }
-        assert.isFalse(deleted);
+        assert.isFalse(removed);
         done();
       });
     });
