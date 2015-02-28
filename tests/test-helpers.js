@@ -20,7 +20,7 @@ function cleanupUsers(done) {
       if (err) {
         throw err;
       }
-      dataStore.deleteUser(id, function (err) {
+      dataStore.delete({ users : { id : id }}, function (err) {
         if (err) {
           errorCount++;
           console.log(err);
@@ -47,7 +47,7 @@ function cleanupDashboards(done) {
       if (err) {
         throw err;
       }
-      dataStore.deleteDashboard(id, function (err, deleted) {
+      dataStore.delete({ dashboards : { id : id }}, function (err, deleted) {
         if (err) {
           errorCount++;
           console.log(err);

@@ -133,7 +133,7 @@ describe('Deleting a dashboard', function () {
       var newDashboard = testHelpers.createDashboard();
       dataStore.insert({ dashboards : null }, newDashboard, function (err) {
         if (err) { return done(err); }
-        dataStore.deleteDashboard(newDashboard.id, function (err, deleted) {
+        dataStore.delete({ dashboards : { id : newDashboard.id }}, function (err, deleted) {
           if (err) { return done(err); }
           assert.isTrue(deleted);
           done();
@@ -146,7 +146,7 @@ describe('Deleting a dashboard', function () {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
       var newDashboard = testHelpers.createDashboard();
-      dataStore.deleteDashboard(newDashboard.id, function (err, deleted) {
+      dataStore.delete({ dashboards : { id : newDashboard.id }}, function (err, deleted) {
         if (err) { return done(err); }
         assert.isFalse(deleted);
         done();
@@ -289,7 +289,7 @@ describe('Deleting a user', function () {
       if (err) { return done(err); }
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
-        dataStore.deleteUser(newUser.id, function (err, deleted) {
+        dataStore.delete({ users : { id : newUser.id }}, function (err, deleted) {
           if (err) { return done(err); }
           assert.isTrue(deleted);
           done();
@@ -301,7 +301,7 @@ describe('Deleting a user', function () {
   it('does not delete a non-existing user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      dataStore.deleteUser('test-user-' + uuid.v4(), function (err, deleted) {
+      dataStore.delete({ users : { id : 'test-user-' + uuid.v4() }}, function (err, deleted) {
         if (err) { return done(err); }
         assert.isFalse(deleted);
         done();

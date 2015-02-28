@@ -51,7 +51,7 @@ router.delete('/users/:id?', function (req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dataStore.deleteUser(id, function (err, deleted) {
+    dataStore.delete({ users : { id : id }}, function (err, deleted) {
       if (err) { return next(err); }
       if (!deleted) {
         return next(errorGenerator.notFound('User'));
