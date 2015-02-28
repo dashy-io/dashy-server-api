@@ -240,7 +240,7 @@ describe('Updating a user', function () {
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
         newUser.name += ' EDITED';
-        users.update(newUser.id, newUser, function (err, updatedUser) {
+        users.update(newUser, function (err, updatedUser) {
           if (err) { return done(err); }
           assert.deepEqual(updatedUser, newUser);
           done();
@@ -255,7 +255,7 @@ describe('Updating a user', function () {
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
         newUser.additional = 'additional field';
-        users.update(newUser.id, newUser, function (err, updatedUser) {
+        users.update(newUser, function (err, updatedUser) {
           if (err) { return done(err); }
           users.getById(newUser.id, function (err, user) {
             if (err) { return done(err); }
@@ -275,7 +275,7 @@ describe('Updating a user', function () {
         id: newUserId
       };
       testHelpers.addUserToCleanup(newUserId);
-      users.update(newUser.id, newUser, function (err, updatedUser) {
+      users.update(newUser, function (err, updatedUser) {
         if (err) { return done(err); }
         assert.isNull(updatedUser);
         done();
