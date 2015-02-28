@@ -213,7 +213,13 @@ describe('POST ~/users/:user-id/dashboards', function () {
               .expect(201)
               .expect('Content-Type', 'application/json; charset=utf-8')
               .expect([ dashboard.id ])
-              .end(done);
+              .end(function(){
+                request.get('/dashboards/' + dashboard.id + '/code')
+                .expect(200)
+                .expect('Content-Type', 'application/json; charset=utf-8')
+                .expect({ code : null })
+                .end(done);
+              });
           });
         });
     });
@@ -236,9 +242,9 @@ describe('POST ~/users/:user-id/dashboards', function () {
                 if (err) { return done(err); }
                 request.post('/users/' + user.id + '/dashboards')
                   .send({ code : code })
-                  .expect(201)
+                  .expect(404)
                   .expect('Content-Type', 'application/json; charset=utf-8')
-                  .expect([ dashboard.id ])
+                  .expect({ message: 'Dashboard not found' })
                   .end(done);
               });
           });
