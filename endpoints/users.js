@@ -31,17 +31,8 @@ router.get('/users/:id?', function (req, res, next) {
 });
 
 router.get('/user', requireAuthorization, function (req, res, next) {
-  DataStore.create(function (err, dataStore) {
-    if (err) { return next(err); }
-    users.get(req.user, function (err, user) {
-      if (err) { return next(err); }
-      if (!user) {
-        return next(errorGenerator.notFound('User associated with token'));
-      }
-      res.status(200);
-      res.json(user);
-    });
-  });
+  res.status(200);
+  res.json(req.user);
 });
 
 router.delete('/users/:id?', function (req, res, next) {
