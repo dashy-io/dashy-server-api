@@ -209,7 +209,7 @@ describe('Getting a user by Google User ID', function () {
   it('does not return a non existing user', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      dataStore.get({ users : { 'profiles.google.id' : 'bad-id' }}, function (err, user) {
+      users.getByGoogleId('bad-id', function (err, user) {
         if (err) { return done(err); }
         assert.isNull(user);
         done();
@@ -222,7 +222,7 @@ describe('Getting a user by Google User ID', function () {
       testHelpers.createUser(function (err, newUser) {
         if (err) { return done(err); }
         var googleUserId = newUser.profiles.google[0].id;
-        dataStore.get({ users : { 'profiles.google.id' : googleUserId }}, function (err, user) {
+        users.getByGoogleId(googleUserId, function (err, user) {
           if (err) { return done(err); }
           assert.deepEqual(user.id, newUser.id);
           done();

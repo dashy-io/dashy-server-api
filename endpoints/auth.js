@@ -6,6 +6,7 @@ var config = require('../config');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
 var DataStore = require('../lib/dataStore');
+var users = require('../lib/users');
 var tokens = require('../lib/tokens');
 var router = express.Router();
 
@@ -51,7 +52,7 @@ router.post('/auth/google/login', function (req, res, next) {
     }
     DataStore.create(function (err, dataStore) {
       if (err) { return next(err); }
-      dataStore.get({ users : { 'profiles.google.id' : tokenInfo.user_id }}, function (err, user) {
+      users.getByGoogleId(tokenInfo.user_id, function (err, user) {
         if (!user) {
           return next(errorGenerator.forbidden('User not found'));
         }
@@ -78,7 +79,7 @@ router.post('/auth/google/signup', function (req, res, next) {
       // TODO: Ensure that the scope contains email address
       DataStore.create(function (err, dataStore) {
         if (err) { return next(err); }
-        dataStore.get({ users : { 'profiles.google.id' : linkedUserProfile.id }}, function (err, existingUser) {
+        users.getByGoogleId(linkedUserProfile.id, function (err, existingUser) {
           if (err) { return next(err); }
           if (existingUser) {
             return next(errorGenerator.userAlreadyExists());
