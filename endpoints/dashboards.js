@@ -30,7 +30,7 @@ router.post('/dashboards', function (req, res, next) {
   });
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dashboards.getById(newDashboard.id, function(err, dashboard) {
+    dashboards.get(newDashboard.id, function(err, dashboard) {
       if (err) { return next(err); }
       if (dashboard) {
         var conflictError = new Error('Duplicate Dashboard ID');
@@ -56,7 +56,7 @@ router.get('/dashboards/:id?', function(req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dashboards.getById(id, function (err, dashboard) {
+    dashboards.get(id, function (err, dashboard) {
       if (err) { return next(err); }
       if (!dashboard) {
         var notFoundError = new Error('Dashboard Not Found');
@@ -104,7 +104,7 @@ router.put('/dashboards/:id?', function(req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dashboards.getById(id, function(err, currentDashboard) {
+    dashboards.get(id, function(err, currentDashboard) {
       if (err) { return next(err); }
       if (!currentDashboard) {
         var notFoundError = new Error('Dashboard not found');
@@ -156,7 +156,7 @@ router.get('/dashboards/:id/code', function(req, res, next) {
   }
   DataStore.create(function (err, dataStore) {
     if (err) { return next(err); }
-    dashboards.getById(id, function(err, dashboard) {
+    dashboards.get(id, function(err, dashboard) {
       if (err) { return next(err); }
       if (!dashboard) {
         var notFoundError = new Error('Dashboard Not Found');

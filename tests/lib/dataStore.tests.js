@@ -21,7 +21,7 @@ describe('Getting a dashboard', function () {
       var newDashboard = testHelpers.createDashboard();
       dataStore.insert({ dashboards : null }, newDashboard, function (err) {
         if (err) { return done(err); }
-        dashboards.getById(newDashboard.id, function (err, dashboard) {
+        dashboards.get(newDashboard.id, function (err, dashboard) {
           if (err) { return done(err); }
           assert.deepEqual(dashboard, newDashboard);
           done();
@@ -33,7 +33,7 @@ describe('Getting a dashboard', function () {
   it('does not return a non-existing dashboard', function (done) {
     DataStore.create(function (err, dataStore) {
       if (err) { return done(err); }
-      dashboards.getById('test-dashboard-bad', function (err, dashboard) {
+      dashboards.get('test-dashboard-bad', function (err, dashboard) {
         if (err) { return done(err); }
         assert.isNull(dashboard);
         done();
@@ -103,7 +103,7 @@ describe('Updating a dashboard', function () {
         createdDashboard.additional2 = 'additional field 2';
         dataStore.update({ dashboards : { id : createdDashboard.id }}, createdDashboard, function (err, updatedDashboard) {
           if (err) { return done(err); }
-          dashboards.getById(createdDashboard.id, function (err, dashboard) {
+          dashboards.get(createdDashboard.id, function (err, dashboard) {
             if (err) { return done(err); }
             assert.equal(dashboard.additional1, 'additional field 1');
             assert.equal(dashboard.additional2, 'additional field 2');
