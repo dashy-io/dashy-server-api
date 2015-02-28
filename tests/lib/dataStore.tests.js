@@ -49,7 +49,7 @@ describe('Getting a dashboard by code', function () {
       var newDashboard = testHelpers.createDashboard();
       dataStore.insert({ dashboards : null }, newDashboard, function (err) {
         if (err) { return done(err); }
-        dataStore.get({ dashboards : { code : newDashboard.code }}, function (err, dashboard) {
+        dashboards.getByCode(newDashboard.code, function (err, dashboard) {
           if (err) { return done(err); }
           assert.deepEqual(dashboard, newDashboard);
           done();

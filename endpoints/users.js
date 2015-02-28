@@ -1,12 +1,11 @@
 'use strict';
-var uuid = require('node-uuid');
 var express = require('express');
 var validator = require('../lib/validator');
 var errorGenerator = require('../lib/errorGenerator');
 var requireAuthorization = require('../lib/authorizationMiddleware');
 var DataStore = require('../lib/dataStore');
+var dashboards = require('../lib/dashboards');
 var router = express.Router();
-var app = express();
 
 function clone(input) {
   return JSON.parse(JSON.stringify(input));
@@ -77,7 +76,7 @@ router.post('/users/:id/dashboards', function (req, res, next) {
       if (!user) {
         return next(errorGenerator.notFound('User'));
       }
-      dataStore.get({ dashboards : { code : dashboardConnect.code }}, function(err, dashboard) {
+      dashboards.getByCode(dashboardConnect.code, function(err, dashboard) {
         if (err) { return next(err); }
         if (!dashboard) {
           return next(errorGenerator.notFound('Dashboard'));
