@@ -165,7 +165,7 @@ module.exports = {
           return cb(err);
         }
         cb(null, res.body);
-      })
+      });
   },
   getDashboardCode : function (dashboardId, cb) {
     request.get('/dashboards/' + dashboardId + '/code')
