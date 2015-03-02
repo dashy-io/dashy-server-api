@@ -1,5 +1,5 @@
-dashy-server-api
-================
+# dashy-server-api
+### Aiming to release stable 1.0 on 15 March 2015
 Dashboard Management Platform - Server API
 
 [![Codeship Status for dashy-io/dashy-server-api](https://codeship.com/projects/669bc9e0-5795-0132-c62d-2aedc25d7739/status)](https://codeship.com/projects/49856)
