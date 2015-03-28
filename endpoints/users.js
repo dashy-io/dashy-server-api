@@ -11,9 +11,39 @@ function clone(input) {
   return JSON.parse(JSON.stringify(input));
 }
 
+router.get('/users/:id?', function (req, res, next) {
+  var id = req.params.id;
+  if (!id) {
+    return next(errorGenerator.missingParameter('id'));
+  }
+  users.get(id, function (err, user) {
+    if (err) { return next(err); }
+    if (!user) {
+      return next(errorGenerator.notFound('User'));
+    }
+    res.status(200);
+    res.json(user);
+  });
+});
+
 router.get('/user', requireAuthorization, function (req, res, next) {
   res.status(200);
   res.json(req.user);
+});
+
+router.delete('/users/:id?', function (req, res, next) {
+  var id = req.params.id;
+  if (!id) {
+    return next(errorGenerator.missingParameter('id'));
+  }
+  users.remove(id, function (err, removed) {
+    if (err) { return next(err); }
+    if (!removed) {
+      return next(errorGenerator.notFound('User'));
+    }
+    res.status(204);
+    res.end();
+  });
 });
 
 router.post('/users/:id/dashboards', function (req, res, next) {
