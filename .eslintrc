@@ -12,7 +12,7 @@ ecmaFeatures:
 rules:
   indent: [2, 2]
   quotes: [ 2, "single" ]
-  brace-style: [2, "1tbs"]
+  brace-style: [2, "1tbs", { "allowSingleLine": true }]
   comma-style: [2, "last"]
   default-case: 2
   func-style: [2, "declaration"]
@@ -47,4 +47,5 @@ rules:
   no-extra-semi: 2
   semi: [2, "alwayss"]
   key-spacing: [2, { beforeColon: false, afterColon: true }]
+  no-underscore-dangle: 0
 
