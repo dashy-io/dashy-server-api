@@ -10,7 +10,7 @@ request = request(app);
 chai.use(chaiString);
 
 describe('GET ~/status', function () {
-  it('returns 200 OK and the environment', function (done) {
+  it('returns 200 OK and the environment', (done) => {
     request.get('/status')
       .expect(200)
       .expect('Content-Type', 'application/json; charset=utf-8')
