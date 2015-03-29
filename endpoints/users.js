@@ -55,8 +55,11 @@ router.post('/users/:id/dashboards', requireAuthorization, function (req, res, n
   });
 });
 
-router.delete('/users/:id/dashboards/:dashboardId', function (req, res, next) {
+router.delete('/users/:id/dashboards/:dashboardId', requireAuthorization, function (req, res, next) {
   var userId = req.params.id;
+  if (userId !== req.user.id) {
+    return next(errorGenerator.forbidden('You can\'t update this resource'));
+  }
   var dashboardId = req.params.dashboardId;
   // TODO: Throw error if the request has a body
   users.get(userId, function (err, user) {
