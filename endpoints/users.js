@@ -16,8 +16,11 @@ router.get('/user', requireAuthorization, function (req, res, next) {
   res.json(req.user);
 });
 
-router.post('/users/:id/dashboards', function (req, res, next) {
+router.post('/users/:id/dashboards', requireAuthorization, function (req, res, next) {
   var userId = req.params.id;
+  if (userId !== req.user.id) {
+    return next(errorGenerator.forbidden('You can\'t update this resource'));
+  }
   var dashboardConnect = clone(req.body);
   var requiredProperties = ['code'];
   var validationError = validator.requireProperties(dashboardConnect, requiredProperties);

@@ -5,6 +5,7 @@ var request = require('supertest');
 var users = require('../lib/users');
 var dashboards = require('../lib/dashboards');
 var app = require('../app');
+var tokens = require('../lib/tokens');
 request = request(app);
 var usersToCleanup = [];
 var dashboardsToCleanup = [];
@@ -144,14 +145,18 @@ module.exports = {
     });
   },
   postDashboardConnection : function (userId, code, cb) {
-    request.post('/users/' + userId + '/dashboards')
-      .send({ code : code })
-      .end(function (err, res) {
-        if (err) {
-          return cb(err);
-        }
-        cb(null, res.body);
-      });
+    tokens.create(userId, function (err, token) {
+      if (err) { return done(err); }
+      request.post('/users/' + userId + '/dashboards')
+        .set('Authorization', 'Bearer ' + token)
+        .send({ code : code })
+        .end(function (err, res) {
+          if (err) {
+            return cb(err);
+          }
+          cb(null, res.body);
+        });
+    });
   },
   getDashboardCode : function (dashboardId, cb) {
     request.get('/dashboards/' + dashboardId + '/code')

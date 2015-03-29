@@ -118,33 +118,99 @@ describe('PUT ~/users', function () {
 });
 
 describe('POST ~/users/:user-id/dashboards', function () {
-  it('returns 404 Not Found for non-existing users', function (done) {
-    request.post('/users/' + uuid.v4() + '/dashboards')
-      .send({ code: '12345678' })
-      .expect(404)
-      .expect({ message: 'User not found'})
-      .end(done);
-  });
-  it('returns 400 Bad Request if Dashboard Code not specified', function (done) {
+  it('returns 401 Unauthorized if Authorization header not provided', function (done) {
     testHelpers.createUser(function(err, user) {
       if (err) { return done(err); }
       request.post('/users/' + user.id + '/dashboards')
         .send({})
-        .expect(400)
+        .expect(401)
         .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect({ message : 'Property "code" missing in body' })
+        .expect({ message : 'Unauthorized: Missing or invalid Authorization header' })
         .end(done);
+    });
+  });
+  it('returns 401 Unauthorized if token not provided', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      request.post('/users/' + user.id + '/dashboards')
+        .set('Authorization', 'Bearer')
+        .send({})
+        .expect(401)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Unauthorized: Missing or invalid Authorization header' })
+        .end(done);
+    });
+  });
+  it('returns 401 Unauthorized if token invalid', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      request.post('/users/' + user.id + '/dashboards')
+        .set('Authorization', 'Bearer 123abc')
+        .send({})
+        .expect(401)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Unauthorized: Invalid token' })
+        .end(done);
+    });
+  });
+  it('returns 403 Forbidden if the authenticated user is different', function (done) {
+    testHelpers.createUser(function(err, user1) {
+      if (err) { return done(err); }
+      testHelpers.createUser(function(err, user2) {
+        if (err) { return done(err); }
+        tokens.create(user2.id, function (err, token) {
+          if (err) { return done(err); }
+          request.post('/users/' + user1.id + '/dashboards')
+            .set('Authorization', 'Bearer ' + token)
+            .send({})
+            .expect(403)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect({ message : 'Forbidden: You can\'t update this resource' })
+            .end(done);
+        });
+      });
+    });
+  });
+  it('returns 404 Not Found for non-existing users', function (done) {
+    var userId = uuid.v4();
+    tokens.create(userId, function (err, token) {
+      if (err) { return done(err); }
+      request.post('/users/' + userId + '/dashboards')
+        .set('Authorization', 'Bearer ' + token)
+        .send({ code: '12345678' })
+        .expect(404)
+        .expect({ message: 'User associated with token not found'})
+        .end(done);
+    });
+  });
+  it('returns 400 Bad Request if Dashboard Code not specified', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.post('/users/' + user.id + '/dashboards')
+          .set('Authorization', 'Bearer ' + token)
+          .send({})
+          .expect(400)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect({ message : 'Property "code" missing in body' })
+          .end(done);
+      });
     });
   });
   it('returns 404 Not Found if Dashboard Code not valid', function (done) {
     testHelpers.createUser(function(err, user) {
       if (err) { return done(err); }
-      request.post('/users/' + user.id + '/dashboards')
-        .send({ code : '123456' })
-        .expect(404)
-        .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect({ message : 'Dashboard not found' })
-        .end(done);
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.post('/users/' + user.id + '/dashboards')
+          .set('Authorization', 'Bearer ' + token)
+          .send({ code : '123456' })
+          .expect(404)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect({ message : 'Dashboard not found' })
+          .end(done);
+      });
     });
   });
   it('connects a dashboard', function (done) {
@@ -156,18 +222,22 @@ describe('POST ~/users/:user-id/dashboards', function () {
           var code = res.body.code;
           testHelpers.createUser(function(err, user) {
             if (err) { return done(err); }
-            request.post('/users/' + user.id + '/dashboards')
-              .send({ code : code })
-              .expect(201)
-              .expect('Content-Type', 'application/json; charset=utf-8')
-              .expect([ dashboard.id ])
-              .end(function(){
-                request.get('/dashboards/' + dashboard.id + '/code')
-                .expect(200)
+            tokens.create(user.id, function (err, token) {
+              if (err) { return done(err); }
+              request.post('/users/' + user.id + '/dashboards')
+                .set('Authorization', 'Bearer ' + token)
+                .send({ code : code })
+                .expect(201)
                 .expect('Content-Type', 'application/json; charset=utf-8')
-                .expect({ code : null })
-                .end(done);
-              });
+                .expect([ dashboard.id ])
+                .end(function(){
+                  request.get('/dashboards/' + dashboard.id + '/code')
+                  .expect(200)
+                  .expect('Content-Type', 'application/json; charset=utf-8')
+                  .expect({ code : null })
+                  .end(done);
+                });
+            })
           });
         });
     });
@@ -181,20 +251,25 @@ describe('POST ~/users/:user-id/dashboards', function () {
           var code = res.body.code;
           testHelpers.createUser(function(err, user) {
             if (err) { return done(err); }
-            request.post('/users/' + user.id + '/dashboards')
-              .send({ code : code })
-              .expect(201)
-              .expect('Content-Type', 'application/json; charset=utf-8')
-              .expect([ dashboard.id ])
-              .end(function(err) {
-                if (err) { return done(err); }
-                request.post('/users/' + user.id + '/dashboards')
-                  .send({ code : code })
-                  .expect(404)
-                  .expect('Content-Type', 'application/json; charset=utf-8')
-                  .expect({ message: 'Dashboard not found' })
-                  .end(done);
-              });
+            tokens.create(user.id, function (err, token) {
+              if (err) { return done(err); }
+              request.post('/users/' + user.id + '/dashboards')
+                .set('Authorization', 'Bearer ' + token)
+                .send({ code : code })
+                .expect(201)
+                .expect('Content-Type', 'application/json; charset=utf-8')
+                .expect([ dashboard.id ])
+                .end(function(err) {
+                  if (err) { return done(err); }
+                  request.post('/users/' + user.id + '/dashboards')
+                    .set('Authorization', 'Bearer ' + token)
+                    .send({ code : code })
+                    .expect(404)
+                    .expect('Content-Type', 'application/json; charset=utf-8')
+                    .expect({ message: 'Dashboard not found' })
+                    .end(done);
+                });
+            });
           });
         });
     });
