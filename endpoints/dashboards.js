@@ -121,12 +121,16 @@ router.put('/dashboards/:id?', requireAuthorization, function(req, res, next) {
   });
 });
 
-router.delete('/dashboards/:id?', function(req, res, next) {
+router.delete('/dashboards/:id?', requireAuthorization, function(req, res, next) {
   var id = req.params.id;
   if (!id) {
     var notFoundError = new Error('Dashboard ID missing from url');
     notFoundError.status = 404;
     return next(notFoundError);
+  }
+  if (!req.user.dashboards || 
+      req.user.dashboards.indexOf(id) === -1) {
+    return next(errorGenerator.forbidden('You can\'t update this resource'));
   }
   dashboards.remove(id, function(err, removed) {
     if (err) { return next(err); }

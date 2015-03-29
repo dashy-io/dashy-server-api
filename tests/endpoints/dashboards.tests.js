@@ -288,28 +288,118 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
 });
 
 describe('DELETE ~/dashboards/:dashboard-id', function () {
+  it('returns 401 Unauthorized if Authorization header not provided', function (done) {
+    request.delete('/dashboards/' + uuid.v4())
+      .send({})
+      .expect(401)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Unauthorized: Missing or invalid Authorization header' })
+      .end(done);
+  });
+  it('returns 401 Unauthorized if token not provided', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      request.delete('/dashboards/' + uuid.v4())
+        .set('Authorization', 'Bearer')
+        .send({})
+        .expect(401)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Unauthorized: Missing or invalid Authorization header' })
+        .end(done);
+    });
+  });
+  it('returns 401 Unauthorized if token invalid', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      request.delete('/dashboards/' + uuid.v4())
+        .set('Authorization', 'Bearer 123abc')
+        .send({})
+        .expect(401)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Unauthorized: Invalid token' })
+        .end(done);
+    });
+  });
+  it('returns 403 Forbidden if the authenticated user\'s dashboard is undefined', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.delete('/dashboards/' + uuid.v4())
+          .set('Authorization', 'Bearer ' + token)
+          .expect(403)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect({ message : 'Forbidden: You can\'t update this resource' })
+          .end(done);
+      });
+    });
+  });
+  it('returns 403 Forbidden if the authenticated user is not the dashboard owner', function (done) {
+    var userData = {
+      dashboards: ['nope']
+    };
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.delete('/dashboards/' + uuid.v4())
+          .set('Authorization', 'Bearer ' + token)
+          .expect(403)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect({ message : 'Forbidden: You can\'t update this resource' })
+          .end(done);
+      });
+    });
+  });
   it('returns 404 Not Found for non-existing dashboard', function (done) {
     var newId = testHelpers.newDashboardId();
-    request.delete('/dashboards/' + newId)
-      .expect(404)
-      .expect({ message: 'Dashboard not found'})
-      .end(done);
+    var userData = {
+      dashboards: [newId]
+    };
+    testHelpers.createUser(userData, function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.delete('/dashboards/' + newId)
+          .set('Authorization', 'Bearer ' + token)
+          .expect(404)
+          .expect({ message: 'Dashboard not found'})
+          .end(done);
+      });
+    });
   });
   it('deletes a valid dashboard', function (done) {
     testHelpers.postEmptyDashboard(function(err, createdDashboard) {
       if (err) { return done(err); }
-      request.delete('/dashboards/' + createdDashboard.id)
-        .expect(204)
-        .expect('')
-        .end(done);
+      var userData = {
+        dashboards: [createdDashboard.id]
+      };
+      testHelpers.createUser(userData, function(err, user) {
+        if (err) { return done(err); }
+        tokens.create(user.id, function (err, token) {
+          if (err) { return done(err); }
+          request.delete('/dashboards/' + createdDashboard.id)
+            .set('Authorization', 'Bearer ' + token)
+            .expect(204)
+            .expect('')
+            .end(done);
+        });
+      });
     });
   });
   // TODO: Try get after delete
   it('returns 404 Not Found if ID missing from url', function (done) {
-    request.delete('/dashboards')
-      .expect(404)
-      .expect({ message : 'Dashboard ID missing from url'})
-      .end(done);
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.delete('/dashboards')
+          .set('Authorization', 'Bearer ' + token)
+          .expect(404)
+          .expect({ message : 'Dashboard ID missing from url'})
+          .end(done);
+      });
+    });
   });
 });
 

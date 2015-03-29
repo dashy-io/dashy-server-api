@@ -48,6 +48,7 @@ describe('User Journey', function () {
                         if (err) { return done(err); }
                         // delete a dashboard
                         request.delete('/dashboards/' + dashboard.id)
+                          .set('Authorization', 'Bearer ' + token)
                           .expect(204)
                           .end(done);
                       });
