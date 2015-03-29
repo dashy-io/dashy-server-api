@@ -62,7 +62,14 @@ module.exports = {
   addDashboardToCleanup : function (id) {
     dashboardsToCleanup.push(id);
   },
-  createUser : function (cb) {
+  createUser : function (data, cb) {
+    if (!cb) {
+      cb = data;
+      data = {};
+    }
+    if (!data) {
+      data = {};
+    }
     var newUserId = 'test-user-' + uuid.v4();
     var newGoogleId = 'google-id-' + uuid.v4();
     usersToCleanup.push(newUserId);
@@ -83,6 +90,8 @@ module.exports = {
         ]
       }
     };
+    for (var i in data)
+      newUser[i] = data[i];
     users.add(newUser, function (err, createdUser) {
       cb(err, createdUser);
     });
@@ -134,14 +143,24 @@ module.exports = {
       if (err) {
         return cb(err);
       }
-      request.put('/dashboards/' + createdDashboard.id)
-        .send(_this.getDashboardUpdate())
-        .end(function (err, res) {
-          if (err) {
-            return cb(err);
-          }
-          cb(null, res.body);
+      var userData = {
+        dashboards: [createdDashboard.id]
+      };
+      _this.createUser(userData, function(err, user) {
+        if (err) { return done(err); }
+        tokens.create(user.id, function (err, token) {
+          if (err) { return done(err); }
+          request.put('/dashboards/' + createdDashboard.id)
+            .set('Authorization', 'Bearer ' + token)
+            .send(_this.getDashboardUpdate())
+            .end(function (err, res) {
+              if (err) {
+                return cb(err);
+              }
+              cb(null, res.body);
+            });
         });
+      });
     });
   },
   postDashboardConnection : function (userId, code, cb) {

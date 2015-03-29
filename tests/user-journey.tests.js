@@ -40,6 +40,7 @@ describe('User Journey', function () {
                     dashboard.name = 'Test dashboard for user journey';
                     // edit a dashboard
                     request.put('/dashboards/' + dashboard.id)
+                      .set('Authorization', 'Bearer ' + token)
                       .send(dashboard)
                       .expect(200)
                       .expect(dashboard)

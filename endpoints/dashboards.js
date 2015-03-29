@@ -1,6 +1,8 @@
 'use strict';
 var express = require('express');
 var randToken = require('rand-token');
+var errorGenerator = require('../lib/errorGenerator');
+var requireAuthorization = require('../lib/authorizationMiddleware');
 var dashboards = require('../lib/dashboards');
 var uuid = require('node-uuid');
 var config = require('../config');
@@ -64,13 +66,17 @@ router.get('/dashboards/:id?', function(req, res, next) {
   });
 });
 
-router.put('/dashboards/:id?', function(req, res, next) {
+router.put('/dashboards/:id?', requireAuthorization, function(req, res, next) {
   var allowedProperties = ['id', 'code', 'interval', 'name', 'urls'];
   var id = req.params.id;
   if (!id) {
     var notFoundError = new Error('Dashboard ID missing from url');
     notFoundError.status = 404;
     return next(notFoundError);
+  }
+  if (!req.user.dashboards || 
+      req.user.dashboards.indexOf(id) === -1) {
+    return next(errorGenerator.forbidden('You can\'t update this resource'));
   }
   for (var parameter in req.body) {
     if (req.body.hasOwnProperty(parameter)) {

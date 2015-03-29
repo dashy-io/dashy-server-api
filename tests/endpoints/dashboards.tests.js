@@ -4,6 +4,7 @@ var chai = require('chai');
 var chaiString = require('chai-string');
 var app = require('../../app');
 var uuid = require('node-uuid');
+var tokens = require('../../lib/tokens');
 var testHelpers = require('./../test-helpers');
 var assert = chai.assert;
 request = request(app);
@@ -93,6 +94,69 @@ describe('GET ~/dashboards/:dashboard-id', function () {
 });
 
 describe('PUT ~/dashboards/:dashboard-id', function () {
+  it('returns 401 Unauthorized if Authorization header not provided', function (done) {
+    request.put('/dashboards/' + uuid.v4())
+      .send({})
+      .expect(401)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect({ message : 'Unauthorized: Missing or invalid Authorization header' })
+      .end(done);
+  });
+  it('returns 401 Unauthorized if token not provided', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      request.put('/dashboards/' + uuid.v4())
+        .set('Authorization', 'Bearer')
+        .send({})
+        .expect(401)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Unauthorized: Missing or invalid Authorization header' })
+        .end(done);
+    });
+  });
+  it('returns 401 Unauthorized if token invalid', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      request.put('/dashboards/' + uuid.v4())
+        .set('Authorization', 'Bearer 123abc')
+        .send({})
+        .expect(401)
+        .expect('Content-Type', 'application/json; charset=utf-8')
+        .expect({ message : 'Unauthorized: Invalid token' })
+        .end(done);
+    });
+  });
+  it('returns 403 Forbidden if the authenticated user\'s dashboard is undefined', function (done) {
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.put('/dashboards/' + uuid.v4())
+          .set('Authorization', 'Bearer ' + token)
+          .expect(403)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect({ message : 'Forbidden: You can\'t update this resource' })
+          .end(done);
+      });
+    });
+  });
+  it('returns 403 Forbidden if the authenticated user is not the dashboard owner', function (done) {
+    var userData = {
+      dashboards: ['nope']
+    };
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.put('/dashboards/' + uuid.v4())
+          .set('Authorization', 'Bearer ' + token)
+          .expect(403)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect({ message : 'Forbidden: You can\'t update this resource' })
+          .end(done);
+      });
+    });
+  });
   it('updates a valid dashboard', function (done) {
     testHelpers.postEmptyDashboard(function(err, createdDashboard) {
       if (err) { return done(err); }
@@ -100,46 +164,87 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
       updatedDashboard.name += 'Test Dashboard - EDITED';
       var expectedDashboard = JSON.parse(JSON.stringify(updatedDashboard));
       expectedDashboard.id = createdDashboard.id;
-      request.put('/dashboards/' + createdDashboard.id)
-        .send(updatedDashboard)
-        .expect(200)
-        .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect(expectedDashboard)
-        .end(done);
+      var userData = {
+        dashboards: [createdDashboard.id]
+      };
+      testHelpers.createUser(userData, function(err, user) {
+        if (err) { return done(err); }
+        tokens.create(user.id, function (err, token) {
+          if (err) { return done(err); }
+          request.put('/dashboards/' + createdDashboard.id)
+            .set('Authorization', 'Bearer ' + token)
+            .send(updatedDashboard)
+            .expect(200)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(expectedDashboard)
+            .end(done);
+        });
+      });
     });
   });
   // TODO: Try get after update
   it('returns 404 Not Found for non-existing dashboards', function (done) {
-    request.put('/dashboards/' + testHelpers.newDashboardId())
-      .send(testHelpers.getDashboardUpdate())
-      .expect(404)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Dashboard not found' })
-      .end(done);
+    var dashboardId = testHelpers.newDashboardId();
+    var userData = {
+      dashboards: [dashboardId]
+    };
+    testHelpers.createUser(userData, function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.put('/dashboards/' + dashboardId)
+          .set('Authorization', 'Bearer ' + token)
+          .send(testHelpers.getDashboardUpdate())
+          .expect(404)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect({ message : 'Dashboard not found' })
+          .end(done);
+      });
+    });
   });
   it('returns 409 Conflict if dashboard ID in body does not match :dashboard-id parameter', function (done) {
     testHelpers.postEmptyDashboard(function (err, dashboard) {
       if(err) { return done(err); }
       var dashboardUpdateWithId = testHelpers.getDashboardUpdate();
       dashboardUpdateWithId.id = testHelpers.newDashboardId();
-      request.put('/dashboards/' + dashboard.id)
-        .send(dashboardUpdateWithId)
-        .expect(409)
-        .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect({ message : 'Dashboard ID in request body does not match ID in url' })
-        .end(done);
+      var userData = {
+        dashboards: [dashboard.id]
+      };
+      testHelpers.createUser(userData, function(err, user) {
+        if (err) { return done(err); }
+        tokens.create(user.id, function (err, token) {
+          if (err) { return done(err); }
+          request.put('/dashboards/' + dashboard.id)
+            .set('Authorization', 'Bearer ' + token)
+            .send(dashboardUpdateWithId)
+            .expect(409)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect({ message : 'Dashboard ID in request body does not match ID in url' })
+            .end(done);
+        });
+      });
     });
   });
   it('returns 400 Bad Request if unexpected properties in body', function (done) {
     testHelpers.postAndPutDashboard(function (err, dashboard) {
       if (err) { return done(err); }
       dashboard.other = 'other field';
-      request.put('/dashboards/' + dashboard.id)
-        .send(dashboard)
-        .expect(400)
-        .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect({ message: 'Parameter "other" not allowed in body' })
-        .end(done);
+      var userData = {
+        dashboards: [dashboard.id]
+      };
+      testHelpers.createUser(userData, function(err, user) {
+        if (err) { return done(err); }
+        tokens.create(user.id, function (err, token) {
+          if (err) { return done(err); }
+          request.put('/dashboards/' + dashboard.id)
+            .set('Authorization', 'Bearer ' + token)
+            .send(dashboard)
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect({ message: 'Parameter "other" not allowed in body' })
+            .end(done);
+        });
+      });
     });
   });
   it('returns 409 Conflict if trying to modify code property', function (done) {
@@ -147,21 +252,38 @@ describe('PUT ~/dashboards/:dashboard-id', function () {
       if (err) { return done(err); }
       var dashboardUpdateWithCode = testHelpers.getDashboardUpdate();
       dashboardUpdateWithCode.code = '12345678';
-      request.put('/dashboards/' + dashboard.id)
-        .send(dashboardUpdateWithCode)
-        .expect(409)
-        .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect({ message: 'Property "code" cannot be changed' })
-        .end(done);
+      var userData = {
+        dashboards: [dashboard.id]
+      };
+      testHelpers.createUser(userData, function(err, user) {
+        if (err) { return done(err); }
+        tokens.create(user.id, function (err, token) {
+          if (err) { return done(err); }
+          request.put('/dashboards/' + dashboard.id)
+            .set('Authorization', 'Bearer ' + token)
+            .send(dashboardUpdateWithCode)
+            .expect(409)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect({ message: 'Property "code" cannot be changed' })
+            .end(done);
+        });
+      });
     });
   });
   it('returns 404 Not Found if ID missing from url', function (done) {
-    request.put('/dashboards')
-      .send({})
-      .expect(404)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect({ message : 'Dashboard ID missing from url'})
-      .end(done);
+    testHelpers.createUser(function(err, user) {
+      if (err) { return done(err); }
+      tokens.create(user.id, function (err, token) {
+        if (err) { return done(err); }
+        request.put('/dashboards')
+          .set('Authorization', 'Bearer ' + token)
+          .send({})
+          .expect(404)
+          .expect('Content-Type', 'application/json; charset=utf-8')
+          .expect({ message : 'Dashboard ID missing from url'})
+          .end(done);
+      });
+    });
   });
 });
 
