@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "DEBUG=app,app:* nodemon --harmony ./bin/www",
     "start": "DEBUG=app,app:* node --harmony ./bin/www",
-    "test": "DEBUG=app,app:* mocha --harmony --reporter spec --timeout 10000 \"tests/**/*.tests.js\"",
+    "test": "DEBUG=app,app:* npm prune && npm shrinkwrap && mocha --harmony --reporter spec --timeout 10000 \"tests/**/*.tests.js\"",
     "test-w": "NODE_ENV=test nodemon -x 'npm test'"
   },
   "repository": {
